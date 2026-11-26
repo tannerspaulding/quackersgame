@@ -60,3 +60,21 @@
 .king svg{width:80px;height:78px;flex:none}
 .king p{margin:0;font-size:.92rem;line-height:1.3}
 .king b{font-family:var(--display)}
+/* Platypus Jump */
+.plat{width:20%;z-index:3;pointer-events:none;transform:translate(-50%,-92%)}
+.plat.up svg{transform:rotate(-12deg)}
+.plat.ow{animation:ow .6s steps(2) infinite}
+@keyframes ow{50%{opacity:.35}}
+.crab{width:11%;z-index:2;pointer-events:none;transform:translate(-50%,-88%)}
+.crab svg{animation:scuttle .22s ease-in-out infinite alternate}
+@keyframes scuttle{to{transform:translateY(-6%) rotate(4deg)}}
+.crab.bonked svg{animation:none;transform:rotate(-20deg)}
+.tapzone{left:50%!important;top:50%!important;width:100%;height:100%;z-index:1;cursor:pointer}
+.tapzone svg{display:none}
+.hearts{color:#e8423a;letter-spacing:.05em}.hearts s{color:#173A5E;opacity:.25;text-decoration:none}
+@media (prefers-reduced-motion:reduce){.crab svg,.plat.ow{animation:none}}
+/* Mr. Platypus's victory dance: hop, wiggle, hop, spin. Mitchell's idea. */
+.dance{animation:vdance 1.8s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 100%}
+@keyframes vdance{0%,100%{transform:none}12%{transform:translateY(-14%) rotate(-12deg)}24%{transform:rotate(10deg)}36%{transform:translateY(-14%) rotate(-12deg)}48%{transform:rotate(10deg)}62%{transform:translateY(-18%) scaleX(-1)}76%{transform:translateY(-18%) scaleX(1)}88%{transform:scale(1.06,.92)}}
+@media (prefers-reduced-motion:reduce){.dance{animation:none}}
+.prizeart{overflow:visible}

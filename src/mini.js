@@ -61,7 +61,7 @@ function buy(id){ const i=SHOP.find(x=>x.id===id); if(!i) return;
 }
 function openSpecial(){
   const cards=MINI.map(m=>{ const got=starWon(m);
-    return `<div class="card${got?"":" miss"}"><svg viewBox="-42 -46 86 76" aria-hidden="true">${got?m.a():`<g opacity=".35">${m.a()}</g>`}</svg><span class="tier t-Legendary">Mini game</span>${got?`<b>${m.star}</b>`:`<small>Beat level ${LV} of ${m.n}</small>`}</div>`; })
+    return `<div class="card${got?"":" miss"}"><svg viewBox="-42 -46 86 76" aria-hidden="true">${got?(m.win?`<g class="${m.win}">${m.a()}</g>`:m.a()):`<g opacity=".35">${m.a()}</g>`}</svg><span class="tier t-Legendary">Mini game</span>${got?`<b>${m.star}</b>`:`<small>Beat level ${LV} of ${m.n}</small>`}</div>`; })
    .concat(SHOP.filter(i=>i.kind==="duck").map(i=>{ const got=own(i.id);
     return `<div class="card${got?"":" miss"}"><svg viewBox="-44 -52 88 82" aria-hidden="true">${got?shopArt(i):`<g opacity=".35">${i.art?i.art():toyDuck(GHOST)}</g>`}</svg><span class="tier t-Rare">Shop</span>${got?`<b>${i.name}</b>`:`<small>${i.boss?"1,000 Pond Points":"In the shop"}</small>`}</div>`; })).join("");
   const n=MINI.filter(starWon).length+SHOP.filter(i=>i.kind==="duck"&&own(i.id)).length, t=MINI.length+Object.keys(SHOPDUCK).length;
@@ -158,11 +158,52 @@ const MINI=[
       else { s.mode="watch"; s.t=(1.3+Math.random()*2.2)*(1+(L-1)*.035); } }
     if(ch) drawSpot(s); } },
  stars(){ return starsFor(R.score,sandGoal(R.L)); },
- result(s){ return `Mr. Seagull snatched ${R.score} sandwich${R.score===1?"":"es"}.${s<3?` Get ${sandGoal(R.L)} for 3 stars.`:""}`; }}
+ result(s){ return `Mr. Seagull snatched ${R.score} sandwich${R.score===1?"":"es"}.${s<3?` Get ${sandGoal(R.L)} for 3 stars.`:""}`; }},
+/* Platypus Jump: Mitchell's idea. Crabs scuttle at Mr. Platypus on the beach. Tap anywhere to jump over them.
+   They get faster, more of them come, and sometimes they run in a line. */
+{id:"jump",n:"Platypus Jump",star:"Mr. Platypus",d:"Tap to jump over the crabs running at you on the beach.",a:()=>toyPlatypus(),
+ how:"Crabs are running at Mr. Platypus! Tap anywhere to jump over them. They get faster, more of them show up, and sometimes they come in a line. Three bonks and the round ends.",
+ goal:L=>`Jump over ${jumpGoal(L)} crabs`,
+ art(){ return `${sky("#8fd0ff","#e6f7ff")}${sun(276,40)}${cloud(80,44,.8)}${cloud(170,70,.6)}
+  <path d="M-10 150 H410 V196 H-10 Z" fill="${LG("#4fb3ff","#2387d9")}" ${O}/><path d="M0 162 Q20 156 40 162 T80 162 T120 162 T160 162 T200 162 T240 162 T280 162 T320 162 T360 162 T400 162" fill="none" stroke="#fff" stroke-width="3" opacity=".6"/>
+  <path d="M-10 190 Q200 180 410 190 V310 H-10 Z" fill="${LG("#ffe6a8","#f3cf7e")}" ${O}/>
+  <g ${N} transform="translate(362 196)"><path d="M0 0 Q-6 -60 6 -110" fill="none" stroke="#a0703f" stroke-width="10" stroke-linecap="round"/>${[[-50,-96],[-40,-126],[30,-128],[46,-100],[0,-140]].map(([x,y])=>`<path d="M6 -110 Q${(6+x)/2} ${y-14} ${x} ${y}" fill="none" stroke="#3fb46a" stroke-width="9" stroke-linecap="round"/>`).join("")}<circle cx="0" cy="-104" r="5" fill="#8a5a33"/><circle cx="12" cy="-104" r="5" fill="#8a5a33"/></g>
+  <g ${N}>${[[40,270],[150,286],[250,268],[330,288]].map(([x,y])=>`<path d="M${x-6} ${y} q6 -8 12 0 Z" fill="#fff4e2" stroke="${INK}" stroke-opacity=".3" stroke-width="1.2"/>`).join("")}
+  <g transform="translate(250 214) scale(.75)"><path d="M-14 0 V-30" stroke="${INK}" stroke-width="2.4"/><path d="M-40 -26 Q-14 -50 12 -26 Z" fill="${G("#ff6f91")}" ${O}/></g></g>`; },
+ setup(L){ Object.assign(R,{left:30,spawn:1.2,crabs:[],jt:-1,py:0,lives:3,ow:0});
+  R.plat=document.createElement("div"); R.plat.className="mob plat"; R.plat.innerHTML=sv("-46 -30 92 56",toyPlatypus()); field.appendChild(R.plat); place2(R.plat,JP.x,JP.g);
+  mob("tapzone","0 0 4 3","","Jump",()=>jumpUp()); flush(); },
+ hud(){ hud(`<svg width="22" height="18" viewBox="-26 -22 52 40" aria-hidden="true">${toyCrab()}</svg>${R.score}`,`<span class="hearts" aria-label="${R.lives} bonks left">${"♥".repeat(R.lives)}<s>${"♥".repeat(3-R.lives)}</s></span> Goal ${jumpGoal(R.L)}`); },
+ tick(dt){ const L=R.L, el=30-R.left, v=jumpSpeed(L,el);
+  if(R.jt>=0){ R.jt+=dt; const t=R.jt/JP.dur; if(t>=1){ R.jt=-1; R.py=0; R.plat.classList.remove("up"); } else R.py=JP.h*4*t*(1-t); }
+  if(R.ow>0){ R.ow-=dt; if(R.ow<=0) R.plat.classList.remove("ow"); }
+  place2(R.plat,JP.x,JP.g-R.py);
+  R.spawn-=dt; if(R.spawn<=0) R.spawn=this.spawn(v);
+  for(const c of R.crabs){ if(c.gone) continue; c.x-=v*dt; place2(c.b,c.x,JP.g);
+    if(!c.hit&&!c.past&&Math.abs(c.x-JP.x)<JP.hit&&R.py<JP.clear){ c.hit=true; R.lives--; R.ow=.6; R.plat.classList.add("ow"); c.b.classList.add("bonked"); blip("door"); floatText(JP.x,JP.g-26,"Bonk!"); if(R.lives<=0){ R.over=true; } }
+    if(!c.past&&c.x<JP.x-JP.hit){ c.past=true; if(!c.hit){ R.score++; pop(); } }
+    if(c.x<-12){ c.gone=true; c.b.remove(); } }
+  R.crabs=R.crabs.filter(c=>!c.gone); },
+ /* Adds one crab, a tight pair you clear in one jump, or a line you hop one by one. Returns the wait before the next group. */
+ spawn(v){ const L=R.L, r=Math.random(), gaps=[];
+  if(L>=3&&r<.08+L*.035){ const n=2+(L>=6&&Math.random()<.5?1:0)+(L>=9&&Math.random()<.4?1:0); for(let i=1;i<n;i++) gaps.push(v*(JP.dur+.22)); }
+  else if(L>=4&&r<.2+L*.04) gaps.push(v*.09);
+  let x=110; const add=x=>{ const c={x,hit:false,past:false}; c.b=document.createElement("div"); c.b.className="mob crab"; c.b.innerHTML=sv("-32 -28 64 52",toyCrab()); field.appendChild(c.b); place2(c.b,x,JP.g); R.crabs.push(c); };
+  add(x); for(const g of gaps){ x+=g; add(x); } flush();
+  const span=(x-110)/v; return span+Math.max(JP.dur+.3,(1.75-(L-1)*.09)*(0.85+Math.random()*.5)); },
+ stars(){ return starsFor(R.score,jumpGoal(R.L)); },
+ result(s){ return `${R.lives<=0?"Three bonks! ":""}Mr. Platypus jumped over ${R.score} crab${R.score===1?"":"s"}.${s<3?` Jump ${jumpGoal(R.L)} for 3 stars.`:""}`; },
+ win:"dance",reward:"Watch his little victory dance!"}
 ];
 const MG_BY=Object.fromEntries(MINI.map(m=>[m.id,m]));
 const scrapGoal=L=>14+Math.round(L*1.2);
 const sandGoal=L=>12+Math.round(L*.9);
+/* Platypus Jump tuning, in percent of the field. */
+const JP={x:20,g:86,h:34,dur:.8,hit:5.5,clear:8};
+const jumpSpeed=(L,el)=>34+(L-1)*3.4+el*.3;
+const jumpGoal=L=>JUMPGOAL[L-1]||20;
+const JUMPGOAL=[11,12,13,14,15,16,17,18,19,20];
+function jumpUp(){ if(!R.run||R.g.id!=="jump"||R.jt>=0) return; R.jt=0; R.plat.classList.add("up"); tone(420,880,.14,"sine",.12); }
 
 const SCRAP=[{n:"Gear",art:()=>gearIcon(1.05)},
  {n:"Bolt",art:()=>`<g transform="rotate(30)"><rect x="-3.5" y="-4" width="7" height="18" rx="2" fill="${G("#b7c3d4")}" ${O2}/><path d="M-3.5 1 H3.5 M-3.5 6 H3.5 M-3.5 11 H3.5" stroke="${INK}" stroke-opacity=".4" stroke-width="1.4"/><path d="M-9 -12 L-4.5 -16 H4.5 L9 -12 L4.5 -6 H-4.5 Z" fill="${G("#9aa8ba")}" ${O2}/></g>`},
@@ -254,7 +295,7 @@ function endMini(){ const g=R.g, L=R.L, st=mgOf(g.id); stopMini();
   S.pts+=pts; save(); if(s) fanfare(); else blip("door");
   const c=$("eCover"), next=s>0&&L<LV;
   c.innerHTML=`<div><div class="big">${wonNow?`You won ${g.star}!`:s?`Level ${L} done!`:"So close!"}</div>
-   ${wonNow?`<svg class="prizeart" viewBox="-44 -46 88 76" aria-hidden="true"><g class="bob">${g.a()}</g></svg>`:""}
+   ${wonNow?`<svg class="prizeart" viewBox="-44 -46 88 76" aria-hidden="true"><g class="${g.win||"bob"}">${g.a()}</g></svg>`:""}
    <div class="stars">${starRow(s)}</div>
    <p>${g.result(s)}${wonNow?` ${g.star} joins your special ducks.${g.reward?" "+g.reward:""}`:""}</p>
    ${pts?`<span class="ppill big">${PP}+${pts}</span>`:""}
