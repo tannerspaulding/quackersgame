@@ -75,3 +75,7 @@
 .mitch.talking .mouth{animation:talk .18s ease-in-out infinite alternate}
 @keyframes talk{from{transform:scaleY(.55)}to{transform:scaleY(1.15)}}
 .event svg.mitch{width:54px;height:64px}
+/* On the home screen the page scrolls, so the sheet and its dimmer stay fixed on screen instead of sitting at the bottom of the long page. */
+.app:not(.playing) .scrim{position:fixed}
+.app:not(.playing) .sheet{position:fixed;left:0;right:0;margin:0 auto;width:min(520px,100%);max-height:85vh;max-height:85dvh}
+.soundoff{font-family:var(--note);font-size:.95rem;color:var(--dim)}
