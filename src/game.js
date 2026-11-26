@@ -60,7 +60,7 @@ function HELP(wid,x,y,s){ const w=WORLDS_REF(wid), hd=helperDuck(w);
 
 /* ---------- Holiday ducks ---------- */
 const HOL=[{id:"turkey",name:"Turkey Duck",holiday:"Thanksgiving",m:10,month:"November",world:"yard",area:"garden",tier:"Holiday",
-  hint:"Gobble gobble",task:"Find 6 acorns in The Backyard, then search for the duck.",tokens:{a1:"yard",a2:"yard",a3:"garden",a4:"pond",a5:"treetop",a6:"house"},art:()=>toyTurkey()}];
+  hint:"Gobble gobble",task:"Find 6 acorns in The Backyard, then search for the duck.",say:"Hey, it's Thanksgiving! Collect 6 acorns from The Backyard to get the Turkey Duck to spawn. Good luck trying to find him!",tokens:{a1:"yard",a2:"yard",a3:"garden",a4:"pond",a5:"treetop",a6:"house"},art:()=>toyTurkey()}];
 const holOn=h=>!!h&&h.m===NOW_MONTH;
 const holLive=h=>holOn(h)&&!S.found.has(h.id);
 const holHere=()=>HOL.find(h=>h.world===S.world);
@@ -107,7 +107,7 @@ function burst(host,x,y){
 const SND_ON=`<svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M3 8 H7 L12 4 V18 L7 14 H3 Z" fill="#fff" stroke="#173A5E" stroke-width="2.2" stroke-linejoin="round"/><path d="M15 8 Q17 11 15 14 M17 6 Q21 11 17 16" fill="none" stroke="#173A5E" stroke-width="2.2" stroke-linecap="round"/></svg>`;
 const SND_OFF=`<svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M3 8 H7 L12 4 V18 L7 14 H3 Z" fill="#fff" stroke="#173A5E" stroke-width="2.2" stroke-linejoin="round"/><path d="M15 8 L20 14 M20 8 L15 14" stroke="#173A5E" stroke-width="2.2" stroke-linecap="round"/></svg>`;
 function renderSound(){ const b=$("sndBtn"); b.innerHTML=S.sound?SND_ON:SND_OFF; b.setAttribute("aria-label",S.sound?"Sound on":"Sound off"); b.setAttribute("aria-pressed",S.sound?"true":"false"); }
-function toggleSound(){ S.sound=!S.sound; save(); renderSound(); if(S.sound) blip(); }
+function toggleSound(){ S.sound=!S.sound; save(); renderSound(); if(S.sound) blip(); else hush(); }
 $("sndBtn").addEventListener("click",toggleSound);
 
 /* ---------- Screens ---------- */
@@ -128,14 +128,14 @@ function goHome(){
   const hol=HOL.find(h=>holOn(h));
   const got=WORLDS.reduce((n,w)=>n+wFound(w),0);
   let ev;
-  if(hol&&!S.found.has(hol.id)) ev=`<b>A ${hol.holiday} visitor is here!</b><small>${hol.name}: ${tokGot(hol)<tokAll(hol)?`find ${tokAll(hol)} acorns in The Backyard (${tokGot(hol)} of ${tokAll(hol)}), then search for the duck.`:"all acorns found! Search The Backyard for the duck."}</small>`;
+  if(hol&&!S.found.has(hol.id)) ev=`<b>Mitchell has a ${hol.holiday} quest!</b><small>${hol.name}: ${tokGot(hol)<tokAll(hol)?`find ${tokAll(hol)} acorns in The Backyard (${tokGot(hol)} of ${tokAll(hol)}), then search for the duck.`:"all acorns found! Search The Backyard for the duck."}</small>`;
   else if(hol) ev=`<b>You found the ${hol.name}!</b><small>It's in your Backyard Duck Log. More holiday ducks are on the way.</small>`;
   else ev=`<b>Holiday ducks</b><small>Special ducks visit on holidays. Look out for them!</small>`;
   const heroH=HOL[0];
   $("scrHome").innerHTML=`
    <div class="logo" role="img" aria-label="Quackers"><svg class="qmark" viewBox="16 20 190 168" aria-hidden="true">${QMARK}</svg><b aria-hidden="true">uackers</b></div>
    <p class="total">${got} of ${allDucks()} ducks found</p>
-   <button type="button" class="event" id="evt"><svg viewBox="-46 -48 92 76" aria-hidden="true"><g class="bob">${(hol||heroH).art()}</g></svg><span>${ev}</span></button>
+   <button type="button" class="event" id="evt">${hol&&!S.found.has(hol.id)?`<svg viewBox="-44 -100 92 164" aria-hidden="true" class="mitch"><g class="bob">${toyMitchell(true)}</g></svg>`:`<svg viewBox="-46 -48 92 76" aria-hidden="true"><g class="bob">${(hol||heroH).art()}</g></svg>`}<span>${ev}</span></button>
    <div class="worlds">${WORLDS.map(w=>{ const f=wFound(w), t=wTotal(w), open=w.n<=S.unlocked, prev=WORLDS[w.n-2];
      return `<button type="button" class="wcard${open?"":" locked"}" data-world="${w.id}" aria-label="${w.name}${open?`, ${f} of ${t} found`:", locked"}">
       <span class="thumb">${sv("0 0 400 300",thumbOf(w),'style="pointer-events:none"')}${open?(f===t?`<span class="tag complete">Complete</span>`:""):`<span class="tag lock">${lockSvg}Locked</span>`}</span>
@@ -148,7 +148,7 @@ function goHome(){
    <button type="button" class="bigbtn special" id="hSpecial"><svg viewBox="-40 -52 84 82" aria-hidden="true">${youDuck()}</svg>Special ducks<small class="soonlbl">${MINI.filter(starWon).length+SHOP.filter(i=>i.kind==="duck"&&own(i.id)).length} of ${MINI.length+Object.keys(SHOPDUCK).length}</small></button></div>
    <div class="homefoot"><button type="button" class="linkbtn" id="hReset">Start over</button></div>`;
   flush();
-  $("evt").addEventListener("click",openHoliday);
+  $("evt").addEventListener("click",()=>{ if(hol&&!S.found.has(hol.id)) openHolidayQuest(hol); else openHoliday(); });
   $("hShop").addEventListener("click",()=>openShop());
   $("hSpecial").addEventListener("click",openSpecial);
   $("hGames").addEventListener("click",openGames);
@@ -190,24 +190,57 @@ function miniMap(){
 /* ---------- Side quests ---------- */
 /* A world's side quests: its helper (every duck you find gives you a token to bring to it) and this month's holiday duck task. */
 function quests(w){ const out=[], hd=helperDuck(w);
-  if(w.helper&&hd&&!S.found.has(hd.id)){ const h=w.helper, got=tokensFor(w), need=regDucks(w).length;
-    out.push({kind:"helper",title:`Help the ${h.name}`,art:h.art(false),icon:`<g transform="scale(.62)">${ICONS[h.icon](1)}</g>`,got,need,plural:h.plural,ready:got>=need,
-      how:`Every duck you find gives you a ${h.token}. Bring all ${need} ${h.plural} to the ${h.name} in the ${w.areas[hd.area].name} and tap it. Then the ${h.name} joins your Duck Log as the last duck!`,
-      now:got>=need?`You have all ${need}! Go to the ${w.areas[hd.area].name} and tap the ${h.name}.`:`You have ${got} of ${need} ${h.plural}. Keep finding ducks!`}); }
   const hol=HOL.find(x=>x.world===w.id);
   if(holLive(hol)){ const got=tokGot(hol), need=tokAll(hol);
     out.push({kind:"holiday",title:`${hol.holiday}: find the ${hol.name}`,art:hol.art(),icon:`<g transform="translate(0 -1) scale(.72)">${acornIcon(1)}</g>`,got,need,plural:"acorns",ready:got>=need,
-      how:`For ${hol.holiday}, ${need} acorns are hidden around ${w.name}. Tap each one to pick it up. Once you have them all, the ${hol.name} comes out to play somewhere in this world.`,
-      now:got>=need?`You have all ${need} acorns! Now search for the ${hol.name}.`:`You have ${got} of ${need} acorns.`}); }
+      how:`For ${hol.holiday}, ${need} acorns are hidden around ${w.name}. Tap each one to pick it up. Once you have them all, the ${hol.name} comes out somewhere in this world.`,
+      now:got>=need?`You have all ${need} acorns! Now search for the ${hol.name}.`:`You have ${got} of ${need} acorns.`,
+      say:got>=need?`You found all ${need} acorns! The ${hol.name} is out there somewhere now. Good luck trying to find him!`:hol.say,clip:got>=need?`${hol.id}-ready`:hol.id}); }
+  if(w.helper&&hd&&!S.found.has(hd.id)){ const h=w.helper, got=tokensFor(w), need=regDucks(w).length, where=w.areas[hd.area].name;
+    out.push({kind:"helper",title:`Help the ${h.name}`,art:h.art(false),icon:`<g transform="scale(.62)">${ICONS[h.icon](1)}</g>`,got,need,plural:h.plural,ready:got>=need,
+      how:`Every duck you find gives you a ${h.token}. Bring all ${need} ${h.plural} to the ${h.name} in the ${where} and tap it. Then the ${h.name} joins your Duck Log as the last duck!`,
+      now:got>=need?`You have all ${need}! Go to the ${where} and tap the ${h.name}.`:`You have ${got} of ${need} ${h.plural}. Keep finding ducks!`,
+      clip:`${w.id}-helper${got>=need?"-ready":""}`,
+      say:got>=need?`You've got all ${need} ${h.plural}! Go give them to the ${h.name} in the ${where}.`:`Hey, it's me, Mitchell! The ${h.name} needs your help. Every duck you find gives you a ${h.token}. Bring all ${need} ${h.plural} to the ${h.name} in the ${where}!`}); }
   return out; }
+/* ---------- Mitchell, the quest-giver, and his voice ---------- */
+/* His lines are read out with the device's own built-in voice (free, no recordings). Sound off keeps him quiet. */
+const VOICE={ok:typeof window.speechSynthesis!=="undefined"&&typeof window.SpeechSynthesisUtterance!=="undefined",v:null,unlocked:false};
+function pickVoice(){ if(!VOICE.ok) return null; const vs=speechSynthesis.getVoices().filter(v=>/^en(-|_|$)/i.test(v.lang)); if(!vs.length) return null;
+  const pref=["Samantha","Google US English","Microsoft Aria","Microsoft Jenny","Microsoft Guy","Alex","Karen","Daniel"];
+  for(const n of pref){ const v=vs.find(v=>v.name.includes(n)); if(v) return v; }
+  return vs.find(v=>/en-US/i.test(v.lang))||vs[0]; }
+if(VOICE.ok){ VOICE.v=pickVoice(); try{ speechSynthesis.addEventListener("voiceschanged",()=>{VOICE.v=pickVoice();}); }catch(e){} }
+function talking(on){ document.querySelectorAll(".mitch").forEach(m=>m.classList.toggle("talking",on)); }
+function hush(){ if(clipAu){ try{ clipAu.pause(); }catch(e){} clipAu=null; } if(VOICE.ok){ try{ speechSynthesis.cancel(); }catch(e){} } talking(false); }
+/* Recorded clips of Mitchell's lines, by line id (a file in voice/). A line with no clip uses the built-in voice. */
+const CLIPS={};
+let clipAu=null;
+function say(text,id){ if(!S.sound) return false; hush();
+  if(id&&CLIPS[id]){ try{ const a=clipAu=new Audio(CLIPS[id]); a.onended=()=>talking(false); a.onerror=()=>{ if(clipAu===a){ clipAu=null; speak(text); } };
+      talking(true); const p=a.play(); if(p&&p.catch) p.catch(()=>{ if(clipAu===a){ clipAu=null; speak(text); } }); return true; }catch(e){} }
+  return speak(text); }
+function speak(text){ if(!VOICE.ok||!S.sound) return false;
+  try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text); if(VOICE.v) u.voice=VOICE.v; u.lang=(VOICE.v&&VOICE.v.lang)||"en-US"; u.pitch=1.4; u.rate=1.04;
+    u.onend=u.onerror=()=>talking(false); talking(true); speechSynthesis.speak(u); return true; }catch(e){ talking(false); return false; } }
+/* Phones only let a page talk after a tap, so the first tap anywhere wakes the voice up quietly. */
+document.addEventListener("pointerdown",()=>{ if(!VOICE.ok||VOICE.unlocked) return; VOICE.unlocked=true; try{ const u=new SpeechSynthesisUtterance(" "); u.volume=0; speechSynthesis.speak(u); }catch(e){} },{capture:true});
+const SPEAKER=`<svg width="18" height="18" viewBox="0 0 22 22" aria-hidden="true"><path d="M3 8 H7 L12 4 V18 L7 14 H3 Z" fill="#fff" stroke="#173A5E" stroke-width="2" stroke-linejoin="round"/><path d="M15 8 Q17 11 15 14 M17.5 5.5 Q21 11 17.5 16.5" fill="none" stroke="#173A5E" stroke-width="2" stroke-linecap="round"/></svg>`;
+function mitchBox(line){ return `<div class="mitchbox"><svg class="mitch" viewBox="-44 -100 92 164" aria-hidden="true"><g class="bob">${toyMitchell(true)}</g></svg>
+  <div class="bubble"><b>Mitchell</b><span>${line}</span>${VOICE.ok||Object.keys(CLIPS).length?`<button type="button" class="hear" id="mHear">${SPEAKER}Hear Mitchell</button>`:""}</div></div>`; }
+function wireMitch(line,id){ const b=$("mHear"); if(b) b.addEventListener("click",()=>{ if(!S.sound){ S.sound=true; save(); renderSound(); } say(line,id); }); setTimeout(()=>say(line,id),350); }
+function openHolidayQuest(hol){ const w=W.find?W.find(x=>x.id===hol.world):WORLDS.find(x=>x.id===hol.world); const q=quests(w)[0]; const line=q?q.say:hol.say, id=q?q.clip:hol.id;
+  openSheet(`${mitchBox(line)}<div class="menu" style="margin-top:12px"><button type="button" class="mbtn games" id="hqGo">Go to ${w.name}</button><button type="button" class="mbtn" id="hqAll">All holiday ducks</button></div>`,`${hol.holiday} quest`);
+  $("hqGo").addEventListener("click",()=>{ closeSheet(); enterWorld(hol.world); }); $("hqAll").addEventListener("click",openHoliday); wireMitch(line,id); }
 function openQuests(first){ const w=W[S.world], qs=quests(w);
   if(!qs.length){ openSheet(`<p class="note">No side quests left in ${w.name}. Nice work!</p>`,"Side quests"); return; }
-  openSheet(`${first?`<p class="note qintro">New side quest! These are extra jobs you can do while you hunt for ducks.</p>`:""}<div class="qlist">${qs.map(q=>`<div class="qcard${q.ready?" ready":""}">
+  const line=qs[0].say;
+  openSheet(`${mitchBox(line)}<div class="qlist">${qs.map(q=>`<div class="qcard${q.ready?" ready":""}">
     <svg class="qart" viewBox="-46 -60 92 92" aria-hidden="true">${q.art}</svg>
     <div class="qtxt"><b>${q.title}</b><small>${q.how}</small>
     <span class="qbar"><i style="width:${q.need?q.got/q.need*100:0}%"></i></span><span class="qnow">${q.now}</span></div></div>`).join("")}</div>
     <div class="menu" style="margin-top:12px"><button type="button" class="mbtn leave" id="qGo">${first?"Let's go!":"Back to the hunt"}</button></div>`,"Side quests");
-  $("qGo").addEventListener("click",closeSheet); }
+  $("qGo").addEventListener("click",closeSheet); wireMitch(line,qs[0].clip); }
 function questPulse(){ const q=$("questPill"); if(q.hidden) return; q.classList.remove("pop"); void q.offsetWidth; q.classList.add("pop"); }
 function questIntro(w){ const f=S.flags[w.id]=S.flags[w.id]||{}; if(f._quest||!quests(w).length) return;
   setTimeout(()=>{ if(S.screen!=="world"||S.world!==w.id||!$("sheet").hidden||!$("done").hidden) return; f._quest=true; save(); openQuests(true); },2900); }
@@ -388,7 +421,7 @@ function openSheet(html,label){ const s=$("sheet"); lastFocus=document.activeEle
   if(s.animate&&!reduce) s.animate([{transform:"translateY(100%)"},{transform:"none"}],{duration:300,easing:"cubic-bezier(.25,.8,.35,1)"});
   $("closeSheet").addEventListener("click",closeSheet); $("closeSheet").focus({preventScroll:true});
 }
-function closeSheet(){ if($("sheet").hidden) return; $("sheet").hidden=true; $("scrim").hidden=true; if(lastFocus&&lastFocus.focus&&lastFocus.isConnected) lastFocus.focus({preventScroll:true}); }
+function closeSheet(){ hush(); if($("sheet").hidden) return; $("sheet").hidden=true; $("scrim").hidden=true; if(lastFocus&&lastFocus.focus&&lastFocus.isConnected) lastFocus.focus({preventScroll:true}); }
 $("scrim").addEventListener("click",closeSheet);
 document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeSheet(); });
 
@@ -483,4 +516,4 @@ if(PREVIEW){ const pk=document.createElement("div"); pk.id="navPick"; pk.setAttr
   pk.innerHTML=`<b>Arrows</b>${["a","b","c"].map(n=>`<button type="button" data-nav="${n}">${n.toUpperCase()}</button>`).join("")}`;
   document.body.appendChild(pk); pk.addEventListener("click",e=>{ const b=e.target.closest("button"); if(b) setNav(b.dataset.nav); }); setNav(NAV);
   if(S.screen!=="world") enterWorld("yard"); }
-window.QUACKERS={WORLDS,HOL,DUCK,S,month:NOW_MONTH,enterWorld,show,goHome,doAct,setNav,R,MINI,SHOP,openMini,startMini,endMini,openShop,openSpecial,buy,openGames,hint};
+window.QUACKERS={CLIPS,say,hush,VOICE,openHolidayQuest,openQuests,quests,WORLDS,HOL,DUCK,S,month:NOW_MONTH,enterWorld,show,goHome,doAct,setNav,R,MINI,SHOP,openMini,startMini,endMini,openShop,openSpecial,buy,openGames,hint};

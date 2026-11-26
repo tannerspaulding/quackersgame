@@ -198,3 +198,30 @@ function scallop(c,c2){ const tops=[-30,-15,0,15,30];
    ${tops.map(x=>`<path d="M0 -2 L${x} ${-42}" stroke="${c2}" stroke-width="3.4" stroke-linecap="round"/>`).join("")}
    <path d="M-14 -6 L-24 -2 L-22 4 L-8 2 Z M14 -6 L24 -2 L22 4 L8 2 Z" fill="${G(c2)}" ${O2}/>
    <ellipse cx="-14" cy="-34" rx="6" ry="3" fill="#fff" opacity=".6" transform="rotate(-30 -14 -34)"/>`; }
+
+/* Mitchell, the game's designer, as a cartoon quest-giver. Drawn from scratch in the game's toy style: spiky brown hair, silver glasses, braces smile, green tee, black pants and a black watch. wave=true raises his hand. */
+function toyMitchell(wave=true,talk=false){ const skin=G("#f7d3bb"), tee=G("#2f9e5b"), hair=G("#5a3825");
+  const arm=(d)=>`<path d="${d}" fill="none" stroke="${INK}" stroke-opacity=".3" stroke-width="12.6" stroke-linecap="round" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="#f2c7ab" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>`;
+  return `<ellipse cx="0" cy="60" rx="30" ry="6" fill="#173A5E" opacity=".16"/>
+  <path d="M-15 18 L-16 52 H-3 L-1 26 L1 26 L3 52 H16 L15 18 Z" fill="${G("#2a2f3a")}" ${O}/>
+  <path d="M-19 52 Q-19 46 -10 46 H-2 Q0 52 -4 56 H-17 Q-20 56 -19 52 Z M19 52 Q19 46 10 46 H2 Q0 52 4 56 H17 Q20 56 19 52 Z" fill="${G("#3b4252")}" ${O2}/>
+  ${wave?arm("M-20 -12 Q-34 -22 -36 -44"):arm("M-20 -12 Q-30 4 -22 16")}
+  ${wave?`<g transform="translate(-37 -50) rotate(-12)"><ellipse rx="8" ry="9" fill="#f2c7ab" ${O2}/><path d="M-6 -6 V-13 M-2 -8 V-16 M2 -8 V-16 M6 -6 V-12" stroke="#f2c7ab" stroke-width="3.4" stroke-linecap="round"/><path d="M-6 -6 V-13 M-2 -8 V-16 M2 -8 V-16 M6 -6 V-12" fill="none" ${O2}/></g>`:`<circle cx="-22" cy="17" r="5.6" fill="#f2c7ab" ${O2}/>`}
+  ${arm("M20 -12 Q32 2 22 14")}<circle cx="21" cy="15" r="5.6" fill="#f2c7ab" ${O2}/>
+  <rect x="22" y="2" width="9" height="8" rx="2.4" fill="${G("#22262e")}" transform="rotate(30 26 6)"/>
+  <path d="M-22 -16 Q-22 -22 -12 -24 H12 Q22 -22 22 -16 L26 -6 L19 -2 L18 22 Q0 26 -18 22 L-19 -2 L-26 -6 Z" fill="${tee}" ${O}/>
+  <path d="M-8 -24 Q0 -18 8 -24" fill="none" stroke="#1e7a44" stroke-width="2.4" stroke-linecap="round"/>
+  <rect x="-5" y="-30" width="10" height="9" fill="#f2c7ab"/>
+  <ellipse cx="-24" cy="-50" rx="5" ry="6.5" fill="#f2c7ab" ${O2}/><ellipse cx="24" cy="-50" rx="5" ry="6.5" fill="#f2c7ab" ${O2}/>
+  <ellipse cx="0" cy="-50" rx="24" ry="25" fill="${skin}" ${O}/>
+  <path d="M-25 -46 Q-31 -76 -10 -78 L-12 -90 L0 -79 L4 -94 L10 -78 Q25 -80 27 -64 L31 -70 Q32 -55 25 -45 Q25 -57 19 -61 L15 -55 L10 -62 L4 -56 L-2 -63 L-8 -57 L-13 -63 Q-22 -58 -25 -46 Z" fill="${hair}" ${O}/>
+  <path d="M-6 -86 Q-2 -82 0 -79" fill="none" stroke="#7a5038" stroke-width="2" stroke-linecap="round"/>
+  <g fill="#ffffff" fill-opacity=".35" stroke="#a9b4c0" stroke-width="2.4"><rect x="-19" y="-55" width="15" height="11" rx="3.4"/><rect x="4" y="-55" width="15" height="11" rx="3.4"/></g>
+  <path d="M-4 -50 H4 M-19 -51 L-23 -52 M19 -51 L23 -52" stroke="#a9b4c0" stroke-width="2.2" stroke-linecap="round"/>
+  <ellipse cx="-11.5" cy="-49.5" rx="2.4" ry="3" fill="#2a2f3a"/><ellipse cx="11.5" cy="-49.5" rx="2.4" ry="3" fill="#2a2f3a"/><circle cx="-10.6" cy="-50.6" r=".9" fill="#fff"/><circle cx="12.4" cy="-50.6" r=".9" fill="#fff"/>
+  <ellipse cx="-15" cy="-38" rx="4" ry="2.4" fill="#ff8fb1" opacity=".55"/><ellipse cx="15" cy="-38" rx="4" ry="2.4" fill="#ff8fb1" opacity=".55"/>
+  <path d="M0 -44 Q2 -41 0 -40" fill="none" stroke="#c98f72" stroke-width="1.6" stroke-linecap="round"/>
+  <g class="${talk?"mouth talk":"mouth"}"><path d="M-10 -35 Q0 ${talk?-22:-26} 10 -35 Q0 -33 -10 -35 Z" fill="${G("#c0465a")}" ${O2}/>
+  <path d="M-8.4 -34.4 Q0 -32.2 8.4 -34.4 L8 -31.6 Q0 -29.4 -8 -31.6 Z" fill="#ffffff"/>
+  <path d="M-7.6 -33 H7.6" stroke="#9aa6b2" stroke-width="1.2"/>${[-6,-3,0,3,6].map(x=>`<rect x="${x-.9}" y="-33.9" width="1.8" height="1.8" fill="#8f9aa6"/>`).join("")}</g>`;
+}

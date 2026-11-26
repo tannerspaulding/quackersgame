@@ -60,3 +60,18 @@
 .qbar i{display:block;height:100%;background:#4cd2a0}
 .qnow{font-family:var(--display);font-weight:800;font-size:.9rem}
 @media (max-width:370px){.badge.quest .qlab{display:none}}
+
+/* Mitchell, the quest-giver */
+.mitchbox{display:flex;align-items:flex-end;gap:8px;max-width:460px;margin:0 auto 12px}
+.mitchbox .mitch{width:96px;height:172px;flex:none;margin-bottom:-6px}
+.bubble{position:relative;flex:1;background:#fff;border:3px solid var(--ink);border-radius:20px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;margin-bottom:40px;box-shadow:0 4px 0 var(--ink)}
+.bubble:before{content:"";position:absolute;left:-13px;bottom:18px;border:10px solid transparent;border-right:13px solid var(--ink);border-left:0}
+.bubble:after{content:"";position:absolute;left:-8px;bottom:20px;border:8px solid transparent;border-right:10px solid #fff;border-left:0}
+.bubble b{font-family:var(--display);font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#2f9e5b}
+.bubble span{font-family:var(--display);font-weight:800;font-size:1.02rem;line-height:1.25}
+.hear{align-self:flex-start;display:flex;align-items:center;gap:6px;border:2.5px solid var(--ink);border-radius:999px;background:#C9F2D6;padding:4px 12px 4px 8px;font-family:var(--display);font-weight:900;font-size:.85rem;color:var(--ink);box-shadow:0 3px 0 var(--ink)}
+.hear:active{transform:translateY(3px);box-shadow:none}
+.mitch .mouth{transform-box:fill-box;transform-origin:50% 0}
+.mitch.talking .mouth{animation:talk .18s ease-in-out infinite alternate}
+@keyframes talk{from{transform:scaleY(.55)}to{transform:scaleY(1.15)}}
+.event svg.mitch{width:54px;height:64px}
