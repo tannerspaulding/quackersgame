@@ -159,7 +159,7 @@ function enterWorld(id){
 }
 let introT;
 function intro(w){ const el=$("intro");
-  el.innerHTML=`<b>${w.name}</b><span>Swipe to look around and move</span><svg class="swipe" viewBox="0 0 64 28" aria-hidden="true"><path d="M6 14 H58 M14 6 L6 14 L14 22 M50 6 L58 14 L50 22" fill="none" stroke="#173A5E" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  el.innerHTML=`<b>${w.name}</b><span>Tap the arrows to move around</span><svg class="swipe" viewBox="0 0 26 26" aria-hidden="true"><path d="M10 5 L18 13 L10 21" fill="none" stroke="#173A5E" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
   el.classList.remove("off"); clearTimeout(introT); introT=setTimeout(()=>el.classList.add("off"),2600);
 }
 function sceneSVG(id){ const w=W[S.world]; const svg=`<svg viewBox="0 0 400 300" preserveAspectRatio="none" role="img" aria-label="${w.areas[id].name}">${w.areas[id].draw(S.F)}</svg>`; flush(); return svg; }
@@ -187,10 +187,10 @@ function renderEdges(peek){
   for(const dir of DIRS){
     const to=a.exits[dir]; if(!to) continue;
     const name=w.areas[to].name;
-    const b=document.createElement("button"); b.type="button"; b.className=`edge e-${dir}${peek?" peek":""}`;
+    const b=document.createElement("button"); b.type="button"; b.className=`edge e-${dir}`;
     b.dataset.go=to; b.setAttribute("aria-label",`Go to the ${name}`);
-    const ch=`<svg viewBox="0 0 26 26" aria-hidden="true"><path d="${CHEV[dir]}" fill="none" stroke="#173A5E" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-    b.innerHTML=dir==="right"?`<span>${name}</span>${ch}`:`${ch}<span>${name}</span>`;
+    const ch=`<svg viewBox="0 0 26 26" aria-hidden="true"><path d="${CHEV[dir]}" fill="none" stroke="#173A5E" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    b.innerHTML=`${ch}<span>${name}</span>`;
     stage.insertBefore(b,$("toast"));
   }
 }
@@ -240,6 +240,7 @@ function dirTo(to){ const a=W[S.world].areas[S.area]; if(a.doors&&a.doors[to]) r
   const p=a.pos, q=W[S.world].areas[to].pos, dx=q[0]-p[0], dy=q[1]-p[1]; return Math.abs(dx)>=Math.abs(dy)?(dx>0?"right":"left"):(dy>0?"down":"up"); }
 ["gesturestart","gesturechange"].forEach(t=>document.addEventListener(t,e=>{ if(S.screen!=="home") e.preventDefault(); },{passive:false}));
 document.addEventListener("touchmove",e=>{ if(S.screen!=="home"&&e.touches&&e.touches.length>1) e.preventDefault(); },{passive:false});
+/* Drag to look around a big area. Moving between areas is the arrows' job. */
 let drag=null, dragEnd=-1e9;
 stage.addEventListener("pointerdown",e=>{
   if(S.screen!=="world"||(e.button&&e.button>0)) return;
@@ -256,11 +257,7 @@ stage.addEventListener("pointermove",e=>{
 function endDrag(e){
   if(!drag||(e&&e.pointerId!==drag.id)) return; const d=drag; drag=null; if(!d.moved) return;
   dragEnd=performance.now();
-  const rx=d.cx+(e.clientX-d.sx), ry=d.cy+(e.clientY-d.sy);
-  const over={left:rx-CAM.maxX, right:CAM.minX-rx, up:ry-CAM.maxY, down:CAM.minY-ry};
-  const best=DIRS.filter(k=>over[k]>56).sort((a,b)=>over[b]-over[a])[0];
   CAM.x=clamp(CAM.x,CAM.minX,CAM.maxX); CAM.y=clamp(CAM.y,CAM.minY,CAM.maxY); paint(layer(),true);
-  if(best) go(best);
 }
 stage.addEventListener("pointerup",endDrag);
 stage.addEventListener("pointercancel",e=>{ if(drag&&e.pointerId===drag.id){ drag=null; CAM.x=clamp(CAM.x,CAM.minX,CAM.maxX); CAM.y=clamp(CAM.y,CAM.minY,CAM.maxY); paint(layer(),true);} });

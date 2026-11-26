@@ -1,5 +1,5 @@
 {id:"yard",n:1,name:"The Backyard",start:"yard",
- idea:"Mitchell's game: move between areas, tap things to open them, and fill the Duck Log. In this test you swipe to move, or tap the gate, the flower arch, the tree or a small edge label.",
+ idea:"Mitchell's game: move between areas, tap things to open them, and fill the Duck Log. Tap an arrow to move, or tap the gate, the flower arch or the tree.",
  ducks:[
   {id:"normal",name:"Normal Duck",tier:"Easy",area:"yard",c:YEL,hint:"Out in the open"},
   {id:"mail",name:"Mail Duck",tier:"Sneaky",area:"yard",c:{body:"#ffd9a0",wing:"#f2b866",beak:"#ff8a3d"},acc:"mail",hint:"Got a letter?"},
