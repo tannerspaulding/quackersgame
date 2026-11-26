@@ -119,7 +119,7 @@ function setScreen(name){
   $("homeBtn").disabled=name==="home";
   const play=name==="world"||name==="egg";
   $("app").classList.toggle("playing",play); document.documentElement.style.overflow=play?"hidden":"";
-  if(name!=="world"){ $("done").hidden=true; $("intro").classList.add("off"); }
+  $("done").hidden=true; if(name!=="world") $("intro").classList.add("off");
   if(name!=="egg") stopEgg();
 }
 const lockSvg=`<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="2" fill="#FFCB2F" stroke="#173A5E" stroke-width="1.8"/><path d="M5.5 7 V5 A2.5 2.5 0 0 1 10.5 5 V7" fill="none" stroke="#173A5E" stroke-width="1.8"/></svg>`;
@@ -386,7 +386,8 @@ function openMap(){
       cells.push(`<button type="button" class="mtile ${k===S.area?"here":""}" data-map="${k}">${w.areas[k].name}<small>${k===S.area?"You are here":left?`${left} duck${left>1?"s":""} left`:"All found"}</small></button>`); }
     else cells.push(`<div class="mtile mempty"></div>`);
   }
-  openSheet(`<div class="mapgrid" style="grid-template-columns:repeat(${cols},minmax(0,1fr))">${cells.join("")}</div>`,`${w.name} map`);
+  openSheet(`<p class="note maphead">You're in <b>World ${w.n}: ${w.name}</b>. These are the places in this world.</p><div class="mapgrid" style="grid-template-columns:repeat(${cols},minmax(0,1fr))">${cells.join("")}</div><div class="menu" style="margin-top:12px"><button type="button" class="mbtn leave" id="mapWorlds">See all worlds</button></div>`,`${w.name} map`);
+  $("mapWorlds").addEventListener("click",goHome);
   $("sheet").querySelectorAll("[data-map]").forEach(b=>b.addEventListener("click",()=>{ const k=b.dataset.map; if(k===S.area){closeSheet();return;} show(k,dirTo(k)); }));
 }
 function hint(){

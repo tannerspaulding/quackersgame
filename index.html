@@ -176,6 +176,7 @@ section{display:flex;flex-direction:column;gap:12px}
 .card small{font-family:var(--note);font-size:.95rem;color:var(--dim);line-height:1.1}
 .tier{font-family:var(--display);font-size:.56rem;text-transform:uppercase;letter-spacing:.1em;font-weight:900;border-radius:99px;padding:0 7px;border:2px solid var(--ink)}
 .t-Easy{background:#C9F2D6}.t-Sneaky{background:#E2D8FF}.t-Tricky{background:#FFD4E5}.t-Rare{background:#C7E6FF}.t-Final{background:var(--duck)}.t-Holiday{background:#FFD3A8}.t-Special{background:#FFF3C4}
+.maphead{text-align:center;max-width:380px;margin:0 auto 10px}.maphead b{color:var(--ink);font-family:var(--display)}
 .mapgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;max-width:380px;margin:0 auto}
 .mtile{border:3px solid var(--ink);border-radius:16px;min-height:68px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center;
   background:#C9F2D6;font-family:var(--display);font-weight:900;font-size:.84rem;box-shadow:0 3px 0 var(--ink);padding:4px;line-height:1.1}
@@ -581,6 +582,15 @@ toyDuck=soften(toyDuck); toyPenguin=soften(toyPenguin); toyOwl=soften(toyOwl); t
 toyChicken=soften(toyChicken); toyCrow=soften(toyCrow); toyGull=soften(toyGull); toyFox=soften(toyFox);
 
 
+/* A scallop shell: a ridged fan with a bumpy top edge and two little ears at the hinge. Drawn with its hinge at 0,0. */
+function scallop(c,c2){ const tops=[-30,-15,0,15,30];
+  const edge=tops.map((x,i)=>`${i?"":`M-34 -26 `}Q${x-7.5} ${-50+Math.abs(x)*.28} ${x} ${-44+Math.abs(x)*.3}`).join(" ");
+  const bumps=tops.map(x=>` Q${x+7.5} ${-50+Math.abs(x+15)*.28} ${x+15>34?34:x+15} ${x+15>34?-26:-44+Math.abs(x+15)*.3}`);
+  return `<path d="M-8 0 L-12 6 H12 L8 0 Z" fill="${G(c2)}" ${O2}/><path d="M-6 -2 L-34 -26 Q-40 -38 -30 -44 ${tops.slice(1).map(x=>`Q${x-7.5} ${-54+Math.abs(x-7.5)*.25} ${x} ${-44-(15-Math.abs(x))*0}`).join(" ")} Q40 -38 34 -26 L6 -2 Z" fill="${G(c)}" ${O}/>
+   ${tops.map(x=>`<path d="M0 -2 L${x} ${-42}" stroke="${c2}" stroke-width="3.4" stroke-linecap="round"/>`).join("")}
+   <path d="M-14 -6 L-24 -2 L-22 4 L-8 2 Z M14 -6 L24 -2 L22 4 L8 2 Z" fill="${G(c2)}" ${O2}/>
+   <ellipse cx="-14" cy="-34" rx="6" ry="3" fill="#fff" opacity=".6" transform="rotate(-30 -14 -34)"/>`; }
+
 /* ---------- More things ducks wear (for Spooky Manor and Under the Sea) ---------- */
 Object.assign(ACC,{
   antenna:()=>`<path d="M12 -32 V-44" stroke="${INK}" stroke-width="2.6"/><circle cx="12" cy="-46" r="4.6" fill="${G("#ff5c5c")}" ${O2}/><rect x="6" y="-24" width="16" height="6" rx="3" fill="#9fe7ff" stroke="${INK}" stroke-width="1.6"/>`,
@@ -880,8 +890,8 @@ const WORLDS=[{id:"yard",n:1,name:"The Backyard",start:"yard",
   ${bushBall(110,236,20,"#ff6f91")}${bushBall(270,240,16,"#ffb35c")}</g>
   ${place("coral",196,206,.6)}
   ${fish(120,90,.9,"#4fb3ff")}${fish(310,120,-.9,"#ffcb2f")}${bubbles(60,140)}
-  ${F.clam?`<g ${N}><path d="M284 252 Q314 226 344 252 Z" fill="${G("#e8d6f0")}" ${O}/><path d="M282 224 Q314 196 346 224 Q314 214 282 224 Z" fill="${G("#f3e6fb")}" ${O}/><circle cx="314" cy="244" r="6" fill="${G("#ffffff")}" ${O2}/></g>${place("clam",312,236,.42,{noShadow:true})}`
-   :act("clam","Big shell",`<path d="M282 252 Q314 214 346 252 Z" fill="${G("#e8d6f0")}" ${O}/><path d="M290 250 L300 228 M314 250 V220 M338 250 L328 228" stroke="${INK}" stroke-opacity=".25" stroke-width="2"/>`)}`},
+  ${F.clam?`<g ${N}><g transform="translate(314 214) scale(1 -.55)">${scallop("#ffc9d6","#ff9fb6")}</g><path d="M284 254 Q314 270 344 254 Q314 246 284 254 Z" fill="${G("#ffb3c6")}" ${O}/><circle cx="326" cy="250" r="5.5" fill="${G("#ffffff")}" ${O2}/></g>${place("clam",312,236,.42,{noShadow:true})}`
+   :act("clam","Big shell",`<g transform="translate(314 256)">${scallop("#ffc9d6","#ff9fb6")}</g>`)}`},
  wreck:{name:"Shipwreck",pos:[2,1],bg:["#2f8fc8","#b69861"],exits:{left:"shallows",down:"cabin"},doors:{cabin:"down"},draw:F=>`
   <rect width="400" height="300" fill="${LG("#2f8fc8","#155d8a")}"/>
   <path d="M-10 250 Q120 236 220 246 Q320 234 410 250 V310 H-10 Z" fill="${LG("#d9c08a","#b0925a")}" ${O} ${N}/>
@@ -1151,7 +1161,7 @@ function setScreen(name){
   $("homeBtn").disabled=name==="home";
   const play=name==="world"||name==="egg";
   $("app").classList.toggle("playing",play); document.documentElement.style.overflow=play?"hidden":"";
-  if(name!=="world"){ $("done").hidden=true; $("intro").classList.add("off"); }
+  $("done").hidden=true; if(name!=="world") $("intro").classList.add("off");
   if(name!=="egg") stopEgg();
 }
 const lockSvg=`<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="2" fill="#FFCB2F" stroke="#173A5E" stroke-width="1.8"/><path d="M5.5 7 V5 A2.5 2.5 0 0 1 10.5 5 V7" fill="none" stroke="#173A5E" stroke-width="1.8"/></svg>`;
@@ -1418,7 +1428,8 @@ function openMap(){
       cells.push(`<button type="button" class="mtile ${k===S.area?"here":""}" data-map="${k}">${w.areas[k].name}<small>${k===S.area?"You are here":left?`${left} duck${left>1?"s":""} left`:"All found"}</small></button>`); }
     else cells.push(`<div class="mtile mempty"></div>`);
   }
-  openSheet(`<div class="mapgrid" style="grid-template-columns:repeat(${cols},minmax(0,1fr))">${cells.join("")}</div>`,`${w.name} map`);
+  openSheet(`<p class="note maphead">You're in <b>World ${w.n}: ${w.name}</b>. These are the places in this world.</p><div class="mapgrid" style="grid-template-columns:repeat(${cols},minmax(0,1fr))">${cells.join("")}</div><div class="menu" style="margin-top:12px"><button type="button" class="mbtn leave" id="mapWorlds">See all worlds</button></div>`,`${w.name} map`);
+  $("mapWorlds").addEventListener("click",goHome);
   $("sheet").querySelectorAll("[data-map]").forEach(b=>b.addEventListener("click",()=>{ const k=b.dataset.map; if(k===S.area){closeSheet();return;} show(k,dirTo(k)); }));
 }
 function hint(){

@@ -189,3 +189,12 @@ const soften=f=>(...a)=>f(...a).split(O).join(SOFT).split(O2).join(SOFT).replace
 toyDuck=soften(toyDuck); toyPenguin=soften(toyPenguin); toyOwl=soften(toyOwl); toyPigeon=soften(toyPigeon); toyTurkey=soften(toyTurkey);
 toyChicken=soften(toyChicken); toyCrow=soften(toyCrow); toyGull=soften(toyGull); toyFox=soften(toyFox);
 
+
+/* A scallop shell: a ridged fan with a bumpy top edge and two little ears at the hinge. Drawn with its hinge at 0,0. */
+function scallop(c,c2){ const tops=[-30,-15,0,15,30];
+  const edge=tops.map((x,i)=>`${i?"":`M-34 -26 `}Q${x-7.5} ${-50+Math.abs(x)*.28} ${x} ${-44+Math.abs(x)*.3}`).join(" ");
+  const bumps=tops.map(x=>` Q${x+7.5} ${-50+Math.abs(x+15)*.28} ${x+15>34?34:x+15} ${x+15>34?-26:-44+Math.abs(x+15)*.3}`);
+  return `<path d="M-8 0 L-12 6 H12 L8 0 Z" fill="${G(c2)}" ${O2}/><path d="M-6 -2 L-34 -26 Q-40 -38 -30 -44 ${tops.slice(1).map(x=>`Q${x-7.5} ${-54+Math.abs(x-7.5)*.25} ${x} ${-44-(15-Math.abs(x))*0}`).join(" ")} Q40 -38 34 -26 L6 -2 Z" fill="${G(c)}" ${O}/>
+   ${tops.map(x=>`<path d="M0 -2 L${x} ${-42}" stroke="${c2}" stroke-width="3.4" stroke-linecap="round"/>`).join("")}
+   <path d="M-14 -6 L-24 -2 L-22 4 L-8 2 Z M14 -6 L24 -2 L22 4 L8 2 Z" fill="${G(c2)}" ${O2}/>
+   <ellipse cx="-14" cy="-34" rx="6" ry="3" fill="#fff" opacity=".6" transform="rotate(-30 -14 -34)"/>`; }

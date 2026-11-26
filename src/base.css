@@ -163,6 +163,7 @@ section{display:flex;flex-direction:column;gap:12px}
 .card small{font-family:var(--note);font-size:.95rem;color:var(--dim);line-height:1.1}
 .tier{font-family:var(--display);font-size:.56rem;text-transform:uppercase;letter-spacing:.1em;font-weight:900;border-radius:99px;padding:0 7px;border:2px solid var(--ink)}
 .t-Easy{background:#C9F2D6}.t-Sneaky{background:#E2D8FF}.t-Tricky{background:#FFD4E5}.t-Rare{background:#C7E6FF}.t-Final{background:var(--duck)}.t-Holiday{background:#FFD3A8}.t-Special{background:#FFF3C4}
+.maphead{text-align:center;max-width:380px;margin:0 auto 10px}.maphead b{color:var(--ink);font-family:var(--display)}
 .mapgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;max-width:380px;margin:0 auto}
 .mtile{border:3px solid var(--ink);border-radius:16px;min-height:68px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center;
   background:#C9F2D6;font-family:var(--display);font-weight:900;font-size:.84rem;box-shadow:0 3px 0 var(--ink);padding:4px;line-height:1.1}
