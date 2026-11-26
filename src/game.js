@@ -124,7 +124,7 @@ function goHome(){
    <button type="button" class="event" id="evt"><svg viewBox="-46 -48 92 76" aria-hidden="true"><g class="bob">${(hol||heroH).art()}</g></svg><span>${ev}</span></button>
    <div class="worlds">${WORLDS.map(w=>{ const f=wFound(w), t=wTotal(w), open=w.n<=S.unlocked, prev=WORLDS[w.n-2];
      return `<button type="button" class="wcard${open?"":" locked"}" data-world="${w.id}" aria-label="${w.name}${open?`, ${f} of ${t} found`:", locked"}">
-      <span class="thumb">${sv("0 0 400 300",thumbOf(w),'style="pointer-events:none"')}${open?(f===t?`<span class="tag done">Complete</span>`:""):`<span class="tag lock">${lockSvg}Locked</span>`}</span>
+      <span class="thumb">${sv("0 0 400 300",thumbOf(w),'style="pointer-events:none"')}${open?(f===t?`<span class="tag complete">Complete</span>`:""):`<span class="tag lock">${lockSvg}Locked</span>`}</span>
       <span class="meta"><span class="num">World ${w.n}</span><b>${w.name}</b>${open?`<small>${f} of ${t} found</small><span class="bar2"><i style="width:${t?f/t*100:0}%"></i></span>`:`<small>Find every duck in ${prev.name} to open</small>`}</span></button>`;}).join("")}
      ${SOON.map(w=>`<button type="button" class="wcard off" data-soon="${w.id}" aria-label="${w.name}, coming soon">
       <span class="thumb">${sv("0 0 400 300",thumbOf(w),'style="pointer-events:none"')}<span class="tag">Coming soon</span></span>

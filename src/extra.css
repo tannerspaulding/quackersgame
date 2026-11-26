@@ -7,7 +7,7 @@
 .wcard.locked{opacity:.82}
 .wcard .tag{display:inline-flex;align-items:center;gap:3px}
 .wcard .tag.lock{background:var(--cloud);color:var(--ink)}
-.wcard .tag.done{background:var(--lily)}
+.wcard .tag.complete{background:var(--lily)}
 .bigbtn{position:relative;text-align:left}
 .bigbtn .soonlbl{margin-left:auto;font-family:var(--note);font-weight:400;font-size:.95rem;color:var(--dim)}
 .homefoot{display:flex;justify-content:center}
