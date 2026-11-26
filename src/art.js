@@ -46,10 +46,14 @@ const ACC={
   gold:()=>ACC.crown()+spark(-30,-22,.9,"#fff6c9")+spark(36,-34,.6,"#fff6c9"),
   shades:()=>`<path d="M10 -22 H30" stroke="${INK}" stroke-width="2.4"/><rect x="11" y="-25" width="9" height="7" rx="3" fill="#1a1a1a" stroke="${INK}" stroke-width="1.4"/><rect x="21" y="-25" width="9" height="7" rx="3" fill="#1a1a1a" stroke="${INK}" stroke-width="1.4"/>`
 };
+/* Things a duck wears behind its head (drawn first). */
+const BACK={
+  mane:()=>`<g>${Array.from({length:12},(_,i)=>{const an=i*Math.PI/6, x=12+Math.cos(an)*19, y=-17+Math.sin(an)*19; return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="8.5" fill="${G(i%2?"#e08a2e":"#f2a541")}" ${O2}/>`;}).join("")}</g>`};
 function toyDuck(c,acc="",extra=""){
-  const a=(acc?acc.split(" "):[]).map(k=>ACC[k]?ACC[k]():"").join("");
+  const keys=acc?acc.split(" "):[], back=keys.map(k=>BACK[k]?BACK[k]():"").join("");
+  const a=keys.map(k=>ACC[k]?ACC[k]():"").join("");
   const body=c.rainbow?RB():G(c.body), wing=c.rainbow?G("#ffffff"):G(c.wing);
-  return `<path d="M-20 0 Q-36 -10 -32 -22 Q-24 -12 -12 -10 Z" fill="${body}" ${O}/>
+  return `${back}<path d="M-20 0 Q-36 -10 -32 -22 Q-24 -12 -12 -10 Z" fill="${body}" ${O}/>
   <ellipse cx="-8" cy="22" rx="6" ry="3.4" fill="${G(c.beak)}" ${O2}/><ellipse cx="7" cy="22" rx="6" ry="3.4" fill="${G(c.beak)}" ${O2}/>
   <ellipse cx="-2" cy="6" rx="25" ry="17" fill="${body}" ${O}/>
   <path d="M-16 2 Q-6 -7 8 1 Q4 15 -8 13 Q-18 10 -16 2 Z" fill="${wing}" ${O2}/>

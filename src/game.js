@@ -46,6 +46,17 @@ function place(id,x,y,s,o={}){
 const door=(to,label,inner,soon)=>`<g class="door" ${soon?`data-soon="${soon}"`:`data-door="${to}"`} tabindex="0" role="button" aria-label="${label}">${inner}</g>`;
 const act=(name,label,inner)=>`<g class="act" data-act="${name}" tabindex="0" role="button" aria-label="${label}">${inner}</g>`;
 const helperAt=(w,x,y,s)=>`<g transform="translate(${x} ${y}) scale(${s})" ${N}>${shadow(20)}<g class="bob">${w.helper.art(false)}</g></g>`;
+/* Each new world has a helper. Every duck you find gives you one of its tokens; hand them all over and the helper becomes the last duck. */
+const ICONS={fish:s=>fishIcon(s),ticket:s=>ticketIcon(s),gear:s=>gearIcon(s)};
+const regDucks=w=>(w.ducks||[]).filter(d=>!d.helper);
+const helperDuck=w=>(w.ducks||[]).find(d=>d.helper);
+const tokensFor=w=>regDucks(w).filter(d=>S.found.has(d.id)).length;
+function HELP(wid,x,y,s){ const w=WORLDS_REF(wid), hd=helperDuck(w);
+  if(THUMB) return helperAt(w,x,y,s);
+  if(S.found.has(hd.id)) return `<g transform="translate(${x} ${y}) scale(${s})" ${N}>${shadow(20)}<g class="bob">${w.helper.art(true)}</g></g>`;
+  const got=tokensFor(w), need=regDucks(w).length;
+  return act("helper",`${w.helper.name}: ${got} of ${need} ${w.helper.plural}`,`<g transform="translate(${x} ${y}) scale(${s})"><circle cx="0" cy="0" r="40" fill="transparent"/>${shadow(20)}<g class="bob">${w.helper.art(false)}</g>
+    <g transform="translate(0 -52)"><rect x="-30" y="-13" width="60" height="26" rx="13" fill="${got>=need?"#4cd2a0":"#ffffff"}" stroke="${INK}" stroke-width="2.6"/><g transform="translate(-13 0)">${ICONS[w.helper.icon](.62)}</g><text x="11" y="5" text-anchor="middle" font-family="Grandstander,sans-serif" font-weight="900" font-size="13" fill="${INK}">${got}/${need}</text></g></g>`); }
 
 /* ---------- Holiday ducks ---------- */
 const HOL=[{id:"turkey",name:"Turkey Duck",holiday:"Thanksgiving",m:10,month:"November",world:"yard",area:"garden",tier:"Holiday",
@@ -270,9 +281,11 @@ function catchDuck(g){
   if(g.animate && !reduce){ const inner=g.querySelector(".bob"); if(inner){ inner.style.animation="none"; inner.animate([{transform:"none",opacity:1},{transform:"translateY(-18px)",opacity:0}],{duration:420,fill:"forwards",easing:"ease-out"}); } }
   const every=wDucks(w).every(x=>S.found.has(x.id));
   let msg=`${d.name} found!`;
+  if(w.helper&&!d.helper){ const n=tokensFor(w), need=regDucks(w).length, h=w.helper;
+    msg=n<need?`${d.name} found! You got a ${h.token}: ${n} of ${need}.`:`${d.name} found! That's all ${need} ${h.plural}. Bring them to the ${h.name}!`; }
   if(d.tier==="Holiday") msg=`You found the ${d.name}! Happy ${d.holiday}!`;
   else if(every) msg=`Every ${w.name} duck found!`;
-  toast(msg,every||d.tier==="Holiday"?3000:1900);
+  toast(msg,every||d.tier==="Holiday"||w.helper?2800:1900);
   renderHud(false); bumpBadge(); setTimeout(rerender,430); if(d.tier!=="Holiday") checkDone();
 }
 function tapToken(tk){
@@ -289,15 +302,25 @@ function checkDone(){ const w=W[S.world]; if(doneShown.has(w.id)||wFound(w)<wTot
   setTimeout(()=>{ if(S.screen!=="world"||S.world!==w.id) return; const el=$("done"); fanfare();
     const last=!next;
     el.innerHTML=`<div><svg viewBox="-44 -54 88 86" aria-hidden="true">${shadow()}<g class="bob">${toyDuck(YEL,"crown")}</g></svg><span class="big">World complete!</span>
-      <span>${last?`You found all ${allDucks()} ducks! Snowy Peaks, the Theater and the City are coming soon.`:`Every duck in ${w.name} is in your Duck Log. ${next.name} is open!`}</span>
+      <span>${last?`You found all ${allDucks()} ducks in every world! Mitchell is dreaming up more.`:`Every duck in ${w.name} is in your Duck Log. ${next.name} is open!`}</span>
       <span class="row">${last?`<button class="go" type="button" id="doneHome">Back to worlds</button>`:`<button class="go" type="button" id="doneNext">Go to ${next.name}</button>`}<button class="go ghost" type="button" id="doneStay">Keep exploring</button></span></div>`;
     flush(); el.hidden=false; if(el.animate&&!reduce) el.firstElementChild.animate([{transform:"translateY(24px)",opacity:0},{transform:"none",opacity:1}],{duration:380,easing:"ease-out"});
     if(last) $("doneHome").addEventListener("click",goHome); else $("doneNext").addEventListener("click",()=>enterWorld(next.id));
     $("doneStay").addEventListener("click",()=>{el.hidden=true;}); el.querySelector(".go").focus({preventScroll:true});
   },1400);
 }
+function giveHelper(a){
+  const w=W[S.world], h=w.helper, hd=helperDuck(w); if(!hd||S.found.has(hd.id)) return;
+  const got=tokensFor(w), need=regDucks(w).length;
+  if(got<need){ toast(`The ${h.name} needs ${need} ${h.plural}. You have ${got}. Find more ducks!`,2600); blip(); return; }
+  const b=a.getBoundingClientRect(); burst(stage,b.left+b.width/2,b.top+b.height/2);
+  S.found.add(hd.id); save(); quack();
+  toast(`You gave the ${h.name} all ${need} ${h.plural}! The ${hd.name} joins your Duck Log.${h.reward?" "+h.reward:""}`,4200);
+  renderHud(false); bumpBadge(); setTimeout(rerender,300); checkDone();
+}
 function doAct(k,a){
-  const w=W[S.world], F=S.F, m=w.msg[k];
+  if(k==="helper"){ giveHelper(a); return; }
+  const w=W[S.world], F=S.F, m=(w.msg||{})[k];
   if(k==="chest"){ if(!F.key){ toast("Locked tight. A key must be hiding somewhere dark."); blip(); return; } F.chest=1; toast("The key fits. The chest pops open!"); }
   else if(Array.isArray(m)){ F[k]=!F[k]; toast(F[k]?m[0]:m[1]); }
   else if(TOGGLE.has(k)){ F[k]=!F[k]; toast(F[k]?m:"Closed."); }
@@ -328,7 +351,7 @@ $("scrim").addEventListener("click",closeSheet);
 document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeSheet(); });
 
 function duckCard(d,got){
-  return `<div class="card ${got?"":"miss"}"><svg viewBox="-40 -48 82 78" aria-hidden="true">${got?toyDuck(d.c,d.acc):`<g opacity=".35">${toyDuck(GHOST)}</g>`}</svg>
+  return `<div class="card ${got?"":"miss"}"><svg viewBox="-40 -48 82 78" aria-hidden="true">${d.art?(got?d.art():`<g opacity=".35">${d.art()}</g>`):got?toyDuck(d.c,d.acc):`<g opacity=".35">${toyDuck(GHOST)}</g>`}</svg>
     <span class="tier t-${d.tier}">${d.tier}</span>${got?`<b>${d.name}</b>`:`<small>${d.hint}</small>`}</div>`;
 }
 function holCard(h){ const got=S.found.has(h.id), on=holOn(h), n=tokGot(h), t=tokAll(h);

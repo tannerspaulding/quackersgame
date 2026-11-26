@@ -352,10 +352,14 @@ const ACC={
   gold:()=>ACC.crown()+spark(-30,-22,.9,"#fff6c9")+spark(36,-34,.6,"#fff6c9"),
   shades:()=>`<path d="M10 -22 H30" stroke="${INK}" stroke-width="2.4"/><rect x="11" y="-25" width="9" height="7" rx="3" fill="#1a1a1a" stroke="${INK}" stroke-width="1.4"/><rect x="21" y="-25" width="9" height="7" rx="3" fill="#1a1a1a" stroke="${INK}" stroke-width="1.4"/>`
 };
+/* Things a duck wears behind its head (drawn first). */
+const BACK={
+  mane:()=>`<g>${Array.from({length:12},(_,i)=>{const an=i*Math.PI/6, x=12+Math.cos(an)*19, y=-17+Math.sin(an)*19; return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="8.5" fill="${G(i%2?"#e08a2e":"#f2a541")}" ${O2}/>`;}).join("")}</g>`};
 function toyDuck(c,acc="",extra=""){
-  const a=(acc?acc.split(" "):[]).map(k=>ACC[k]?ACC[k]():"").join("");
+  const keys=acc?acc.split(" "):[], back=keys.map(k=>BACK[k]?BACK[k]():"").join("");
+  const a=keys.map(k=>ACC[k]?ACC[k]():"").join("");
   const body=c.rainbow?RB():G(c.body), wing=c.rainbow?G("#ffffff"):G(c.wing);
-  return `<path d="M-20 0 Q-36 -10 -32 -22 Q-24 -12 -12 -10 Z" fill="${body}" ${O}/>
+  return `${back}<path d="M-20 0 Q-36 -10 -32 -22 Q-24 -12 -12 -10 Z" fill="${body}" ${O}/>
   <ellipse cx="-8" cy="22" rx="6" ry="3.4" fill="${G(c.beak)}" ${O2}/><ellipse cx="7" cy="22" rx="6" ry="3.4" fill="${G(c.beak)}" ${O2}/>
   <ellipse cx="-2" cy="6" rx="25" ry="17" fill="${body}" ${O}/>
   <path d="M-16 2 Q-6 -7 8 1 Q4 15 -8 13 Q-18 10 -16 2 Z" fill="${wing}" ${O2}/>
@@ -494,6 +498,8 @@ toyChicken=soften(toyChicken); toyCrow=soften(toyCrow); toyGull=soften(toyGull);
 
 /* ---------- More things ducks wear (for Spooky Manor and Under the Sea) ---------- */
 Object.assign(ACC,{
+  antenna:()=>`<path d="M12 -32 V-44" stroke="${INK}" stroke-width="2.6"/><circle cx="12" cy="-46" r="4.6" fill="${G("#ff5c5c")}" ${O2}/><rect x="6" y="-24" width="16" height="6" rx="3" fill="#9fe7ff" stroke="${INK}" stroke-width="1.6"/>`,
+  bowtie:()=>`<path d="M4 -3 L-6 -9 V3 Z M4 -3 L14 -9 V3 Z" fill="${G("#d8344f")}" ${O2}/><circle cx="4" cy="-3" r="2.6" fill="${G("#d8344f")}" ${O2}/>`,
   chef:()=>`<g transform="translate(12 -31)"><rect x="-9" y="-4" width="18" height="8" rx="2" fill="${G("#ffffff")}" ${O2}/><circle cx="-6" cy="-8" r="6" fill="${G("#ffffff")}" ${O2}/><circle cx="1" cy="-12" r="7" fill="${G("#ffffff")}" ${O2}/><circle cx="7" cy="-7" r="6" fill="${G("#ffffff")}" ${O2}/></g>`,
   bat:()=>`<path d="M-6 -4 L-30 -26 L-24 -12 L-38 -12 L-26 -2 L-36 4 L-8 6 Z" fill="${G("#3a2a55")}" ${O2}/><path d="M18 -30 L14 -42 L24 -34 Z M8 -30 L4 -42 L12 -32 Z" fill="${G("#3a2a55")}" ${O2}/>`,
   pirate:()=>`<g transform="translate(12 -30) rotate(-6)"><path d="M-18 0 Q-12 -16 0 -16 Q12 -16 18 0 Q0 -6 -18 0 Z" fill="${G("#2b2b2b")}" ${O2}/><circle cx="0" cy="-8" r="3" fill="#fff"/><path d="M-2 -5 L2 -3 M2 -5 L-2 -3" stroke="#fff" stroke-width="1.2"/></g><path d="M8 -22 L28 -22" stroke="#1a1a1a" stroke-width="2"/><ellipse cx="18" cy="-21" rx="5" ry="5.4" fill="#1a1a1a"/>`,
@@ -553,6 +559,17 @@ function place(id,x,y,s,o={}){
 const door=(to,label,inner,soon)=>`<g class="door" ${soon?`data-soon="${soon}"`:`data-door="${to}"`} tabindex="0" role="button" aria-label="${label}">${inner}</g>`;
 const act=(name,label,inner)=>`<g class="act" data-act="${name}" tabindex="0" role="button" aria-label="${label}">${inner}</g>`;
 const helperAt=(w,x,y,s)=>`<g transform="translate(${x} ${y}) scale(${s})" ${N}>${shadow(20)}<g class="bob">${w.helper.art(false)}</g></g>`;
+/* Each new world has a helper. Every duck you find gives you one of its tokens; hand them all over and the helper becomes the last duck. */
+const ICONS={fish:s=>fishIcon(s),ticket:s=>ticketIcon(s),gear:s=>gearIcon(s)};
+const regDucks=w=>(w.ducks||[]).filter(d=>!d.helper);
+const helperDuck=w=>(w.ducks||[]).find(d=>d.helper);
+const tokensFor=w=>regDucks(w).filter(d=>S.found.has(d.id)).length;
+function HELP(wid,x,y,s){ const w=WORLDS_REF(wid), hd=helperDuck(w);
+  if(THUMB) return helperAt(w,x,y,s);
+  if(S.found.has(hd.id)) return `<g transform="translate(${x} ${y}) scale(${s})" ${N}>${shadow(20)}<g class="bob">${w.helper.art(true)}</g></g>`;
+  const got=tokensFor(w), need=regDucks(w).length;
+  return act("helper",`${w.helper.name}: ${got} of ${need} ${w.helper.plural}`,`<g transform="translate(${x} ${y}) scale(${s})"><circle cx="0" cy="0" r="40" fill="transparent"/>${shadow(20)}<g class="bob">${w.helper.art(false)}</g>
+    <g transform="translate(0 -52)"><rect x="-30" y="-13" width="60" height="26" rx="13" fill="${got>=need?"#4cd2a0":"#ffffff"}" stroke="${INK}" stroke-width="2.6"/><g transform="translate(-13 0)">${ICONS[w.helper.icon](.62)}</g><text x="11" y="5" text-anchor="middle" font-family="Grandstander,sans-serif" font-weight="900" font-size="13" fill="${INK}">${got}/${need}</text></g></g>`); }
 
 /* ---------- Holiday ducks ---------- */
 const HOL=[{id:"turkey",name:"Turkey Duck",holiday:"Thanksgiving",m:10,month:"November",world:"yard",area:"garden",tier:"Holiday",
@@ -814,44 +831,84 @@ const WORLDS=[{id:"yard",n:1,name:"The Backyard",start:"yard",
   ${F.lamp?"":tagAt(250,214,"So dark down here...","#5b7ab0")}
   ${F.lamp?`${seaweed(170,262,40,"#2f7a6a")}${seaweed(360,264,30,"#2f7a6a")}`:""}`}
  },
- msg:{clam:"The clam opens up!",lamp:["The fish's light glows bright!","Back to the dark..."],key:"You found a key! It must open something."}}];
-const SOON=[{id:"snow",n:4,name:"Snowy Peaks",start:"igloo",
- idea:"Mitchell's idea: 7 ducks, a fish for every duck, and the penguin becomes the final duck. This test shows one area with 4 of them.",
+ msg:{clam:"The clam opens up!",lamp:["The fish's light glows bright!","Back to the dark..."],key:"You found a key! It must open something."}},
+{id:"snow",n:4,name:"Snowy Peaks",start:"igloo",
+ idea:"Mitchell's world: every duck you find gives you a fish. Bring all the fish to the Penguin and the Penguin becomes your last duck.",
  helper:{name:"Penguin",token:"fish",plural:"fish",icon:"fish",art:toyPenguin},
  ducks:[
   {id:"s_plain",name:"Yellow Duck",tier:"Easy",area:"igloo",c:YEL,hint:"By the igloo"},
   {id:"s_snowman",name:"Snowman Duck",tier:"Sneaky",area:"igloo",c:{body:"#ffffff",wing:"#e3edf7",beak:"#ff8a3d"},acc:"scarf",hint:"Blends in with friends"},
   {id:"s_ice",name:"Ice Cube Duck",tier:"Tricky",area:"igloo",c:{body:"#bfe8ff",wing:"#8fd0ff",beak:"#ff8a3d"},acc:"icecube",hint:"Frozen solid"},
-  {id:"s_polar",name:"Polar Duck",tier:"Rare",area:"igloo",c:{body:"#fdfeff",wing:"#e8eef5",beak:"#f5c9a0"},acc:"earmuff",hint:"White on white"}],
- areas:{igloo:{name:"Igloo Village",pos:[0,0],bg:["#a9dcff","#d9e9f7"],exits:{},soon:{right:"Ice Rink"},draw:F=>`
+  {id:"s_skater",name:"Skater Duck",tier:"Sneaky",area:"rink",c:{body:"#ffb8d6",wing:"#ff8fbf",beak:"#ff8a3d"},acc:"earmuff",hint:"Going round and round"},
+  {id:"s_crystal",name:"Crystal Duck",tier:"Tricky",area:"cave",c:{body:"#c9f3ff",wing:"#8fe0ff",beak:"#ffb066"},acc:"glow",hint:"Shiny rocks"},
+  {id:"s_polar",name:"Polar Duck",tier:"Rare",area:"peak",c:{body:"#fdfeff",wing:"#e8eef5",beak:"#f5c9a0"},acc:"scarf",hint:"White on white"},
+  {id:"s_penguin",name:"Penguin",tier:"Legendary",area:"igloo",helper:true,art:()=>toyPenguin(true),hint:"Bring fish to the fishing hole"}],
+ areas:{
+ igloo:{name:"Igloo Village",pos:[0,1],bg:["#a9dcff","#e2eefa"],exits:{up:"peak",right:"rink"},draw:F=>`
   ${sky("#a9dcff","#eaf7ff")}${sun(342,44)}
   <g ${N}><path d="M-20 176 L70 70 L150 176 Z" fill="${LG("#ffffff","#c9dcee")}" ${O}/><path d="M100 176 L196 52 L300 176 Z" fill="${LG("#ffffff","#d6e6f4")}" ${O}/><path d="M240 176 L330 88 L420 176 Z" fill="${LG("#f4f9ff","#c9dcee")}" ${O}/>
   <path d="M174 80 L196 52 L218 80 L206 76 L196 86 L186 76 Z" fill="#fff" ${O2}/></g>
-  <path d="M-10 182 Q200 158 410 182 V310 H-10Z" fill="${LG("#ffffff","#d9e9f7")}" ${O}/>
+  <path d="M-10 182 Q200 158 410 182 V310 H-10Z" fill="${LG("#ffffff","#e2eefa")}" ${O}/>
   <g ${N}><path d="M56 216 A62 54 0 0 1 180 216 Z" fill="${G("#ffffff")}" ${O}/>
   <path d="M68 196 H168 M60 208 H176 M84 180 H152 M100 168 H136" stroke="#c9dcee" stroke-width="2.4"/>
   <path d="M100 216 A18 22 0 0 1 136 216 Z" fill="${LG("#3d5a80","#22385a")}" ${O2}/></g>
   ${place("s_plain",176,232,.68)}
   ${snowman(226,214,.9,"top")}${place("s_snowman",270,214,.62)}${snowman(318,218,.85,"beanie")}
-  ${place("s_polar",206,272,.58,{noShadow:true})}
-  <g ${N}><path d="M150 300 Q166 272 200 278 Q236 270 254 300 Z" fill="${G("#ffffff")}" ${O}/></g>
   ${!F.crack?act("crack","Ice block",`<rect x="24" y="228" width="76" height="58" rx="10" fill="${LG("#d7f3ff","#7cc8ff")}" ${O}/><g transform="translate(62 262) scale(.55)" opacity=".35">${toyDuck(GHOST)}</g><path d="M34 238 h12 M84 236 l-6 10" stroke="#fff" stroke-width="3" stroke-linecap="round"/>`)
     :`${place("s_ice",62,262,.6)}<g ${N}><path d="M28 286 l10 -10 l8 10 Z M84 288 l8 -14 l8 14 Z M54 290 l6 -8 l6 8 Z" fill="${G("#bfe8ff")}" ${O2}/></g>`}
   <ellipse cx="352" cy="276" rx="40" ry="12" fill="${LG("#3f7fb6","#1f4f80")}" ${O} ${N}/>
-  ${helperAt(WORLDS_REF("snow"),352,244,.82)}
-  <g fill="#fff" ${N} opacity=".9">${[[40,40],[120,30],[260,30],[300,120],[20,120],[380,150]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="3"/>`).join("")}</g>`}},
- plan:[{name:"Ice Rink",pos:[1,0]},{name:"Fishing Hut",pos:[2,0]}],
- msg:{crack:"Crack! Something was frozen inside."}},
-
+  ${HELP("snow",352,244,.82)}
+  <g fill="#fff" ${N} opacity=".9">${[[40,40],[120,30],[260,30],[300,120],[20,120],[380,150]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="3"/>`).join("")}</g>`},
+ rink:{stretchBottom:false,name:"Ice Rink",pos:[1,1],bg:["#9fd6ff","#e2eefa"],exits:{left:"igloo",down:"cave"},doors:{cave:"down"},draw:F=>`
+  ${sky("#9fd6ff","#e6f5ff")}${cloud(90,46,.8)}${cloud(300,34,.6)}
+  <g ${N}>${[[20,150],[56,140],[300,146],[338,136],[378,150]].map(([x,y])=>`<path d="M${x} ${y-62} L${x-22} ${y} H${x+22} Z" fill="${LG("#3f8f5a","#2a6a40")}" ${O2}/><path d="M${x} ${y-62} L${x-9} ${y-36} L${x} ${y-42} L${x+9} ${y-36} Z" fill="#fff" ${O2}/><rect x="${x-3}" y="${y}" width="6" height="10" fill="#7a4523"/>`).join("")}</g>
+  <path d="M-10 150 Q200 132 410 150 V310 H-10Z" fill="${LG("#ffffff","#e2eefa")}" ${O} ${N}/>
+  <g ${N}><ellipse cx="200" cy="212" rx="178" ry="54" fill="${LG("#d9f4ff","#9fd6ff")}" ${O}/>
+  <path d="M90 206 Q140 186 196 204 T300 214 M120 228 Q170 244 230 226" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".9"/>
+  ${[0,1,2,3,4,5,6,7,8].map(i=>`<rect x="${26+i*40}" y="${i%2?150:152}" width="6" height="22" rx="2" fill="${G("#a0703f")}" ${O2}/>`).join("")}<path d="M26 156 H352" stroke="#a0703f" stroke-width="4"/></g>
+  ${place("s_skater",292,206,.42)}
+  <g ${N}><path d="M286 226 l-10 4 M300 226 l10 4" stroke="${INK}" stroke-width="2" stroke-linecap="round"/></g>
+  ${act("cocoa","Hot cocoa stand",`<g transform="translate(60 214)"><rect x="-38" y="-30" width="76" height="46" rx="6" fill="${G("#c0283f")}" ${O}/><path d="M-44 -30 L-38 -50 H38 L44 -30 Z" fill="${G("#ffffff")}" ${O2}/>${[-30,-14,2,18].map(x=>`<path d="M${x} -50 L${x+8} -30" stroke="#d8344f" stroke-width="5"/>`).join("")}<rect x="-16" y="-24" width="32" height="24" rx="5" fill="${G("#7a4523")}" ${O2}/>${F.cocoa?`<path d="M-6 -30 q4 -8 0 -14 M6 -30 q4 -8 0 -14" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>`:""}</g>`)}
+  <g ${N}><rect x="300" y="250" width="84" height="10" rx="4" fill="${G("#a0703f")}" ${O2}/><path d="M308 260 V280 M376 260 V280" stroke="${INK}" stroke-width="4"/></g>
+  ${door("cave","Ice cave below",`<g transform="translate(200 284)"><path d="M-46 16 Q-40 -22 0 -24 Q40 -22 46 16 Z" fill="${G("#ffffff")}" ${O}/><path d="M-26 16 Q-22 -8 0 -10 Q22 -8 26 16 Z" fill="${LG("#2a4f80","#13284a")}" ${O2}/></g>`)}
+  ${tagAt(200,300-28,"Ice Cave")}`},
+ cave:{stretchTop:false,name:"Ice Cave",pos:[1,2],bg:["#1c3d6b","#0f2240"],exits:{up:"rink"},draw:F=>`
+  <rect width="400" height="300" fill="${LG("#1c3d6b","#0f2240")}"/>
+  <g ${N}>${[[10,40],[40,28],[78,52],[120,30],[160,46],[210,26],[252,50],[290,34],[330,56],[370,30],[396,44]].map(([x,h])=>`<path d="M${x-14} -2 L${x} ${h} L${x+14} -2 Z" fill="${LG("#d9f4ff","#7cc8ff")}" ${O2}/>`).join("")}</g>
+  <g ${N}><path d="M150 30 Q170 120 160 230 H240 Q230 120 250 30 Z" fill="${LG("#bfe8ff","#7cc8ff")}" ${O} opacity=".9"/>
+  <path d="M175 60 Q182 140 176 220 M200 50 V226 M224 64 Q218 140 226 220" stroke="#fff" stroke-width="3" fill="none" opacity=".7"/></g>
+  <path d="M-10 226 Q200 210 410 226 V310 H-10Z" fill="${LG("#5a86b8","#2c4f80")}" ${O} ${N}/>
+  ${place("s_crystal",318,220,.6,{noShadow:true})}
+  ${!F.crystals?act("crystals","Blue crystals",`<g transform="translate(318 236)">${[[-34,0,26],[-14,-10,40],[8,-4,34],[28,2,24],[-2,6,22]].map(([x,y,h])=>`<path d="M${x-10} ${y+12} L${x} ${y-h} L${x+10} ${y+12} Z" fill="${LG("#a8ecff","#3fa7e8")}" ${O2}/>`).join("")}</g>`)
+    :`<g transform="translate(318 236)" ${N}>${[[-44,0,22],[40,2,20]].map(([x,y,h])=>`<path d="M${x-10} ${y+12} L${x} ${y-h} L${x+10} ${y+12} Z" fill="${LG("#a8ecff","#3fa7e8")}" ${O2}/>`).join("")}</g>`}
+  <g transform="translate(70 238)" ${N}>${[[-20,0,30],[0,-6,44],[20,2,28]].map(([x,y,h])=>`<path d="M${x-10} ${y+12} L${x} ${y-h} L${x+10} ${y+12} Z" fill="${LG("#d7b8ff","#9b6bd8")}" ${O2}/>`).join("")}</g>
+  ${fish(116,262,.8,"#4fb3ff")}
+  ${spark(300,150,.7,"#e9fffa")}${spark(90,120,.5,"#e9fffa")}${spark(360,190,.5,"#e9fffa")}`},
+ peak:{name:"Mountain Top",pos:[0,0],bg:["#6fb7f2","#ffffff"],exits:{down:"igloo"},draw:F=>`
+  ${sky("#6fb7f2","#d6eeff")}${cloud(60,60,.7)}${cloud(330,90,.9)}
+  <g ${N}><path d="M-20 300 L170 52 L250 120 L300 90 L420 300 Z" fill="${LG("#ffffff","#d6e6f4")}" ${O}/>
+  <path d="M150 78 L170 52 L190 80 L178 74 L170 86 L162 74 Z" fill="#c9dcee"/>
+  <path d="M170 52 V20" stroke="${INK}" stroke-width="3"/><path d="M170 22 L196 30 L170 38 Z" fill="${G("#ff5c5c")}" ${O2}/></g>
+  <path d="M-10 236 Q120 210 230 230 Q330 246 410 226 V310 H-10Z" fill="${G("#ffffff")}" ${O} ${N}/>
+  ${place("s_polar",112,214,.6,{noShadow:true})}
+  <g ${N}><path d="M74 236 Q96 214 122 222 Q146 212 160 236 Z" fill="${G("#ffffff")}" ${O2}/></g>
+  ${act("sled","Red sled",`<g transform="translate(290 244)"><path d="M-44 0 H40 Q52 0 50 -10" fill="none" stroke="${INK}" stroke-width="4" stroke-linecap="round"/><rect x="-40" y="-18" width="78" height="12" rx="5" fill="${G("#e8423a")}" ${O2}/><path d="M-30 -6 V0 M28 -6 V0" stroke="${INK}" stroke-width="3"/></g>`)}
+  <g ${N}><path d="M220 212 L232 176 M232 212 L240 178" stroke="#5b6b80" stroke-width="3" stroke-linecap="round"/><circle cx="230" cy="208" r="4" fill="#5b6b80"/><circle cx="238" cy="208" r="4" fill="#5b6b80"/></g>
+  <g fill="#fff" ${N} opacity=".9">${[[30,30],[110,24],[250,20],[370,40],[320,150],[40,160]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="3"/>`).join("")}</g>`}},
+ msg:{crack:"Crack! Something was frozen inside.",cocoa:"Hot cocoa! It warms your wings.",crystals:"Clink! The crystals slide apart.",sled:"Wheee! The sled zooms a little and stops."}},
 {id:"theater",n:5,name:"The Theater",start:"stage",
- idea:"Mitchell's idea: a main stage, seats and backstage, with ducks dressed like show characters we make up. The usher owl collects a ticket for each duck.",
+ idea:"Mitchell's world: a main stage, seats and backstage, with ducks dressed like show characters we make up. Every duck you find gives you a ticket for the Usher Owl.",
  helper:{name:"Usher Owl",token:"ticket",plural:"tickets",icon:"ticket",art:toyOwl},
  ducks:[
-  {id:"t_plain",name:"Yellow Duck",tier:"Easy",area:"stage",c:YEL,hint:"Watching the show"},
+  {id:"t_plain",name:"Yellow Duck",tier:"Easy",area:"seats",c:YEL,hint:"Waiting for the show"},
   {id:"t_ballet",name:"Ballet Duck",tier:"Sneaky",area:"stage",c:{body:"#ffe1ef",wing:"#ffc2dc",beak:"#ff8a3d"},acc:"tutu",hint:"Behind the curtain"},
+  {id:"t_pirate",name:"Pirate Captain Duck",tier:"Sneaky",area:"backstage",c:{body:"#ffe27a",wing:"#f5c400",beak:"#ff8a3d"},acc:"pirate",hint:"Hiding in the prop box"},
   {id:"t_magic",name:"Magician Duck",tier:"Tricky",area:"stage",c:YEL,acc:"magic",hint:"Abracadabra"},
-  {id:"t_spot",name:"Spotlight Duck",tier:"Rare",area:"stage",c:{body:"#ffe27a",wing:"#f5c400",beak:"#ff8a3d"},acc:"spot",hint:"Only in the light"}],
- areas:{stage:{name:"Main Stage",pos:[1,0],bg:["#3a1446","#1a0a14"],exits:{},soon:{down:"Seats",right:"Backstage"},draw:F=>`
+  {id:"t_lion",name:"Lion Duck",tier:"Tricky",area:"backstage",c:{body:"#ffc44d",wing:"#f0a020",beak:"#ff8a3d"},acc:"mane",hint:"In with the costumes"},
+  {id:"t_spot",name:"Spotlight Duck",tier:"Rare",area:"stage",c:{body:"#ffe27a",wing:"#f5c400",beak:"#ff8a3d"},acc:"spot",hint:"Only in the light"},
+  {id:"t_owl",name:"Usher Owl",tier:"Legendary",area:"seats",helper:true,art:()=>toyOwl(true),hint:"Bring tickets to the aisle"}],
+ areas:{
+ stage:{stretchBottom:false,name:"Main Stage",pos:[1,0],bg:["#3a1446","#1a0a14"],exits:{down:"seats",right:"backstage"},draw:F=>`
   <rect width="400" height="300" fill="${LG("#3a1446","#1d0a24")}"/>
   <rect x="40" y="30" width="320" height="172" fill="${F.light?LG("#7a5a9e","#4a2a6a"):LG("#2a1238","#1a0b20")}" ${O}/>
   <g ${N}><rect x="28" y="18" width="344" height="16" rx="6" fill="${G("#ffd45c")}" ${O}/><rect x="26" y="26" width="16" height="200" rx="6" fill="${G("#ffd45c")}" ${O}/><rect x="358" y="26" width="16" height="200" rx="6" fill="${G("#ffd45c")}" ${O}/>
@@ -862,48 +919,107 @@ const SOON=[{id:"snow",n:4,name:"Snowy Peaks",start:"igloo",
   ${F.light?place("t_spot",268,180,.7):""}
   ${!F.curtain?act("curtain","Big red curtain",`<path d="M44 52 H200 V196 H44 Z" fill="${LG("#e04460","#a51c34")}" ${O}/><path d="M200 52 H356 V196 H200 Z" fill="${LG("#d8344f","#8e1b2a")}" ${O}/>${[72,102,132,162,238,268,298,328].map(x=>`<path d="M${x} 58 V192" stroke="#7d1426" stroke-width="3" stroke-linecap="round"/>`).join("")}<circle cx="200" cy="124" r="10" fill="${G("#ffd45c")}" ${O2}/>`)
     :`<g ${N}><path d="M44 52 H94 Q70 124 94 196 H44 Z" fill="${LG("#e04460","#a51c34")}" ${O}/><path d="M356 52 H306 Q330 124 306 196 H356 Z" fill="${LG("#d8344f","#8e1b2a")}" ${O}/></g>`}
-  ${act("light","Spotlight switch",`<rect x="374" y="114" width="22" height="44" rx="6" fill="${G("#5b6b80")}" ${O2}/><rect x="379" y="${F.light?120:140}" width="12" height="14" rx="3" fill="${G(F.light?"#4cd2a0":"#ff7a7a")}" stroke="${INK}" stroke-width="1.6"/>`)}
+  ${act("light","Spotlight switch",`<rect x="372" y="110" width="26" height="50" rx="6" fill="${G("#5b6b80")}" ${O2}/><rect x="379" y="${F.light?118:140}" width="12" height="14" rx="3" fill="${G(F.light?"#4cd2a0":"#ff7a7a")}" stroke="${INK}" stroke-width="1.6"/>`)}
   ${!F.hat?act("hat","Magic hat",`<g transform="translate(92 214)"><rect x="-17" y="-24" width="34" height="24" rx="4" fill="${G("#2b2b45")}" ${O}/><rect x="-17" y="-10" width="34" height="6" fill="#8e44ad" stroke="${INK}" stroke-width="1.6"/><rect x="-24" y="-3" width="48" height="8" rx="4" fill="${G("#2b2b45")}" ${O}/>${spark(18,-32,.8)}</g>`)
     :`<g transform="translate(92 214)" ${N}><rect x="-17" y="-24" width="34" height="24" rx="4" fill="${G("#2b2b45")}" ${O}/><rect x="-24" y="-3" width="48" height="8" rx="4" fill="${G("#2b2b45")}" ${O}/></g>${place("t_magic",96,174,.68)}`}
   <rect y="228" width="400" height="72" fill="${LG("#2a0e1e","#1a0a14")}" ${N}/>
   <g ${N}>${[0,1,2,3,4,5,6,7].map(i=>`<rect x="${6+i*50}" y="244" width="42" height="34" rx="10" fill="${G("#c0283f")}" ${O2}/>`).join("")}</g>
-  ${place("t_plain",178,250,.5,{noShadow:true})}
-  <g ${N}>${[0,1,2,3,4,5,6].map(i=>`<rect x="${2+i*50}" y="268" width="48" height="36" rx="10" fill="${G("#a51c34")}" ${O2}/>`).join("")}</g>
-  ${helperAt(WORLDS_REF("theater"),360,256,.74)}`}},
- plan:[{name:"Seats",pos:[1,1]},{name:"Backstage",pos:[2,0]}],
- msg:{curtain:"The curtain opens!",hat:"Poof! Something popped out of the hat."}},
-
+  <g ${N}>${[0,1,2,3,4,5,6,7].map(i=>`<rect x="${-20+i*50}" y="268" width="48" height="36" rx="10" fill="${G("#a51c34")}" ${O2}/>`).join("")}</g>`},
+ seats:{stretchBottom:false,name:"The Seats",pos:[1,1],bg:["#2a0e1e","#3a1a14"],exits:{up:"stage"},draw:F=>`
+  <rect width="400" height="300" fill="${LG("#2a0e1e","#3a1a14")}"/>
+  <g ${N}><rect x="70" y="10" width="260" height="70" rx="6" fill="${LG("#2a1238","#1a0b20")}" ${O}/><path d="M72 12 H160 Q130 46 150 78 H72 Z" fill="${G("#d8344f")}" ${O2}/><path d="M328 12 H240 Q270 46 250 78 H328 Z" fill="${G("#d8344f")}" ${O2}/>
+  <rect x="62" y="76" width="276" height="12" rx="4" fill="${G("#c08050")}" ${O2}/>
+  ${[[20,40],[380,40]].map(([x,y])=>`<rect x="${x-8}" y="${y-16}" width="16" height="30" rx="4" fill="${G("#ffd45c")}" ${O2}/><circle cx="${x}" cy="${y-6}" r="5" fill="#fff3a0"/>`).join("")}</g>
+  <path d="M180 300 L192 96 H208 L220 300 Z" fill="${LG("#6a1a2a","#8a2a3a")}" ${N}/>
+  <g ${N}>${[[110,6,40],[150,6,52],[196,6,64],[246,6,76]].map(([y,n,w],r)=>[0,1,2].map(i=>`<rect x="${174-(i+1)*(w+6)}" y="${y}" width="${w}" height="${w*.7}" rx="10" fill="${G(r%2?"#a51c34":"#c0283f")}" ${O2}/><rect x="${226+i*(w+6)}" y="${y}" width="${w}" height="${w*.7}" rx="10" fill="${G(r%2?"#a51c34":"#c0283f")}" ${O2}/>`).join("")).join("")}</g>
+  ${place("t_plain",300,150,.5,{noShadow:true})}
+  <g ${N}><rect x="226" y="196" width="64" height="45" rx="10" fill="${G("#c0283f")}" ${O2}/><rect x="296" y="196" width="64" height="45" rx="10" fill="${G("#c0283f")}" ${O2}/></g>
+  ${act("popcorn","Popcorn",`<g transform="translate(88 236)"><path d="M-20 -24 H20 L14 18 H-14 Z" fill="${G("#ffffff")}" ${O}/>${[-12,-2,8].map(x=>`<path d="M${x} -24 L${x+3} 18" stroke="#e8423a" stroke-width="5"/>`).join("")}${(F.popcorn?[[-14,-30],[-4,-34],[8,-31],[16,-28],[0,-28],[-10,-38],[6,-40]]:[[-12,-28],[0,-30],[12,-27]]).map(([x,y])=>`<circle cx="${x}" cy="${y}" r="7" fill="${G("#fff6c8")}" ${O2}/>`).join("")}</g>`)}
+  ${HELP("theater",200,250,.9)}`},
+ backstage:{name:"Backstage",pos:[2,0],bg:["#4a3a5a","#5a3f2a"],exits:{left:"stage"},draw:F=>`
+  <rect width="400" height="300" fill="${LG("#4a3a5a","#2e2338")}"/>
+  <g ${N}>${[60,150,250,340].map(x=>`<path d="M${x} 0 V${x%100?120:90}" stroke="#c9b48a" stroke-width="3"/><rect x="${x-12}" y="${x%100?120:90}" width="24" height="30" rx="8" fill="${G("#a0703f")}" ${O2}/>`).join("")}
+  <rect x="264" y="40" width="112" height="130" rx="8" fill="${G("#7a4523")}" ${O}/><rect x="276" y="52" width="88" height="96" rx="4" fill="${LG("#e6f4ff","#9fb6d0")}" ${O2}/>
+  ${[0,1,2,3,4,5].map(i=>`<circle cx="${270+i*20}" cy="46" r="5" fill="#fff3a0" stroke="${INK}" stroke-width="1.4"/><circle cx="${270+i*20}" cy="164" r="5" fill="#fff3a0" stroke="${INK}" stroke-width="1.4"/>`).join("")}
+  <path d="M296 70 L316 60 M330 120 L350 108" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".8"/></g>
+  <rect y="210" width="400" height="100" fill="${LG("#8a5a33","#5a3f2a")}" ${O} ${N}/>
+  <g ${N}><path d="M0 238 H400 M0 270 H400" stroke="#6a4428" stroke-width="2"/></g>
+  <g ${N}><path d="M24 58 H220" stroke="${INK}" stroke-width="4" stroke-linecap="round"/><path d="M34 58 V222 M210 58 V222" stroke="${INK}" stroke-width="4"/><circle cx="34" cy="226" r="6" fill="#333"/><circle cx="210" cy="226" r="6" fill="#333"/></g>
+  ${F.rack?place("t_lion",122,178,.72):""}
+  ${!F.rack?act("rack","Costume rack",`${[["#2387d9",50],["#8e44ad",82],["#e8423a",114],["#3fb46a",146],["#ff8fbf",178]].map(([c,x])=>`<path d="M${x} 60 L${x-16} 74 L${x-12} 194 H${x+12} L${x+16} 74 Z" fill="${G(c)}" ${O2}/>`).join("")}<circle cx="138" cy="174" r="10" fill="#ffc44d" opacity=".0"/>`)
+    :`<g ${N}>${[["#2387d9",50],["#8e44ad",70],["#e8423a",174],["#3fb46a",192]].map(([c,x])=>`<path d="M${x} 60 L${x-12} 74 L${x-9} 194 H${x+9} L${x+12} 74 Z" fill="${G(c)}" ${O2}/>`).join("")}</g>`}
+  ${F.box?place("t_pirate",318,214,.62):""}
+  ${act("box","Prop box",`<g transform="translate(318 254)"><rect x="-50" y="-26" width="100" height="44" rx="6" fill="${G("#a0703f")}" ${O}/><path d="M-50 -10 H50" stroke="${INK}" stroke-width="2"/><rect x="-10" y="-14" width="20" height="12" rx="3" fill="${G("#ffd45c")}" ${O2}/>${F.box?`<path d="M-50 -26 L-44 -54 H56 L50 -26 Z" fill="${G("#8a5a33")}" ${O2}/>`:`<rect x="-54" y="-34" width="108" height="12" rx="5" fill="${G("#8a5a33")}" ${O2}/>`}<text x="0" y="14" text-anchor="middle" font-family="Grandstander,sans-serif" font-weight="900" font-size="10" fill="#fff">PROPS</text></g>`)}`}},
+ msg:{curtain:"The curtain opens!",hat:"Poof! Something popped out of the hat.",light:["The spotlight is on!","Lights off."],popcorn:"Crunch! Fresh popcorn.",rack:"You push the costumes aside.",box:"The prop box creaks open."}},
 {id:"city",n:6,name:"The City",start:"street",
- idea:"Mitchell's idea: nine ducks, a scrap part for every duck, and the pigeon builds a device that unlocks limited edition ducks. This test shows one area with 4 of them.",
- helper:{name:"Pigeon",token:"scrap part",plural:"scrap parts",icon:"gear",art:toyPigeon},
+ idea:"Mitchell's world: nine ducks, a scrap part for every duck, and the Pigeon builds a gadget that will unlock limited edition ducks.",
+ helper:{name:"Pigeon",token:"scrap part",plural:"scrap parts",icon:"gear",art:toyPigeon,reward:"The Pigeon built you a Duck Detector! It will help you find special ducks when you finish special tasks."},
  ducks:[
   {id:"c_plain",name:"Yellow Duck",tier:"Easy",area:"street",c:YEL,hint:"Waiting for the bus"},
-  {id:"c_barista",name:"Barista Duck",tier:"Sneaky",area:"street",c:YEL,acc:"barista",hint:"Smells like coffee"},
+  {id:"c_barista",name:"Barista Duck",tier:"Sneaky",area:"cafe",c:YEL,acc:"barista",hint:"Smells like coffee"},
+  {id:"c_chef",name:"Chef Duck",tier:"Sneaky",area:"tower",c:{body:"#fff4dc",wing:"#f0dfbf",beak:"#ff8a3d"},acc:"chef",hint:"Cooking up high"},
   {id:"c_taxi",name:"Taxi Duck",tier:"Tricky",area:"street",c:YEL,acc:"checker",hint:"Honk honk"},
-  {id:"c_washer",name:"Window Washer Duck",tier:"Rare",area:"street",c:{body:"#ffd9a0",wing:"#f2b866",beak:"#ff8a3d"},acc:"washer",hint:"High up on a building"}],
- areas:{street:{name:"City Street",pos:[0,1],bg:["#8fd3ff","#3e434d"],exits:{},soon:{up:"Skyscraper",right:"Garbage Dump"},draw:F=>`
-  ${sky("#8fd3ff","#e3f4ff")}${cloud(300,40,.7)}
+  {id:"c_cool",name:"Cool Duck",tier:"Tricky",area:"tower",c:{body:"#7fd6ff",wing:"#4fb3ff",beak:"#ff8a3d"},acc:"shades",hint:"Too cool to come out"},
+  {id:"c_book",name:"Bookworm Duck",tier:"Tricky",area:"tower",c:{body:"#c8b6ff",wing:"#a48cf0",beak:"#ff8a3d"},acc:"specs",hint:"Reading by the window"},
+  {id:"c_washer",name:"Window Washer Duck",tier:"Rare",area:"tower",c:{body:"#ffd9a0",wing:"#f2b866",beak:"#ff8a3d"},acc:"washer",hint:"High up on a building"},
+  {id:"c_robot",name:"Robot Duck",tier:"Rare",area:"dump",c:{body:"#c9d3df",wing:"#9aa8ba",beak:"#ffb066"},acc:"antenna",hint:"Made of spare parts"},
+  {id:"c_pigeon",name:"Pigeon",tier:"Legendary",area:"dump",helper:true,art:()=>toyPigeon(true),hint:"Bring scrap parts to the dump"}],
+ areas:{
+ street:{name:"City Street",pos:[1,1],bg:["#8fd3ff","#3e434d"],exits:{left:"cafe",up:"tower",right:"dump"},doors:{cafe:"left",tower:"up"},draw:F=>`
+  ${sky("#8fd3ff","#e3f4ff")}${cloud(320,40,.7)}${cloud(70,30,.5)}
   <g ${N}><rect x="150" y="50" width="76" height="180" rx="6" fill="${LG("#b7c3d4","#8597b8")}" ${O}/><rect x="306" y="84" width="86" height="146" rx="6" fill="${LG("#a4b3cc","#7085a8")}" ${O}/>
   <rect x="218" y="12" width="94" height="220" rx="6" fill="${LG("#8597b8","#5b6b90")}" ${O}/>
-  ${Array.from({length:8},(_,r)=>Array.from({length:4},(_,c)=>`<rect x="${228+c*20}" y="${24+r*24}" width="13" height="15" rx="3" fill="${LG("#e6f4ff","#9fd0ff")}" stroke="${INK}" stroke-width="1.6"/>`).join("")).join("")}
-  <path d="M232 112 V92 M298 112 V92" stroke="${INK}" stroke-width="2"/></g>
-  ${door("","Skyscraper door, coming later",`<g ${N}><rect x="250" y="200" width="30" height="28" rx="4" fill="${LG("#d8f2ff","#8fd0ff")}" ${O2}/><path d="M265 200 V228" stroke="${INK}" stroke-width="2"/><rect x="244" y="194" width="42" height="7" rx="3" fill="${G("#2387d9")}" ${O2}/></g><rect x="244" y="190" width="42" height="40" fill="transparent"/>`,"Skyscraper")}
-  ${place("c_washer",262,104,.48,{noShadow:true})}
-  <rect x="226" y="112" width="78" height="7" rx="3" fill="${G("#5b6b80")}" ${O2} ${N}/>
-  <g ${N}><rect x="10" y="108" width="142" height="122" rx="8" fill="${LG("#f3dcb4","#d8b47a")}" ${O}/><rect x="6" y="100" width="150" height="12" rx="5" fill="${G("#a0703f")}" ${O2}/></g>
-  ${helperAt(WORLDS_REF("city"),70,84,.72)}
-  <g ${N}><path d="M14 126 H148 L140 148 H22 Z" fill="${G("#e8423a")}" ${O2}/>${[36,60,84,108,132].map(x=>`<path d="M${x} 128 L${x-2} 146" stroke="#fff" stroke-width="7"/>`).join("")}
-  <rect x="22" y="158" width="72" height="54" rx="6" fill="${G("#7a4523")}" ${O2}/><rect x="27" y="163" width="62" height="44" rx="4" fill="${LG("#fff3d6","#ffd9a0")}" stroke="${INK}" stroke-width="1.6"/></g>
-  ${place("c_barista",58,194,.52,{noShadow:true})}
-  <g ${N}><rect x="104" y="166" width="34" height="62" rx="8" fill="${G("#8a5a33")}" ${O2}/><circle cx="130" cy="198" r="2.6" fill="#ffcb2f"/></g>
+  ${Array.from({length:7},(_,r)=>Array.from({length:4},(_,c)=>`<rect x="${228+c*20}" y="${24+r*24}" width="13" height="15" rx="3" fill="${LG("#e6f4ff","#9fd0ff")}" stroke="${INK}" stroke-width="1.6"/>`).join("")).join("")}
+  ${[0,1,2,3,4].map(r=>`<rect x="162" y="${64+r*30}" width="52" height="14" rx="3" fill="${LG("#e6f4ff","#9fd0ff")}" stroke="${INK}" stroke-width="1.6"/>`).join("")}</g>
+  ${door("tower","Go in the skyscraper",`<g><rect x="250" y="196" width="30" height="32" rx="4" fill="${LG("#d8f2ff","#8fd0ff")}" ${O2}/><path d="M265 196 V228" stroke="${INK}" stroke-width="2"/><rect x="244" y="190" width="42" height="7" rx="3" fill="${G("#2387d9")}" ${O2}/></g><rect x="240" y="184" width="50" height="46" fill="transparent"/>`)}
+  <g ${N}><rect x="10" y="108" width="142" height="122" rx="8" fill="${LG("#f3dcb4","#d8b47a")}" ${O}/><rect x="6" y="100" width="150" height="12" rx="5" fill="${G("#a0703f")}" ${O2}/>
+  <path d="M14 126 H148 L140 148 H22 Z" fill="${G("#e8423a")}" ${O2}/>${[36,60,84,108,132].map(x=>`<path d="M${x} 128 L${x-2} 146" stroke="#fff" stroke-width="7"/>`).join("")}
+  <rect x="22" y="158" width="72" height="54" rx="6" fill="${G("#7a4523")}" ${O2}/><rect x="27" y="163" width="62" height="44" rx="4" fill="${LG("#fff3d6","#ffd9a0")}" stroke="${INK}" stroke-width="1.6"/>
+  <g transform="translate(58 186)"><path d="M-10 -8 H10 L8 10 H-8 Z" fill="#fff" stroke="${INK}" stroke-width="2"/><path d="M10 -3 Q17 -2 10 5" fill="none" stroke="${INK}" stroke-width="2"/><path d="M-3 -12 q3 -5 0 -9 M4 -12 q3 -5 0 -9" stroke="#a0703f" stroke-width="2" fill="none"/></g></g>
+  ${door("cafe","Go in the cafe",`<g><rect x="104" y="166" width="34" height="62" rx="8" fill="${G("#8a5a33")}" ${O2}/><circle cx="130" cy="198" r="2.6" fill="#ffcb2f"/></g><rect x="98" y="160" width="46" height="70" fill="transparent"/>`)}
   <rect y="226" width="400" height="14" fill="${LG("#dfe5ec","#b9c2ce")}" ${O} ${N}/><rect y="240" width="400" height="70" fill="${LG("#5a606c","#3e434d")}" ${N}/>
   <path d="M0 274 H400" stroke="#ffcb2f" stroke-width="5" stroke-dasharray="24 16" ${N}/>
   ${act("taxi","Taxi",`<g transform="translate(200 254)"><rect x="-54" y="-8" width="108" height="28" rx="10" fill="${G("#ffcb2f")}" ${O}/><path d="M-34 -8 L-24 -28 H24 L34 -8 Z" fill="${G("#ffcb2f")}" ${O}/><path d="M-27 -10 L-20 -24 H-3 V-10 Z" fill="${LG("#e6f4ff","#9fd0ff")}" stroke="${INK}" stroke-width="1.8"/><path d="M3 -10 V-24 H20 L27 -10 Z" fill="${LG("#e6f4ff","#9fd0ff")}" stroke="${INK}" stroke-width="1.8"/><rect x="-12" y="-36" width="24" height="9" rx="3" fill="${G("#2b2b2b")}" ${O2}/><text x="0" y="-29.4" text-anchor="middle" font-family="Grandstander,sans-serif" font-weight="900" font-size="7" fill="#ffcb2f">TAXI</text><circle cx="-30" cy="20" r="10" fill="${G("#2b2b2b")}" ${O2}/><circle cx="30" cy="20" r="10" fill="${G("#2b2b2b")}" ${O2}/><circle cx="-30" cy="20" r="3.6" fill="#b7c3d4"/><circle cx="30" cy="20" r="3.6" fill="#b7c3d4"/></g>`)}
   ${F.taxi?place("c_taxi",212,236,.34,{noShadow:true}):""}
   <g ${N}><rect x="328" y="158" width="5" height="70" fill="${G("#5b6b80")}" ${O2}/><rect x="312" y="146" width="74" height="14" rx="5" fill="${G("#2387d9")}" ${O2}/><text x="349" y="156.5" text-anchor="middle" font-family="Grandstander,sans-serif" font-size="9" font-weight="900" fill="#fff">BUS</text><rect x="338" y="204" width="48" height="8" rx="3" fill="${G("#a0703f")}" ${O2}/><path d="M344 212 V226 M380 212 V226" stroke="${INK}" stroke-width="3"/></g>
-  ${place("c_plain",362,192,.48)}`}},
- plan:[{name:"Skyscraper",pos:[1,0]},{name:"Garbage Dump",pos:[2,1]}],
- msg:{taxi:"Honk honk! Someone waved from the taxi."}}];
+  ${place("c_plain",362,192,.48)}`},
+ cafe:{stretchTop:false,stretchBottom:false,name:"The Cafe",pos:[0,1],bg:["#f7e6c6","#6a4428"],exits:{right:"street"},draw:F=>`
+  <rect width="400" height="300" fill="${LG("#f7e6c6","#e8cc9a")}"/>
+  <g ${N}><path d="M0 0 H400 V20 H0 Z" fill="${G("#e8423a")}"/>${[20,60,100,140,180,220,260,300,340,380].map(x=>`<path d="M${x} 0 V20" stroke="#fff" stroke-width="14"/>`).join("")}
+  <rect x="40" y="40" width="150" height="86" rx="8" fill="${G("#2f3a2f")}" ${O}/><text x="115" y="64" text-anchor="middle" font-family="Grandstander,sans-serif" font-weight="900" font-size="15" fill="#fff">MENU</text>
+  ${["Quack Latte","Pond Cocoa","Bread Muffin"].map((t,i)=>`<text x="56" y="${86+i*16}" font-family="Grandstander,sans-serif" font-size="11" fill="#e8f5e0">${t}</text>`).join("")}
+  <rect x="236" y="42" width="130" height="90" rx="8" fill="${LG("#d9f4ff","#9fd0ff")}" ${O}/><path d="M301 42 V132 M236 87 H366" stroke="${INK}" stroke-width="3"/>
+  ${[[60,150],[150,150],[260,150],[340,150]].map(([x,y])=>`<path d="M${x} ${y-10} V${y+6}" stroke="${INK}" stroke-width="2"/><path d="M${x-12} ${y+6} H${x+12} L${x+6} ${y+18} H${x-6} Z" fill="${G("#ffcb2f")}" ${O2}/>`).join("")}</g>
+  ${F.steam?place("c_barista",270,184,.6):""}
+  <g ${N}><rect x="0" y="196" width="400" height="104" fill="${LG("#8a5a33","#6a4428")}" ${O}/><rect x="-4" y="188" width="408" height="14" rx="5" fill="${G("#c08050")}" ${O2}/>
+  ${[30,130,230,330].map(x=>`<rect x="${x}" y="214" width="60" height="70" rx="6" fill="none" stroke="#5a3a1e" stroke-width="3"/>`).join("")}</g>
+  ${act("steam","Coffee machine",`<g transform="translate(110 168)"><rect x="-44" y="-40" width="88" height="62" rx="10" fill="${G("#c9d3df")}" ${O}/><rect x="-34" y="-30" width="68" height="16" rx="4" fill="${G("#5b6b80")}" ${O2}/><circle cx="-18" cy="-22" r="4" fill="#4cd2a0"/><circle cx="0" cy="-22" r="4" fill="#ffcb2f"/><circle cx="18" cy="-22" r="4" fill="#ff7a7a"/><path d="M-6 -12 V0 M6 -12 V0" stroke="${INK}" stroke-width="3"/><path d="M-10 2 H10 L8 18 H-8 Z" fill="#fff" ${O2}/>${F.steam?`<path d="M-30 -46 q6 -10 0 -20 M0 -46 q6 -10 0 -20 M30 -46 q6 -10 0 -20" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/>`:""}</g>`)}
+  <g ${N}>${[[318,186],[348,184]].map(([x,y])=>`<path d="M${x-12} ${y-14} H${x+12} L${x+9} ${y} H${x-9} Z" fill="${G("#ffffff")}" ${O2}/>`).join("")}</g>`},
+ tower:{name:"The Skyscraper",pos:[1,0],bg:["#7fc6f5","#b9c2ce"],stretchBottom:false,exits:{down:"street"},draw:F=>`
+  ${sky("#7fc6f5","#d6eeff")}${cloud(40,40,.6)}${cloud(370,70,.6)}
+  <rect x="70" y="-10" width="260" height="320" fill="${LG("#8fa1c0","#6a7ca0")}" ${O} ${N}/>
+  <g ${N}>${[0,1,2,3,4].map(r=>[0,1,2,3,4,5].map(c=>`<rect x="${86+c*40}" y="${8+r*46}" width="28" height="32" rx="3" fill="${LG("#e6f4ff","#9fd0ff")}" stroke="${INK}" stroke-width="1.6"/>`).join("")).join("")}</g>
+  ${[["win1",126,"c_chef","#ffd45c"],["win2",206,"c_cool","#7fd6ff"],["win3",286,"c_book","#c8b6ff"]].map(([k,x,id,c])=>`<g ${N}><rect x="${x-34}" y="146" width="68" height="70" rx="6" fill="${LG("#fff3d6","#ffd9a0")}" ${O}/></g>
+   ${F[k]?`${place(id,x,196,.56,{noShadow:true})}<g ${N}><path d="M${x-34} 146 H${x-20} Q${x-28} 180 ${x-20} 216 H${x-34} Z" fill="${G(c)}" ${O2}/><path d="M${x+34} 146 H${x+20} Q${x+28} 180 ${x+20} 216 H${x+34} Z" fill="${G(c)}" ${O2}/></g>`
+     :act(k,"Apartment window",`<rect x="${x-34}" y="146" width="68" height="70" rx="6" fill="${G(c)}" ${O}/><path d="M${x} 146 V216" stroke="${INK}" stroke-width="2"/>${[-24,-12,12,24].map(d=>`<path d="M${x+d} 150 V212" stroke="${INK}" stroke-opacity=".25" stroke-width="2"/>`).join("")}`)}
+   <rect x="${x-40}" y="214" width="80" height="8" rx="3" fill="${G("#5b6b80")}" ${O2} ${N}/>`).join("")}
+  <g ${N}><path d="M110 0 V94 M290 0 V94" stroke="${INK}" stroke-width="2"/></g>
+  ${place("c_washer",236,88,.5,{noShadow:true})}
+  <rect x="100" y="94" width="200" height="8" rx="3" fill="${G("#5b6b80")}" ${O2} ${N}/>
+  <rect y="246" width="400" height="60" fill="${LG("#dfe5ec","#b9c2ce")}" ${O} ${N}/>
+  <g ${N}><rect x="170" y="228" width="60" height="22" rx="3" fill="${LG("#d8f2ff","#8fd0ff")}" ${O2}/><rect x="164" y="224" width="72" height="7" rx="3" fill="${G("#2387d9")}" ${O2}/></g>`},
+ dump:{name:"Garbage Dump",pos:[2,1],bg:["#c9d9c0","#8a7a5a"],exits:{left:"street"},draw:F=>`
+  ${sky("#cfe3ff","#eef4e0")}${cloud(120,40,.6)}
+  <g ${N}><path d="M-10 230 Q30 120 110 150 Q160 110 210 160 Q270 100 330 150 Q380 130 410 180 V240 H-10 Z" fill="${LG("#9aa088","#6e7460")}" ${O}/>
+  ${[[60,170,"#e8423a"],[150,150,"#2387d9"],[250,140,"#ffcb2f"],[330,170,"#3fb46a"],[200,190,"#8e44ad"]].map(([x,y,c])=>`<rect x="${x-10}" y="${y-8}" width="20" height="14" rx="3" fill="${G(c)}" ${O2} transform="rotate(${(x%30)-15} ${x} ${y})"/>`).join("")}
+  ${[[40,206],[96,196],[300,200]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="16" fill="none" stroke="#2b2b2b" stroke-width="9"/>`).join("")}</g>
+  <path d="M-10 236 Q200 222 410 236 V310 H-10Z" fill="${LG("#a08a60","#7a6a48")}" ${O} ${N}/>
+  ${F.fridge?place("c_robot",112,206,.62):""}
+  ${act("fridge","Old fridge",`<g transform="translate(112 214)">${F.fridge?`<rect x="-34" y="-74" width="56" height="96" rx="8" fill="${G("#e8eef5")}" ${O}/><rect x="-62" y="-74" width="28" height="96" rx="6" fill="${G("#dfe5ec")}" ${O}/>`:`<rect x="-34" y="-74" width="68" height="96" rx="8" fill="${G("#e8eef5")}" ${O}/><path d="M-34 -36 H34" stroke="${INK}" stroke-width="2"/><rect x="22" y="-66" width="5" height="22" rx="2" fill="#5b6b80"/><rect x="22" y="-28" width="5" height="30" rx="2" fill="#5b6b80"/>`}</g>`)}
+  ${act("can","Trash can",`<g transform="translate(220 252)"><path d="M-22 -30 H22 L18 22 H-18 Z" fill="${G("#8597b8")}" ${O}/>${[-10,0,10].map(x=>`<path d="M${x} -24 V16" stroke="${INK}" stroke-opacity=".3" stroke-width="2"/>`).join("")}${F.can?`<ellipse cx="-30" cy="18" rx="22" ry="6" fill="${G("#a4b3cc")}" ${O2}/>`:`<ellipse cx="0" cy="-32" rx="26" ry="7" fill="${G("#a4b3cc")}" ${O2}/>`}</g>`)}
+  ${HELP("city",322,232,.9)}`}},
+ msg:{taxi:"Honk honk! Someone waved from the taxi.",steam:"Psssh! The coffee is ready.",win1:"The curtains open!",win2:"The curtains open!",win3:"The curtains open!",fridge:"The old fridge door swings open.",can:"Rattle rattle! Just old cans in there."}}];
+const SOON=[];
 function WORLDS_REF(id){ return WORLDS.concat(SOON).find(w=>w.id===id); }
 const W=Object.fromEntries(WORLDS.map(w=>[w.id,w]));
 const DUCK={}; WORLDS.concat(SOON).forEach(w=>(w.ducks||[]).forEach(d=>{d.world=w.id; DUCK[d.id]=d;}));
@@ -1112,9 +1228,11 @@ function catchDuck(g){
   if(g.animate && !reduce){ const inner=g.querySelector(".bob"); if(inner){ inner.style.animation="none"; inner.animate([{transform:"none",opacity:1},{transform:"translateY(-18px)",opacity:0}],{duration:420,fill:"forwards",easing:"ease-out"}); } }
   const every=wDucks(w).every(x=>S.found.has(x.id));
   let msg=`${d.name} found!`;
+  if(w.helper&&!d.helper){ const n=tokensFor(w), need=regDucks(w).length, h=w.helper;
+    msg=n<need?`${d.name} found! You got a ${h.token}: ${n} of ${need}.`:`${d.name} found! That's all ${need} ${h.plural}. Bring them to the ${h.name}!`; }
   if(d.tier==="Holiday") msg=`You found the ${d.name}! Happy ${d.holiday}!`;
   else if(every) msg=`Every ${w.name} duck found!`;
-  toast(msg,every||d.tier==="Holiday"?3000:1900);
+  toast(msg,every||d.tier==="Holiday"||w.helper?2800:1900);
   renderHud(false); bumpBadge(); setTimeout(rerender,430); if(d.tier!=="Holiday") checkDone();
 }
 function tapToken(tk){
@@ -1131,15 +1249,25 @@ function checkDone(){ const w=W[S.world]; if(doneShown.has(w.id)||wFound(w)<wTot
   setTimeout(()=>{ if(S.screen!=="world"||S.world!==w.id) return; const el=$("done"); fanfare();
     const last=!next;
     el.innerHTML=`<div><svg viewBox="-44 -54 88 86" aria-hidden="true">${shadow()}<g class="bob">${toyDuck(YEL,"crown")}</g></svg><span class="big">World complete!</span>
-      <span>${last?`You found all ${allDucks()} ducks! Snowy Peaks, the Theater and the City are coming soon.`:`Every duck in ${w.name} is in your Duck Log. ${next.name} is open!`}</span>
+      <span>${last?`You found all ${allDucks()} ducks in every world! Mitchell is dreaming up more.`:`Every duck in ${w.name} is in your Duck Log. ${next.name} is open!`}</span>
       <span class="row">${last?`<button class="go" type="button" id="doneHome">Back to worlds</button>`:`<button class="go" type="button" id="doneNext">Go to ${next.name}</button>`}<button class="go ghost" type="button" id="doneStay">Keep exploring</button></span></div>`;
     flush(); el.hidden=false; if(el.animate&&!reduce) el.firstElementChild.animate([{transform:"translateY(24px)",opacity:0},{transform:"none",opacity:1}],{duration:380,easing:"ease-out"});
     if(last) $("doneHome").addEventListener("click",goHome); else $("doneNext").addEventListener("click",()=>enterWorld(next.id));
     $("doneStay").addEventListener("click",()=>{el.hidden=true;}); el.querySelector(".go").focus({preventScroll:true});
   },1400);
 }
+function giveHelper(a){
+  const w=W[S.world], h=w.helper, hd=helperDuck(w); if(!hd||S.found.has(hd.id)) return;
+  const got=tokensFor(w), need=regDucks(w).length;
+  if(got<need){ toast(`The ${h.name} needs ${need} ${h.plural}. You have ${got}. Find more ducks!`,2600); blip(); return; }
+  const b=a.getBoundingClientRect(); burst(stage,b.left+b.width/2,b.top+b.height/2);
+  S.found.add(hd.id); save(); quack();
+  toast(`You gave the ${h.name} all ${need} ${h.plural}! The ${hd.name} joins your Duck Log.${h.reward?" "+h.reward:""}`,4200);
+  renderHud(false); bumpBadge(); setTimeout(rerender,300); checkDone();
+}
 function doAct(k,a){
-  const w=W[S.world], F=S.F, m=w.msg[k];
+  if(k==="helper"){ giveHelper(a); return; }
+  const w=W[S.world], F=S.F, m=(w.msg||{})[k];
   if(k==="chest"){ if(!F.key){ toast("Locked tight. A key must be hiding somewhere dark."); blip(); return; } F.chest=1; toast("The key fits. The chest pops open!"); }
   else if(Array.isArray(m)){ F[k]=!F[k]; toast(F[k]?m[0]:m[1]); }
   else if(TOGGLE.has(k)){ F[k]=!F[k]; toast(F[k]?m:"Closed."); }
@@ -1170,7 +1298,7 @@ $("scrim").addEventListener("click",closeSheet);
 document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeSheet(); });
 
 function duckCard(d,got){
-  return `<div class="card ${got?"":"miss"}"><svg viewBox="-40 -48 82 78" aria-hidden="true">${got?toyDuck(d.c,d.acc):`<g opacity=".35">${toyDuck(GHOST)}</g>`}</svg>
+  return `<div class="card ${got?"":"miss"}"><svg viewBox="-40 -48 82 78" aria-hidden="true">${d.art?(got?d.art():`<g opacity=".35">${d.art()}</g>`):got?toyDuck(d.c,d.acc):`<g opacity=".35">${toyDuck(GHOST)}</g>`}</svg>
     <span class="tier t-${d.tier}">${d.tier}</span>${got?`<b>${d.name}</b>`:`<small>${d.hint}</small>`}</div>`;
 }
 function holCard(h){ const got=S.found.has(h.id), on=holOn(h), n=tokGot(h), t=tokAll(h);

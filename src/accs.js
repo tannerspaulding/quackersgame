@@ -1,5 +1,7 @@
 /* ---------- More things ducks wear (for Spooky Manor and Under the Sea) ---------- */
 Object.assign(ACC,{
+  antenna:()=>`<path d="M12 -32 V-44" stroke="${INK}" stroke-width="2.6"/><circle cx="12" cy="-46" r="4.6" fill="${G("#ff5c5c")}" ${O2}/><rect x="6" y="-24" width="16" height="6" rx="3" fill="#9fe7ff" stroke="${INK}" stroke-width="1.6"/>`,
+  bowtie:()=>`<path d="M4 -3 L-6 -9 V3 Z M4 -3 L14 -9 V3 Z" fill="${G("#d8344f")}" ${O2}/><circle cx="4" cy="-3" r="2.6" fill="${G("#d8344f")}" ${O2}/>`,
   chef:()=>`<g transform="translate(12 -31)"><rect x="-9" y="-4" width="18" height="8" rx="2" fill="${G("#ffffff")}" ${O2}/><circle cx="-6" cy="-8" r="6" fill="${G("#ffffff")}" ${O2}/><circle cx="1" cy="-12" r="7" fill="${G("#ffffff")}" ${O2}/><circle cx="7" cy="-7" r="6" fill="${G("#ffffff")}" ${O2}/></g>`,
   bat:()=>`<path d="M-6 -4 L-30 -26 L-24 -12 L-38 -12 L-26 -2 L-36 4 L-8 6 Z" fill="${G("#3a2a55")}" ${O2}/><path d="M18 -30 L14 -42 L24 -34 Z M8 -30 L4 -42 L12 -32 Z" fill="${G("#3a2a55")}" ${O2}/>`,
   pirate:()=>`<g transform="translate(12 -30) rotate(-6)"><path d="M-18 0 Q-12 -16 0 -16 Q12 -16 18 0 Q0 -6 -18 0 Z" fill="${G("#2b2b2b")}" ${O2}/><circle cx="0" cy="-8" r="3" fill="#fff"/><path d="M-2 -5 L2 -3 M2 -5 L-2 -3" stroke="#fff" stroke-width="1.2"/></g><path d="M8 -22 L28 -22" stroke="#1a1a1a" stroke-width="2"/><ellipse cx="18" cy="-21" rx="5" ry="5.4" fill="#1a1a1a"/>`,
