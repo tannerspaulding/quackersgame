@@ -19,3 +19,24 @@
 .hcard.more{justify-content:center;opacity:.8}
 .card.hol svg{max-height:84px}
 .foot{text-align:center;margin:4px 0 0}
+
+/* Arrow style b: a small d-pad at the bottom, between the hint and menu buttons */
+.nav-b .edge{width:42px;height:42px;margin:0;top:auto;left:auto;right:auto;bottom:auto;border-radius:12px;background:rgba(255,255,255,.8)}
+.nav-b .edge span{display:none}
+.nav-b .edge.off{opacity:.28;pointer-events:none;box-shadow:none}
+.nav-b .e-down{left:calc(50% - 21px);bottom:max(10px,env(safe-area-inset-bottom))}
+.nav-b .e-left{left:calc(50% - 67px);bottom:calc(max(10px,env(safe-area-inset-bottom)) + 44px)}
+.nav-b .e-right{left:calc(50% + 25px);bottom:calc(max(10px,env(safe-area-inset-bottom)) + 44px)}
+.nav-b .e-up{left:calc(50% - 21px);bottom:calc(max(10px,env(safe-area-inset-bottom)) + 88px)}
+.nav-b .e-left:active,.nav-b .e-right:active,.nav-b .e-up:active,.nav-b .e-down:active{transform:translateY(2px)}
+/* Arrow style c: one row of named buttons just above the bottom buttons */
+.navbar{position:absolute;z-index:3;left:8px;right:8px;bottom:calc(max(12px,env(safe-area-inset-bottom)) + 64px);display:flex;justify-content:center;flex-wrap:wrap;gap:8px;pointer-events:none}
+.nav-c .navbar .edge{position:static;margin:0;width:auto;height:40px;border-radius:999px;padding:0 12px 0 8px;display:flex;align-items:center;gap:4px;pointer-events:auto;background:rgba(255,255,255,.86)}
+.nav-c .navbar .e-right{flex-direction:row-reverse;padding:0 8px 0 12px}
+.nav-c .navbar .edge span{position:static;margin:0;background:none;font-size:.74rem;padding:0;line-height:1}
+.nav-c .navbar .edge svg{width:18px;height:18px}
+.nav-c .navbar .edge:active{transform:translateY(2px)}
+/* Preview only: switch between the three styles */
+#navPick{position:fixed;z-index:9;left:max(10px,env(safe-area-inset-left));top:calc(max(10px,env(safe-area-inset-top)) + 58px);display:flex;align-items:center;gap:4px;background:var(--ink);color:#fff;border-radius:999px;padding:4px 6px 4px 12px;font-family:var(--display);font-size:.75rem}
+#navPick button{width:32px;height:32px;border-radius:50%;border:2px solid #fff;background:transparent;color:#fff;font-family:var(--display);font-weight:900;font-size:.85rem}
+#navPick button[aria-pressed="true"]{background:var(--duck);color:var(--ink)}

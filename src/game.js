@@ -197,17 +197,25 @@ function renderHud(pop){
 }
 function bumpBadge(){ const b=$("countPill"); b.classList.remove("pop"); void b.offsetWidth; b.classList.add("pop"); }
 const DIRS=["left","right","up","down"];
+/* How the arrows look and sit: a (small see-through arrows at the screen edges), b (a d-pad), c (a row of named buttons). */
+const PREVIEW=/*PREVIEW*/false;
+let NAV=(new URLSearchParams(location.search).get("nav")||"a").toLowerCase(); if(!"abc".includes(NAV)||NAV.length!==1) NAV="a";
+function setNav(n){ NAV=n; document.body.classList.remove("nav-a","nav-b","nav-c"); document.body.classList.add("nav-"+n);
+  document.querySelectorAll("#navPick button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.nav===n?"true":"false"));
+  if(S.screen==="world"){ aim(); renderEdges(); } }
 function renderEdges(peek){
-  stage.querySelectorAll(".edge").forEach(a=>a.remove());
+  stage.querySelectorAll(".edge,.navbar").forEach(a=>a.remove());
   const w=W[S.world], a=w.areas[S.area];
-  for(const dir of DIRS){
-    const to=a.exits[dir]; if(!to) continue;
+  const bar=NAV==="c"?document.createElement("div"):null; if(bar){ bar.className="navbar"; stage.insertBefore(bar,$("toast")); }
+  for(const dir of (NAV==="c"?["left","up","down","right"]:DIRS)){
+    const to=a.exits[dir];
+    if(!to){ if(NAV==="b"){ const g=document.createElement("span"); g.className=`edge off e-${dir}`; g.setAttribute("aria-hidden","true"); stage.insertBefore(g,$("toast")); } continue; }
     const name=w.areas[to].name;
     const b=document.createElement("button"); b.type="button"; b.className=`edge e-${dir}`;
     b.dataset.go=to; b.setAttribute("aria-label",`Go to the ${name}`);
     const ch=`<svg viewBox="0 0 26 26" aria-hidden="true"><path d="${CHEV[dir]}" fill="none" stroke="#173A5E" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
     b.innerHTML=`${ch}<span>${name}</span>`;
-    stage.insertBefore(b,$("toast"));
+    if(bar) bar.appendChild(b); else stage.insertBefore(b,$("toast"));
   }
 }
 function layer(){ const ls=stage.querySelectorAll(".layer"); return ls[ls.length-1]; }
@@ -219,6 +227,8 @@ let lockW=0;
 function fit(){
   const {w,h}=vp(); const s=Math.min(w/400,h/300); CAM.s=s; CAM.W=400*s; CAM.H=300*s;
   CAM.minX=CAM.maxX=(w-CAM.W)/2; CAM.minY=CAM.maxY=(h-CAM.H)/2;
+  /* Side arrows sit in the open ground under the picture when the screen has room, so they cover nothing. */
+  const sb=CAM.minY+CAM.H, room=h-80-sb; stage.style.setProperty("--ey",room>=70?Math.round(sb+room/2)+"px":"50%");
 }
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
 /* The svg fills the stage. Its viewBox shows the whole 400 x 300 scene and simply opens up past the edges,
@@ -506,4 +516,9 @@ function endEgg(){
 }
 
 renderSound(); goHome();
-window.QUACKERS={WORLDS,HOL,DUCK,S,month:NOW_MONTH,enterWorld,show,goHome,doAct};
+setNav(NAV);
+if(PREVIEW){ const pk=document.createElement("div"); pk.id="navPick"; pk.setAttribute("role","group"); pk.setAttribute("aria-label","Arrow style");
+  pk.innerHTML=`<b>Arrows</b>${["a","b","c"].map(n=>`<button type="button" data-nav="${n}">${n.toUpperCase()}</button>`).join("")}`;
+  document.body.appendChild(pk); pk.addEventListener("click",e=>{ const b=e.target.closest("button"); if(b) setNav(b.dataset.nav); }); setNav(NAV);
+  if(S.screen!=="world") enterWorld("yard"); }
+window.QUACKERS={WORLDS,HOL,DUCK,S,month:NOW_MONTH,enterWorld,show,goHome,doAct,setNav};

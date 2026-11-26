@@ -122,15 +122,16 @@ section{display:flex;flex-direction:column;gap:12px}
 .corner{position:absolute;z-index:4;bottom:max(12px,env(safe-area-inset-bottom))}
 .corner.bl{left:max(12px,env(safe-area-inset-left))}.corner.br{right:max(12px,env(safe-area-inset-right))}
 .corner.hint{background:#FFF3C4}
-.edge{position:absolute;z-index:3;width:54px;height:54px;border-radius:50%;border:3px solid var(--ink);background:rgba(255,255,255,.94);color:var(--ink);
-  display:grid;place-items:center;padding:0;box-shadow:0 4px 0 var(--ink);transition:transform .1s, box-shadow .1s}
-.edge:active{box-shadow:0 1px 0 var(--ink)}
-.edge svg{width:26px;height:26px}
-.edge span{position:absolute;white-space:nowrap;font-family:var(--display);font-weight:900;font-size:.7rem;background:var(--duck);border:2px solid var(--ink);border-radius:999px;padding:0 8px;line-height:1.5;pointer-events:none}
-.e-left{left:max(10px,env(safe-area-inset-left));top:50%;margin-top:-27px}.e-left span{top:100%;margin-top:7px;left:0}
-.e-right{right:max(10px,env(safe-area-inset-right));top:50%;margin-top:-27px}.e-right span{top:100%;margin-top:7px;right:0}
-.e-up{top:calc(max(10px,env(safe-area-inset-top)) + 54px);left:50%;margin-left:-27px}.e-up span{top:100%;margin-top:7px}
-.e-down{bottom:max(14px,env(safe-area-inset-bottom));left:50%;margin-left:-27px}.e-down span{bottom:100%;margin-bottom:7px}
+.edge{position:absolute;z-index:3;width:46px;height:46px;border-radius:50%;border:2.5px solid rgba(23,58,94,.75);background:rgba(255,255,255,.62);color:var(--ink);
+  display:grid;place-items:center;padding:0;box-shadow:0 3px 0 rgba(23,58,94,.55);transition:transform .1s, box-shadow .1s, background .1s;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+.edge::before{content:"";position:absolute;inset:-8px}
+.edge:active{box-shadow:0 1px 0 rgba(23,58,94,.55);background:rgba(255,255,255,.9)}
+.edge svg{width:20px;height:20px}
+.edge span{position:absolute;white-space:nowrap;font-family:var(--display);font-weight:800;font-size:.6rem;color:var(--ink);background:rgba(255,255,255,.72);border-radius:999px;padding:0 6px;line-height:1.55;pointer-events:none}
+.e-left{left:max(4px,env(safe-area-inset-left));top:var(--ey,50%);margin-top:-23px}.e-left span{top:100%;margin-top:4px;left:0}
+.e-right{right:max(4px,env(safe-area-inset-right));top:var(--ey,50%);margin-top:-23px}.e-right span{top:100%;margin-top:4px;right:0}
+.e-up{top:calc(max(10px,env(safe-area-inset-top)) + 54px);left:50%;margin-left:-23px}.e-up span{top:100%;margin-top:4px}
+.e-down{bottom:max(14px,env(safe-area-inset-bottom));left:50%;margin-left:-23px}.e-down span{bottom:100%;margin-bottom:4px}
 .e-left:active{transform:translate(-3px,3px)}.e-right:active{transform:translate(3px,3px)}.e-up:active,.e-down:active{transform:translateY(3px)}
 .e-left svg{animation:nudgeL 2.4s ease-in-out infinite}.e-right svg{animation:nudgeR 2.4s ease-in-out infinite}
 .e-up svg{animation:nudgeU 2.4s ease-in-out infinite}.e-down svg{animation:nudgeD 2.4s ease-in-out infinite}
@@ -264,6 +265,27 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adju
 .hcard.more{justify-content:center;opacity:.8}
 .card.hol svg{max-height:84px}
 .foot{text-align:center;margin:4px 0 0}
+
+/* Arrow style b: a small d-pad at the bottom, between the hint and menu buttons */
+.nav-b .edge{width:42px;height:42px;margin:0;top:auto;left:auto;right:auto;bottom:auto;border-radius:12px;background:rgba(255,255,255,.8)}
+.nav-b .edge span{display:none}
+.nav-b .edge.off{opacity:.28;pointer-events:none;box-shadow:none}
+.nav-b .e-down{left:calc(50% - 21px);bottom:max(10px,env(safe-area-inset-bottom))}
+.nav-b .e-left{left:calc(50% - 67px);bottom:calc(max(10px,env(safe-area-inset-bottom)) + 44px)}
+.nav-b .e-right{left:calc(50% + 25px);bottom:calc(max(10px,env(safe-area-inset-bottom)) + 44px)}
+.nav-b .e-up{left:calc(50% - 21px);bottom:calc(max(10px,env(safe-area-inset-bottom)) + 88px)}
+.nav-b .e-left:active,.nav-b .e-right:active,.nav-b .e-up:active,.nav-b .e-down:active{transform:translateY(2px)}
+/* Arrow style c: one row of named buttons just above the bottom buttons */
+.navbar{position:absolute;z-index:3;left:8px;right:8px;bottom:calc(max(12px,env(safe-area-inset-bottom)) + 64px);display:flex;justify-content:center;flex-wrap:wrap;gap:8px;pointer-events:none}
+.nav-c .navbar .edge{position:static;margin:0;width:auto;height:40px;border-radius:999px;padding:0 12px 0 8px;display:flex;align-items:center;gap:4px;pointer-events:auto;background:rgba(255,255,255,.86)}
+.nav-c .navbar .e-right{flex-direction:row-reverse;padding:0 8px 0 12px}
+.nav-c .navbar .edge span{position:static;margin:0;background:none;font-size:.74rem;padding:0;line-height:1}
+.nav-c .navbar .edge svg{width:18px;height:18px}
+.nav-c .navbar .edge:active{transform:translateY(2px)}
+/* Preview only: switch between the three styles */
+#navPick{position:fixed;z-index:9;left:max(10px,env(safe-area-inset-left));top:calc(max(10px,env(safe-area-inset-top)) + 58px);display:flex;align-items:center;gap:4px;background:var(--ink);color:#fff;border-radius:999px;padding:4px 6px 4px 12px;font-family:var(--display);font-size:.75rem}
+#navPick button{width:32px;height:32px;border-radius:50%;border:2px solid #fff;background:transparent;color:#fff;font-family:var(--display);font-weight:900;font-size:.85rem}
+#navPick button[aria-pressed="true"]{background:var(--duck);color:var(--ink)}
 
 </style>
 </head>
@@ -1144,17 +1166,25 @@ function renderHud(pop){
 }
 function bumpBadge(){ const b=$("countPill"); b.classList.remove("pop"); void b.offsetWidth; b.classList.add("pop"); }
 const DIRS=["left","right","up","down"];
+/* How the arrows look and sit: a (small see-through arrows at the screen edges), b (a d-pad), c (a row of named buttons). */
+const PREVIEW=/*PREVIEW*/false;
+let NAV=(new URLSearchParams(location.search).get("nav")||"a").toLowerCase(); if(!"abc".includes(NAV)||NAV.length!==1) NAV="a";
+function setNav(n){ NAV=n; document.body.classList.remove("nav-a","nav-b","nav-c"); document.body.classList.add("nav-"+n);
+  document.querySelectorAll("#navPick button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.nav===n?"true":"false"));
+  if(S.screen==="world"){ aim(); renderEdges(); } }
 function renderEdges(peek){
-  stage.querySelectorAll(".edge").forEach(a=>a.remove());
+  stage.querySelectorAll(".edge,.navbar").forEach(a=>a.remove());
   const w=W[S.world], a=w.areas[S.area];
-  for(const dir of DIRS){
-    const to=a.exits[dir]; if(!to) continue;
+  const bar=NAV==="c"?document.createElement("div"):null; if(bar){ bar.className="navbar"; stage.insertBefore(bar,$("toast")); }
+  for(const dir of (NAV==="c"?["left","up","down","right"]:DIRS)){
+    const to=a.exits[dir];
+    if(!to){ if(NAV==="b"){ const g=document.createElement("span"); g.className=`edge off e-${dir}`; g.setAttribute("aria-hidden","true"); stage.insertBefore(g,$("toast")); } continue; }
     const name=w.areas[to].name;
     const b=document.createElement("button"); b.type="button"; b.className=`edge e-${dir}`;
     b.dataset.go=to; b.setAttribute("aria-label",`Go to the ${name}`);
     const ch=`<svg viewBox="0 0 26 26" aria-hidden="true"><path d="${CHEV[dir]}" fill="none" stroke="#173A5E" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
     b.innerHTML=`${ch}<span>${name}</span>`;
-    stage.insertBefore(b,$("toast"));
+    if(bar) bar.appendChild(b); else stage.insertBefore(b,$("toast"));
   }
 }
 function layer(){ const ls=stage.querySelectorAll(".layer"); return ls[ls.length-1]; }
@@ -1166,6 +1196,8 @@ let lockW=0;
 function fit(){
   const {w,h}=vp(); const s=Math.min(w/400,h/300); CAM.s=s; CAM.W=400*s; CAM.H=300*s;
   CAM.minX=CAM.maxX=(w-CAM.W)/2; CAM.minY=CAM.maxY=(h-CAM.H)/2;
+  /* Side arrows sit in the open ground under the picture when the screen has room, so they cover nothing. */
+  const sb=CAM.minY+CAM.H, room=h-80-sb; stage.style.setProperty("--ey",room>=70?Math.round(sb+room/2)+"px":"50%");
 }
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
 /* The svg fills the stage. Its viewBox shows the whole 400 x 300 scene and simply opens up past the edges,
@@ -1453,7 +1485,12 @@ function endEgg(){
 }
 
 renderSound(); goHome();
-window.QUACKERS={WORLDS,HOL,DUCK,S,month:NOW_MONTH,enterWorld,show,goHome,doAct};
+setNav(NAV);
+if(PREVIEW){ const pk=document.createElement("div"); pk.id="navPick"; pk.setAttribute("role","group"); pk.setAttribute("aria-label","Arrow style");
+  pk.innerHTML=`<b>Arrows</b>${["a","b","c"].map(n=>`<button type="button" data-nav="${n}">${n.toUpperCase()}</button>`).join("")}`;
+  document.body.appendChild(pk); pk.addEventListener("click",e=>{ const b=e.target.closest("button"); if(b) setNav(b.dataset.nav); }); setNav(NAV);
+  if(S.screen!=="world") enterWorld("yard"); }
+window.QUACKERS={WORLDS,HOL,DUCK,S,month:NOW_MONTH,enterWorld,show,goHome,doAct,setNav};
 
 </script>
 </body>
