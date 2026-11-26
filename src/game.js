@@ -97,6 +97,8 @@ function toggleSound(){ S.sound=!S.sound; save(); renderSound(); if(S.sound) bli
 $("sndBtn").addEventListener("click",toggleSound);
 
 /* ---------- Screens ---------- */
+/* The swim-ring Q from the Quackers app icon: the duck sits in the ring and the handle makes the Q's tail. */
+const QMARK=`<g class="logo-duck"><g transform="translate(57.6 66) scale(.62)"><path d="M27 58 Q10 52 7 34 Q21 39 34 46 Z" fill="#FFCB2F" stroke="#173A5E" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><ellipse cx="55" cy="64" rx="37" ry="25" fill="#FFCB2F" stroke="#173A5E" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><path d="M36 63 Q51 47 70 60 Q60 77 40 71 Z" fill="#F0A500" stroke="#173A5E" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><circle cx="82" cy="39" r="21" fill="#FFCB2F" stroke="#173A5E" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><ellipse cx="73" cy="28" rx="5.5" ry="2.6" fill="#fff" opacity=".6" transform="rotate(-28 73 28)"/><ellipse cx="33" cy="54" rx="9" ry="3" fill="#fff" opacity=".45" transform="rotate(-18 33 54)"/><path d="M100 40 Q115 37 117 44 Q111 52 100 50 Z" fill="#FF8A3D" stroke="#173A5E" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><path d="M102 45.6 L113.5 45" fill="none" stroke="#173A5E" stroke-width="2" stroke-linecap="round"/><circle cx="91" cy="47.5" r="4.5" fill="#FF8FB1" opacity=".7"/><circle cx="89" cy="34" r="4.8" fill="#173A5E"/><circle cx="90.7" cy="32.3" r="1.7" fill="#fff"/><path d="M63 23 L81.5 2.5 L100 23 Z" fill="#fff" stroke="#173A5E" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><rect x="61" y="19" width="41.5" height="7" rx="3.5" fill="#2387D9" stroke="#173A5E" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/></g></g><circle cx="96" cy="100" r="58" fill="none" stroke="#173A5E" stroke-width="34"/><circle cx="96" cy="100" r="58" fill="none" stroke="#fff" stroke-width="26"/><circle cx="96" cy="100" r="58" fill="none" stroke="#FF8A3D" stroke-width="26" stroke-dasharray="36 55.1" stroke-dashoffset="18" transform="rotate(-45 96 100)"/><path d="M136 140 Q152 166 190 172" fill="none" stroke="#173A5E" stroke-width="24" stroke-linecap="round"/><path d="M136 140 Q152 166 190 172" fill="none" stroke="#2387D9" stroke-width="15" stroke-linecap="round"/>`;
 function setScreen(name){
   S.screen=name; closeSheet();
   $("scrHome").hidden=name!=="home"; $("scrWorld").hidden=name!=="world"; $("scrEgg").hidden=name!=="egg";
@@ -117,7 +119,7 @@ function goHome(){
   else ev=`<b>Holiday ducks</b><small>Special ducks visit on holidays. Look out for them!</small>`;
   const heroH=HOL[0];
   $("scrHome").innerHTML=`
-   <div class="logo"><svg viewBox="-40 -48 82 78" aria-hidden="true">${shadow()}<g class="bob">${toyDuck(YEL)}</g></svg><b>Quackers</b></div>
+   <div class="logo" role="img" aria-label="Quackers"><svg class="qmark" viewBox="16 20 190 168" aria-hidden="true">${QMARK}</svg><b aria-hidden="true">uackers</b></div>
    <p class="total">${got} of ${allDucks()} ducks found</p>
    <button type="button" class="event" id="evt"><svg viewBox="-46 -48 92 76" aria-hidden="true"><g class="bob">${(hol||heroH).art()}</g></svg><span>${ev}</span></button>
    <div class="worlds">${WORLDS.map(w=>{ const f=wFound(w), t=wTotal(w), open=w.n<=S.unlocked, prev=WORLDS[w.n-2];
