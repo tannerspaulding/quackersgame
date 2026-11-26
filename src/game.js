@@ -18,9 +18,9 @@ const KEY="quackers-v3";
 const NOW_MONTH=(()=>{ try{ const m=+new URLSearchParams(location.search).get("month"); if(m>=1&&m<=12) return m-1; }catch(e){} return new Date().getMonth(); })();
 function load(){ try{ const j=JSON.parse(localStorage.getItem(KEY)||"null"); if(j&&typeof j==="object") return j; }catch(e){} return {}; }
 const SV=load();
-const S={screen:"home",world:null,area:null,found:new Set(SV.found||[]),flags:SV.flags||{},unlocked:SV.unlocked||1,sound:SV.sound!==false,tokens:SV.tokens||[],best:SV.best||0,last:SV.last||{},seen:new Set(),
+const S={screen:"home",world:null,area:null,found:new Set(SV.found||[]),flags:SV.flags||{},unlocked:SV.unlocked||1,sound:SV.sound!==false,tokens:SV.tokens||[],best:SV.best||0,last:SV.last||{},seen:new Set(),pts:SV.pts|0,mg:SV.mg||(SV.best?{egg:{lvl:2,stars:{1:SV.best}}}:{}),own:SV.own||[],hat:SV.hat||"",color:SV.color||"",spark:SV.spark|0,crowAt:0,
   get F(){ return this.flags[this.world]||(this.flags[this.world]={}); }};
-function save(){ try{ localStorage.setItem(KEY,JSON.stringify({found:[...S.found],flags:S.flags,unlocked:S.unlocked,sound:S.sound,tokens:S.tokens,best:S.best,last:S.last})); }catch(e){} }
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify({found:[...S.found],flags:S.flags,unlocked:S.unlocked,sound:S.sound,tokens:S.tokens,best:S.best,last:S.last,pts:S.pts,mg:S.mg,own:S.own,hat:S.hat,color:S.color,spark:S.spark})); }catch(e){} }
 
 /* ---------- Sound ---------- */
 let actx;
@@ -144,11 +144,13 @@ function goHome(){
       <span class="thumb">${sv("0 0 400 300",thumbOf(w),'style="pointer-events:none"')}<span class="tag">Coming soon</span></span>
       <span class="meta"><span class="num">World ${w.n}</span><b>${w.name}</b><small>Coming soon</small></span></button>`).join("")}</div>
    <div class="bigbtns"><button type="button" class="bigbtn games" id="hGames">${IC.games}Mini games</button>
-   <button type="button" class="bigbtn shop" id="hShop">${IC.shop}Pond Points shop<small class="soonlbl">Soon</small></button></div>
+   <button type="button" class="bigbtn shop" id="hShop">${IC.shop}<span>Pond Points shop<small class="ppsmall">${PP}${S.pts}</small></span></button>
+   <button type="button" class="bigbtn special" id="hSpecial"><svg viewBox="-40 -52 84 82" aria-hidden="true">${youDuck()}</svg>Special ducks<small class="soonlbl">${MINI.filter(starWon).length+SHOP.filter(i=>i.kind==="duck"&&own(i.id)).length} of ${MINI.length+Object.keys(SHOPDUCK).length}</small></button></div>
    <div class="homefoot"><button type="button" class="linkbtn" id="hReset">Start over</button></div>`;
   flush();
   $("evt").addEventListener("click",openHoliday);
-  $("hShop").addEventListener("click",openShop);
+  $("hShop").addEventListener("click",()=>openShop());
+  $("hSpecial").addEventListener("click",openSpecial);
   $("hGames").addEventListener("click",openGames);
   $("hReset").addEventListener("click",askReset);
   $("scrHome").querySelectorAll("[data-world]").forEach(b=>b.addEventListener("click",()=>{ const w=W[b.dataset.world];
@@ -157,7 +159,7 @@ function goHome(){
 }
 let resetT;
 function askReset(){ const b=$("hReset");
-  if(b.dataset.armed){ localStorage.removeItem(KEY); S.found=new Set(); S.flags={}; S.unlocked=1; S.tokens=[]; S.best=0; S.last={}; doneShown.clear(); save(); goHome(); return; }
+  if(b.dataset.armed){ localStorage.removeItem(KEY); S.found=new Set(); S.flags={}; S.unlocked=1; S.tokens=[]; S.best=0; S.last={}; S.pts=0; S.mg={}; S.own=[]; S.hat=""; S.color=""; S.spark=0; doneShown.clear(); save(); goHome(); return; }
   b.dataset.armed="1"; b.textContent="Tap again to erase all your ducks"; b.classList.add("armed");
   clearTimeout(resetT); resetT=setTimeout(()=>{ if(b.isConnected){ delete b.dataset.armed; b.textContent="Start over"; b.classList.remove("armed"); } },3500);
 }
@@ -393,7 +395,7 @@ function hint(){
   let area=null;
   if(left.length){
     const here=left.find(d=>d.area===S.area);
-    if(here){ toast(`A duck is right here. ${here.hint}...`,2600); return; }
+    if(here){ useSparkle(here); return; }
     area=left[0].area; toast(`Psst... try the ${w.areas[area].name}.`,2600);
   } else if(holLive(h)){
     const miss=Object.entries(h.tokens).find(([id])=>!S.tokens.includes(id)); area=miss?miss[1]:h.area;
@@ -402,6 +404,20 @@ function hint(){
   } else { toast("Every duck here is found!"); return; }
   const dir=dirTo(area); const arr=stage.querySelector(`.e-${dir}`)||stage.querySelector(".edge");
   if(arr){ arr.classList.add("lookhere"); setTimeout(()=>arr.classList.remove("lookhere"),2600); }
+}
+/* A Duck Sparkle from the shop: tap the light bulb again while it says a duck is here, and that duck sparkles. */
+let sparkArm=0;
+function useSparkle(d){
+  const el=layer()&&layer().querySelector(`[data-duck="${d.id}"]`);
+  const bot=starWon(MG_BY.scrap), botReady=bot&&Date.now()-S.crowAt>60000;
+  if((!S.spark&&!botReady)||!el){ sparkArm=0; toast(`A duck is right here. ${d.hint}...`+(S.spark&&!el?" It's hiding inside something. Try tapping things!":""),2600); return; }
+  if(Date.now()-sparkArm>4000){ sparkArm=Date.now(); toast(`A duck is right here. ${d.hint}... `+(botReady?"Tap the light again and the Crow Bot will find it.":`Tap the light again to use a Duck Sparkle (${S.spark} left).`),3600); return; }
+  sparkArm=0; if(botReady) S.crowAt=Date.now(); else S.spark--; save();
+  const m=/translate\(([-\d.]+)[ ,]+([-\d.]+)\)/.exec(el.getAttribute("transform")||""); const svg=el.ownerSVGElement;
+  if(m&&svg){ const g=document.createElementNS("http://www.w3.org/2000/svg","g"); g.setAttribute("class","sparkle"); g.setAttribute("pointer-events","none"); g.setAttribute("transform",`translate(${m[1]} ${m[2]})`);
+    g.innerHTML=`<circle r="30" fill="#fff6a8" opacity=".55"/><circle r="30" fill="none" stroke="#ffcb2f" stroke-width="4"/>${spark(-30,-26,1.1)}${spark(32,-22,.9)}${spark(0,36,.8)}${spark(-34,20,.7)}`;
+    svg.appendChild(g); setTimeout(()=>g.remove(),5000); }
+  pop(); toast(botReady?"Beep boop! The Crow Bot found a duck.":`Sparkle! ${S.spark} Duck Sparkle${S.spark===1?"":"s"} left.`,2200);
 }
 $("tabHint").addEventListener("click",hint);
 $("countPill").addEventListener("click",openLog);
@@ -429,91 +445,7 @@ function openHoliday(){
     <span class="mon">${S.found.has(h.id)?"Found!":holOn(h)?"Here this month":h.month}</span><b>${h.name}</b><small>${h.holiday}: ${h.task}${holLive(h)?` You have ${tokGot(h)} of ${tokAll(h)} acorns.`:""}</small></div>`).join("")}
     <div class="hcard more"><b>More on the way</b><small>More holiday ducks are coming soon.</small></div></div>`,"Holiday ducks");
 }
-function openShop(){
-  openSheet(`<div class="soonbox">${IC.shop}<p><b>The Pond Points shop is coming soon.</b> You'll earn Pond Points in mini games and spend them on special ducks, things for your duck and hints.</p></div>`,"Pond Points shop");
-}
-
-const MINI=[
- {id:"egg",n:"Egg Guard",star:"The Chicken",d:"Tap the foxes before they reach the nest.",a:()=>toyChicken(),live:true},
- {id:"scrap",n:"Scrap Hunt",star:"Mr. Crow",d:"Tap the scrap parts as they fall and skip the junk.",a:()=>toyCrow()},
- {id:"sand",n:"Sandwich Snatch",star:"Mr. Seagull",d:"Swoop in when the picnic folks look away.",a:()=>toyGull()}
-];
-function openGames(){
-  openSheet(`<div class="mgrid">${MINI.map(m=>`<div class="mg"><svg viewBox="-44 -40 88 70" aria-hidden="true"><g class="bob">${m.a()}</g></svg><div><b>${m.n}</b><small>${m.live?`${m.d}${S.best?` Best: ${"★".repeat(S.best)}${"☆".repeat(3-S.best)}`:""}`:"Coming soon."}</small></div>
-    <button type="button" class="play" data-mini="${m.id}"${m.live?"":" disabled"}>${m.live?"Play":"Soon"}</button></div>`).join("")}</div>`,"Mini games");
-  $("sheet").querySelector('[data-mini="egg"]').addEventListener("click",openEgg);
-}
-
-/* ---------- Egg Guard ---------- */
-const E={run:false,eggs:3,scared:0,left:25,spawn:.4,foxes:[],last:0,raf:0,back:"home"};
-const field=$("field");
-function fieldArt(){
-  return `${sky("#9fdcff","#e6f7ff")}${sun(60,46)}${cloud(250,58,.9)}
-  <path d="M-10 150 Q200 120 410 150 V310 H-10 Z" fill="${LG("#b0e586","#5fb244")}" ${O}/>
-  <g ${N}>${[0,1,2,3,4,5,6,7,8].map(i=>`<rect x="${6+i*46}" y="128" width="12" height="40" rx="4" fill="${G("#f3dcb4")}" ${O2}/>`).join("")}<rect x="0" y="138" width="400" height="8" rx="4" fill="${G("#f3dcb4")}" ${O2}/></g>
-  <g ${N} transform="translate(320 120)"><rect x="-30" y="-30" width="60" height="44" rx="6" fill="${LG("#ff8f7f","#e0503f")}" ${O}/><path d="M-38 -26 L0 -54 L38 -26 Z" fill="${LG("#9a7ae0","#5a3a8a")}" ${O}/><rect x="-10" y="-14" width="20" height="28" rx="8" fill="${G("#7a4523")}" ${O2}/></g>
-  <g transform="translate(200 236)" ${N}><ellipse cx="0" cy="16" rx="60" ry="16" fill="${G("#c89260")}" ${O}/><path d="M-54 10 Q0 32 54 10" stroke="${INK}" stroke-width="2" fill="none"/>
-  ${[[-22,4],[0,0],[22,4]].slice(0,E.eggs).map(([x,y])=>`<g transform="translate(${x} ${y})">${eggIcon(1)}</g>`).join("")}
-  <g transform="translate(0 -22) scale(.85)"><g class="bob">${toyChicken()}</g></g></g>`;
-}
-function eHud(){ $("eEggs").innerHTML=`<svg width="18" height="22" viewBox="-11 -14 22 28" aria-hidden="true">${eggIcon(1)}</svg>${E.eggs}`; const t=Math.max(0,Math.ceil(E.left)); $("eTime").textContent=`0:${String(t).padStart(2,"0")}`; $("eScared").textContent=`Scared ${E.scared}`; flush(); }
-function drawField(){ $("fieldArt").innerHTML=fieldArt(); flush(); }
-function openEgg(){
-  E.back=S.screen==="world"?"world":"home";
-  setScreen("egg"); $("title").textContent="Egg Guard";
-  Object.assign(E,{eggs:3,scared:0,left:25}); drawField(); eHud();
-  $("eCover").hidden=false;
-  $("eCover").innerHTML=`<div><div class="big">Egg Guard</div><p>Foxes are sneaking up on the chicken's eggs. Tap each fox to scare it away before time runs out.</p><button class="go" id="ePlay" type="button">Play</button></div>`;
-  $("ePlay").addEventListener("click",startEgg);
-}
-function startEgg(){
-  field.querySelectorAll(".fox").forEach(f=>f.remove());
-  Object.assign(E,{run:true,eggs:3,scared:0,left:25,spawn:.4,foxes:[],last:performance.now()});
-  $("eCover").hidden=true; drawField(); eHud(); blip(); E.raf=requestAnimationFrame(eLoop);
-}
-function spawnFox(){
-  const fromLeft=Math.random()<.5, b=document.createElement("button");
-  b.type="button"; b.className="fox"; b.setAttribute("aria-label","Fox, tap to scare it"); b.innerHTML=sv("-40 -30 80 54",toyFox()); flush();
-  const f={b,x:fromLeft?-8:108,y:52+Math.random()*24,dir:fromLeft?1:-1,sp:7+(25-E.left)*.35};
-  b.querySelector("svg").style.transform=fromLeft?"":"scaleX(-1)";
-  b.addEventListener("pointerdown",e=>{ e.preventDefault(); scare(f); });
-  b.addEventListener("click",()=>scare(f));
-  field.appendChild(b); E.foxes.push(f); posFox(f);
-}
-function posFox(f){ f.b.style.left=f.x+"%"; f.b.style.top=f.y+"%"; }
-function scare(f){
-  if(!E.run||f.gone) return; f.gone=true; E.scared++; eHud(); pop();
-  f.b.querySelector("svg").style.transform=f.dir>0?"scaleX(-1)":"";
-  f.b.classList.add("run"); f.b.style.left=(f.dir>0?-20:120)+"%"; setTimeout(()=>f.b.remove(),500);
-}
-function eLoop(now){
-  if(!E.run) return;
-  const dt=Math.min(.05,(now-E.last)/1000); E.last=now; E.left-=dt; E.spawn-=dt;
-  if(E.spawn<=0){ spawnFox(); E.spawn=Math.max(.9,1.8-(25-E.left)*.03); }
-  for(const f of E.foxes){ if(f.gone) continue;
-    const dx=50-f.x, dy=78-f.y, d=Math.hypot(dx,dy);
-    if(d<7){ f.gone=true; f.b.remove(); E.eggs--; blip("door"); drawField(); if(E.eggs<=0) break; continue; }
-    f.x+=dx/d*f.sp*dt; f.y+=dy/d*f.sp*dt; posFox(f);
-  }
-  E.foxes=E.foxes.filter(f=>!f.gone); eHud();
-  if(E.eggs<=0||E.left<=0){ endEgg(); return; }
-  E.raf=requestAnimationFrame(eLoop);
-}
-function leaveEgg(){ if(E.back==="world"&&S.world) enterWorld(S.world); else goHome(); }
-$("eExit").addEventListener("click",leaveEgg);
-function stopEgg(){ E.run=false; cancelAnimationFrame(E.raf); field.querySelectorAll(".fox").forEach(f=>f.remove()); E.foxes=[]; }
-function endEgg(){
-  stopEgg();
-  const stars=E.eggs, rec=stars>S.best; if(rec){ S.best=stars; save(); }
-  if(stars) fanfare();
-  $("eCover").innerHTML=`<div><div class="big">${stars?"Eggs saved!":"The foxes got the eggs!"}</div>
-    <div class="stars" aria-label="${stars} of 3 stars">${"★".repeat(stars)}${"☆".repeat(3-stars)}</div>
-    <p>${stars?`You saved ${stars} egg${stars>1?"s":""}${rec?", a new best":""}.`:"Try again to earn stars."} You scared off ${E.scared} fox${E.scared===1?"":"es"}. Pond Points for stars are coming soon.</p>
-    <span style="display:flex;gap:8px"><button class="go" id="eAgain" type="button">Play again</button><button class="go ghost" id="eBack" type="button">Done</button></span></div>`;
-  $("eCover").hidden=false;
-  $("eAgain").addEventListener("click",startEgg);
-  $("eBack").addEventListener("click",leaveEgg);
-}
+/*MINI*/
 
 renderSound(); goHome();
 setNav(NAV);
@@ -521,4 +453,4 @@ if(PREVIEW){ const pk=document.createElement("div"); pk.id="navPick"; pk.setAttr
   pk.innerHTML=`<b>Arrows</b>${["a","b","c"].map(n=>`<button type="button" data-nav="${n}">${n.toUpperCase()}</button>`).join("")}`;
   document.body.appendChild(pk); pk.addEventListener("click",e=>{ const b=e.target.closest("button"); if(b) setNav(b.dataset.nav); }); setNav(NAV);
   if(S.screen!=="world") enterWorld("yard"); }
-window.QUACKERS={WORLDS,HOL,DUCK,S,month:NOW_MONTH,enterWorld,show,goHome,doAct,setNav};
+window.QUACKERS={WORLDS,HOL,DUCK,S,month:NOW_MONTH,enterWorld,show,goHome,doAct,setNav,R,MINI,SHOP,openMini,startMini,endMini,openShop,openSpecial,buy,openGames,hint};
