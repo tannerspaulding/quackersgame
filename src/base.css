@@ -239,3 +239,6 @@ section{display:flex;flex-direction:column;gap:12px}
 .foot{font-family:var(--note);font-size:1.05rem;color:var(--muted)}
 .confetti{position:absolute;z-index:6;width:10px;height:10px;border-radius:50%;border:2px solid var(--ink);pointer-events:none}
 @media (prefers-reduced-motion:reduce){.bob,.shadow,.chip.pop,.badge.pop,.pts.pop,.edge svg,.edge.lookhere{animation:none!important}.fox.run{transition:none}}
+
+/* No double-tap zoom anywhere; taps stay quick. */
+html,body{touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%}

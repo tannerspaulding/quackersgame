@@ -236,8 +236,12 @@ function go(dir){ const a=W[S.world].areas[S.area]; if(a.exits[dir]){ show(a.exi
 function dirTo(to){ const a=W[S.world].areas[S.area]; if(a.doors&&a.doors[to]) return a.doors[to];
   const e=Object.entries(a.exits).find(([,v])=>v===to); if(e) return e[0];
   const p=a.pos, q=W[S.world].areas[to].pos, dx=q[0]-p[0], dy=q[1]-p[1]; return Math.abs(dx)>=Math.abs(dy)?(dx>0?"right":"left"):(dy>0?"down":"up"); }
-["gesturestart","gesturechange"].forEach(t=>document.addEventListener(t,e=>{ if(S.screen!=="home") e.preventDefault(); },{passive:false}));
-document.addEventListener("touchmove",e=>{ if(S.screen!=="home"&&e.touches&&e.touches.length>1) e.preventDefault(); },{passive:false});
+/* No pinch or double-tap zoom anywhere, in a tab or the home-screen app: iOS ignores user-scalable=no, so stop the gestures themselves. */
+["gesturestart","gesturechange","gestureend"].forEach(t=>document.addEventListener(t,e=>e.preventDefault(),{passive:false}));
+document.addEventListener("touchmove",e=>{ if((e.touches&&e.touches.length>1)||(e.scale&&e.scale!==1)) e.preventDefault(); },{passive:false});
+document.addEventListener("touchstart",e=>{ if(e.touches&&e.touches.length>1) e.preventDefault(); },{passive:false});
+document.addEventListener("dblclick",e=>e.preventDefault(),{passive:false});
+addEventListener("wheel",e=>{ if(e.ctrlKey) e.preventDefault(); },{passive:false});
 /* No dragging: a finger tap only opens things. */
 stage.addEventListener("pointerdown",()=>{ if(S.screen==="world") $("intro").classList.add("off"); });
 document.addEventListener("keydown",e=>{
