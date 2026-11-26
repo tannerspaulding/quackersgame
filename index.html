@@ -140,8 +140,8 @@ section{display:flex;flex-direction:column;gap:12px}
 @keyframes nudgeU{0%,70%,100%{transform:none}80%{transform:translateY(-4px)}}
 @keyframes nudgeD{0%,70%,100%{transform:none}80%{transform:translateY(4px)}}
 .edge.lookhere{background:var(--duck);animation:pop .5s var(--squish) 3}
-.toast{position:absolute;left:50%;top:calc(max(10px,env(safe-area-inset-top)) + 94px);transform:translateX(-50%);z-index:5;background:var(--ink);color:#fff;border-radius:999px;padding:5px 14px;
-  font-family:var(--display);font-weight:800;font-size:.9rem;white-space:nowrap;max-width:calc(100% - 24px);overflow:hidden;text-overflow:ellipsis;pointer-events:none;opacity:0;transition:opacity .2s}
+.toast{position:absolute;left:50%;top:calc(max(10px,env(safe-area-inset-top)) + 94px);transform:translateX(-50%);z-index:5;background:var(--ink);color:#fff;border-radius:18px;padding:7px 14px;
+  font-family:var(--display);font-weight:800;font-size:.9rem;line-height:1.25;text-align:center;white-space:normal;text-wrap:balance;width:max-content;max-width:min(420px,calc(100% - 24px));pointer-events:none;opacity:0;transition:opacity .2s}
 .toast.on{opacity:1}
 .intro{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:5;background:rgba(255,255,255,.94);color:var(--ink);border:3px solid var(--ink);border-radius:22px;padding:12px 18px;
   text-align:center;box-shadow:0 5px 0 var(--ink);pointer-events:none;max-width:min(320px,calc(100% - 40px));transition:opacity .4s}
@@ -1068,7 +1068,7 @@ const WORLDS=[{id:"yard",n:1,name:"The Backyard",start:"yard",
  msg:{curtain:"The curtain opens!",hat:"Poof! Something popped out of the hat.",light:["The spotlight is on!","Lights off."],popcorn:"Crunch! Fresh popcorn.",rack:"You push the costumes aside.",box:"The prop box creaks open."}},
 {id:"city",n:6,name:"The City",start:"street",
  idea:"Mitchell's world: nine ducks, a scrap part for every duck, and the Pigeon builds a gadget that will unlock limited edition ducks.",
- helper:{name:"Pigeon",token:"scrap part",plural:"scrap parts",icon:"gear",art:toyPigeon,reward:"The Pigeon built you a Duck Detector! It will help you find special ducks when you finish special tasks."},
+ helper:{name:"Pigeon",token:"scrap part",plural:"scrap parts",icon:"gear",art:toyPigeon,reward:"It built you a Duck Detector for finding special ducks!"},
  ducks:[
   {id:"c_plain",name:"Yellow Duck",tier:"Easy",area:"street",c:YEL,hint:"Waiting for the bus"},
   {id:"c_barista",name:"Barista Duck",tier:"Sneaky",area:"cafe",c:YEL,acc:"barista",hint:"Smells like coffee"},
@@ -1154,7 +1154,7 @@ const allDucks=()=>WORLDS.reduce((n,w)=>n+wTotal(w),0);
 function syncUnlock(){ let u=Math.max(1,S.unlocked|0); for(const w of WORLDS){ const next=WORLDS[w.n]; if(next&&w.n<=u&&wFound(w)>=wTotal(w)) u=Math.max(u,next.n); } u=Math.min(u,WORLDS.length); if(u!==S.unlocked){ S.unlocked=u; save(); } }
 syncUnlock();
 let tt;
-function toast(msg,ms=1900){ const t=$("toast"); t.textContent=msg; t.classList.add("on"); clearTimeout(tt); tt=setTimeout(()=>t.classList.remove("on"),ms); }
+function toast(msg,ms=1900){ const t=$("toast"); t.textContent=msg; ms=Math.max(ms,1400+msg.length*45); /* longer messages stay up long enough to read */ t.classList.add("on"); clearTimeout(tt); tt=setTimeout(()=>t.classList.remove("on"),ms); }
 function burst(host,x,y){
   if(reduce) return;
   const r=host.getBoundingClientRect();

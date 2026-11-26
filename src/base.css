@@ -127,8 +127,8 @@ section{display:flex;flex-direction:column;gap:12px}
 @keyframes nudgeU{0%,70%,100%{transform:none}80%{transform:translateY(-4px)}}
 @keyframes nudgeD{0%,70%,100%{transform:none}80%{transform:translateY(4px)}}
 .edge.lookhere{background:var(--duck);animation:pop .5s var(--squish) 3}
-.toast{position:absolute;left:50%;top:calc(max(10px,env(safe-area-inset-top)) + 94px);transform:translateX(-50%);z-index:5;background:var(--ink);color:#fff;border-radius:999px;padding:5px 14px;
-  font-family:var(--display);font-weight:800;font-size:.9rem;white-space:nowrap;max-width:calc(100% - 24px);overflow:hidden;text-overflow:ellipsis;pointer-events:none;opacity:0;transition:opacity .2s}
+.toast{position:absolute;left:50%;top:calc(max(10px,env(safe-area-inset-top)) + 94px);transform:translateX(-50%);z-index:5;background:var(--ink);color:#fff;border-radius:18px;padding:7px 14px;
+  font-family:var(--display);font-weight:800;font-size:.9rem;line-height:1.25;text-align:center;white-space:normal;text-wrap:balance;width:max-content;max-width:min(420px,calc(100% - 24px));pointer-events:none;opacity:0;transition:opacity .2s}
 .toast.on{opacity:1}
 .intro{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:5;background:rgba(255,255,255,.94);color:var(--ink);border:3px solid var(--ink);border-radius:22px;padding:12px 18px;
   text-align:center;box-shadow:0 5px 0 var(--ink);pointer-events:none;max-width:min(320px,calc(100% - 40px));transition:opacity .4s}

@@ -1,6 +1,6 @@
 {id:"city",n:6,name:"The City",start:"street",
  idea:"Mitchell's world: nine ducks, a scrap part for every duck, and the Pigeon builds a gadget that will unlock limited edition ducks.",
- helper:{name:"Pigeon",token:"scrap part",plural:"scrap parts",icon:"gear",art:toyPigeon,reward:"The Pigeon built you a Duck Detector! It will help you find special ducks when you finish special tasks."},
+ helper:{name:"Pigeon",token:"scrap part",plural:"scrap parts",icon:"gear",art:toyPigeon,reward:"It built you a Duck Detector for finding special ducks!"},
  ducks:[
   {id:"c_plain",name:"Yellow Duck",tier:"Easy",area:"street",c:YEL,hint:"Waiting for the bus"},
   {id:"c_barista",name:"Barista Duck",tier:"Sneaky",area:"cafe",c:YEL,acc:"barista",hint:"Smells like coffee"},
