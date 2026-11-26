@@ -199,30 +199,24 @@ const OPP={left:"right",right:"left",up:"down",down:"up"};
 const CAM={s:1,W:400,H:300,x:0,y:0,minX:0,maxX:0,minY:0,maxY:0};
 function vp(){ return {w:stage.clientWidth||innerWidth||400, h:stage.clientHeight||innerHeight||300}; }
 let lockW=0;
-function fit(relock){
-  const {w,h}=vp();
-  if(relock||!lockW||Math.abs(w-lockW)>60){ let s=Math.max(w/400,h/300); s=Math.min(s,2*w/400,2*h/300); s=Math.max(s,Math.min(w/400,h/300)); CAM.s=s; lockW=w; }
-  const s=CAM.s; CAM.W=400*s; CAM.H=300*s;
-  if(CAM.W>w){CAM.minX=w-CAM.W;CAM.maxX=0;}else{CAM.minX=CAM.maxX=(w-CAM.W)/2;}
-  if(CAM.H>h){CAM.minY=h-CAM.H;CAM.maxY=0;}else{CAM.minY=CAM.maxY=(h-CAM.H)/2;}
+/* The whole scene always fits on screen, centered. No scrolling and no zoom: the arrows move you. */
+function fit(){
+  const {w,h}=vp(); const s=Math.min(w/400,h/300); CAM.s=s; CAM.W=400*s; CAM.H=300*s;
+  CAM.minX=CAM.maxX=(w-CAM.W)/2; CAM.minY=CAM.maxY=(h-CAM.H)/2;
 }
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
-const band=(v,a,b)=>v>b?b+(v-b)*.35:v<a?a-(a-v)*.35:v;
 function paint(el=layer(),anim){ if(!el) return; const svg=el.querySelector("svg"); if(!svg) return;
   svg.style.width=CAM.W+"px"; svg.style.height=CAM.H+"px";
   svg.style.transition=anim?"transform .28s ease-out":"none";
   svg.style.transform=`translate(${CAM.x.toFixed(1)}px,${CAM.y.toFixed(1)}px)`; }
-function aim(dir){ fit();
-  const mx=(CAM.minX+CAM.maxX)/2, my=(CAM.minY+CAM.maxY)/2;
-  CAM.x=dir==="right"?CAM.maxX:dir==="left"?CAM.minX:mx;
-  CAM.y=dir==="up"?CAM.minY:dir==="down"?CAM.maxY:my; }
-addEventListener("resize",()=>{ if(S.screen!=="world") return; fit(); CAM.x=clamp(CAM.x,CAM.minX,CAM.maxX); CAM.y=clamp(CAM.y,CAM.minY,CAM.maxY); paint(); });
+function aim(){ fit(); CAM.x=CAM.minX; CAM.y=CAM.minY; }
+addEventListener("resize",()=>{ if(S.screen!=="world") return; aim(); paint(); });
 function show(id,dir){
   const old=layer(); S.area=id; S.last[S.world]=id; save(); const a=W[S.world].areas[id];
-  const el=document.createElement("div"); el.className="layer"; el.innerHTML=sceneSVG(id);
+  const el=document.createElement("div"); el.className="layer";
   if(a.bg) el.style.background=`linear-gradient(${a.bg[0]} 50%,${a.bg[1]} 50%)`;
   stage.insertBefore(el,stage.querySelector(".hud"));
-  aim(dir); paint(el);
+  aim(dir); fillLayer(el,id);
   renderHud(!!dir); renderEdges(true); closeSheet();
   if(dir) blip("door");
   if(old){
@@ -240,33 +234,16 @@ function dirTo(to){ const a=W[S.world].areas[S.area]; if(a.doors&&a.doors[to]) r
   const p=a.pos, q=W[S.world].areas[to].pos, dx=q[0]-p[0], dy=q[1]-p[1]; return Math.abs(dx)>=Math.abs(dy)?(dx>0?"right":"left"):(dy>0?"down":"up"); }
 ["gesturestart","gesturechange"].forEach(t=>document.addEventListener(t,e=>{ if(S.screen!=="home") e.preventDefault(); },{passive:false}));
 document.addEventListener("touchmove",e=>{ if(S.screen!=="home"&&e.touches&&e.touches.length>1) e.preventDefault(); },{passive:false});
-/* Drag to look around a big area. Moving between areas is the arrows' job. */
-let drag=null, dragEnd=-1e9;
-stage.addEventListener("pointerdown",e=>{
-  if(S.screen!=="world"||(e.button&&e.button>0)) return;
-  if(e.target.closest(".hud,.corner,.edge,.done")) return;
-  $("intro").classList.add("off");
-  drag={id:e.pointerId,sx:e.clientX,sy:e.clientY,cx:CAM.x,cy:CAM.y,moved:false};
-});
-stage.addEventListener("pointermove",e=>{
-  if(!drag||e.pointerId!==drag.id) return;
-  const dx=e.clientX-drag.sx, dy=e.clientY-drag.sy;
-  if(!drag.moved){ if(Math.hypot(dx,dy)<8) return; drag.moved=true; try{stage.setPointerCapture(e.pointerId);}catch(_){} }
-  CAM.x=band(drag.cx+dx,CAM.minX,CAM.maxX); CAM.y=band(drag.cy+dy,CAM.minY,CAM.maxY); paint();
-});
-function endDrag(e){
-  if(!drag||(e&&e.pointerId!==drag.id)) return; const d=drag; drag=null; if(!d.moved) return;
-  dragEnd=performance.now();
-  CAM.x=clamp(CAM.x,CAM.minX,CAM.maxX); CAM.y=clamp(CAM.y,CAM.minY,CAM.maxY); paint(layer(),true);
-}
-stage.addEventListener("pointerup",endDrag);
-stage.addEventListener("pointercancel",e=>{ if(drag&&e.pointerId===drag.id){ drag=null; CAM.x=clamp(CAM.x,CAM.minX,CAM.maxX); CAM.y=clamp(CAM.y,CAM.minY,CAM.maxY); paint(layer(),true);} });
+/* No dragging: a finger tap only opens things. */
+stage.addEventListener("pointerdown",()=>{ if(S.screen==="world") $("intro").classList.add("off"); });
 document.addEventListener("keydown",e=>{
   if(S.screen!=="world"||!$("sheet").hidden||!$("done").hidden) return;
   const k={ArrowLeft:"left",ArrowRight:"right",ArrowUp:"up",ArrowDown:"down"}[e.key];
   if(k&&!(e.target.closest&&e.target.closest("input,textarea"))){ e.preventDefault(); go(k); }
 });
-function rerender(){ const l=layer(); if(l) l.innerHTML=sceneSVG(S.area); }
+/* Fill a layer with the scene at its fitted size. The space above and below uses the scene's own edge colors. */
+function fillLayer(el,id){ el.innerHTML=sceneSVG(id); paint(el); }
+function rerender(){ const l=layer(); if(l) fillLayer(l,S.area); }
 function catchDuck(g){
   const id=g.dataset.duck, d=DUCK[id], w=W[S.world]; if(S.found.has(id)) return;
   const b=g.getBoundingClientRect(); burst(stage,b.left+b.width/2,b.top+b.height/2);
@@ -309,7 +286,6 @@ function doAct(k,a){
   pop(); save(); rerender();
 }
 function onTap(e){
-  if(performance.now()-dragEnd<350){ e.preventDefault(); return; }
   if(!$("done").hidden) return;
   const eg=e.target.closest(".edge"); if(eg){ show(eg.dataset.go,dirTo(eg.dataset.go)); return; }
   const tk=e.target.closest(".token"); if(tk){ tapToken(tk); return; }

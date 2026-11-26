@@ -8,7 +8,7 @@
   {id:"tiny",name:"Tiny Duck",tier:"Tricky",area:"treetop",c:YEL,hint:"Way up high"},
   {id:"bubble",name:"Bubble Duck",tier:"Tricky",area:"house",c:{body:"#ff9ec7",wing:"#f57ab0",beak:"#ff8a3d"},acc:"bubble",hint:"Loves bath time"}],
  areas:{
- yard:{name:"Front Yard",pos:[1,1],bg:["#8fd3ff","#4fa83a"],exits:{left:"garden",right:"pond",up:"treetop"},doors:{house:"down"},draw:F=>`
+ yard:{name:"Front Yard",pos:[1,1],bg:["#8fd3ff","#56ad3f"],exits:{left:"garden",right:"pond",up:"treetop"},doors:{house:"down"},draw:F=>`
   ${sky("#8fd3ff","#dff4ff")}${sun(262,42)}${cloud(40,74,1)}${cloud(190,52,.75)}
   <path d="M-10 196 Q80 128 190 178 Q290 136 410 184 V300 H-10Z" fill="${LG("#b0e586","#6cc24a")}" ${O}/>
   <g ${N}><rect x="196" y="182" width="56" height="9" rx="4.5" fill="#e3edf7" ${O2}/><rect x="298" y="182" width="112" height="9" rx="4.5" fill="#e3edf7" ${O2}/>${[202,226].map(x=>`<path d="M${x} 206 V184 Q${x+8} 172 ${x+16} 184 V206 Z" fill="${LG("#ffffff","#dde8f3")}" ${O2}/>`).join("")}</g>
@@ -31,7 +31,7 @@
    <ellipse cx="312" cy="170" rx="6" ry="3" fill="#fff" opacity=".6"/>
    ${F.mail ? `<path d="M300 198 L282 206 L282 186 L300 178 Z" fill="${LG("#7cc0ff","#2387d9")}" ${O}/>` : `<path d="M300 198 V178 Q300 166 308 163" fill="none" ${O2}/>`}
    <path d="M350 186 h8 v-18 h14 v9 h-14" fill="${G("#ff5c5c")}" ${O2}/>`)}`},
- garden:{name:"Garden",pos:[0,1],bg:["#8fd3ff","#4fa83a"],exits:{right:"yard"},draw:F=>`
+ garden:{name:"Garden",pos:[0,1],bg:["#8fd3ff","#58ae40"],exits:{right:"yard"},draw:F=>`
   ${sky("#8fd3ff","#e6f7ff")}${cloud(250,60,.9)}
   <path d="M-10 170 Q200 140 410 168 V300 H-10Z" fill="${LG("#a5de7c","#5fb244")}" ${O}/>
   <g ${N}>${[[30,150],[70,140],[110,148]].map(([x,y])=>`<path d="M${x} 260 V${y+20}" stroke="#3f8a2e" stroke-width="5"/><g transform="translate(${x} ${y})">${Array.from({length:10},(_,k)=>`<ellipse cx="0" cy="-14" rx="5" ry="10" fill="${G("#ffcb2f")}" stroke="${INK}" stroke-width="1.8" transform="rotate(${k*36})"/>`).join("")}<circle r="10" fill="${G("#8a5a33")}" ${O2}/></g>`).join("")}</g>
@@ -41,7 +41,7 @@
   <g ${N}>${bushBall(70,236,30)}${bushBall(118,230,34)}${bushBall(160,244,24)}</g>
   ${T("a3",330,278)}${act("can","Watering can",`<g transform="translate(250 268)"><path d="M-22 -18 H14 V12 Q14 18 8 18 H-16 Q-22 18 -22 12 Z" fill="${G("#6fb7ff")}" ${O}/><path d="M14 -10 L36 -26 L40 -22 L16 0" fill="${G("#6fb7ff")}" ${O2}/><path d="M-16 -18 Q-4 -34 8 -18" fill="none" ${O}/>${F.can?`<g fill="#8fd0ff" stroke="${INK}" stroke-width="1.6"><ellipse cx="44" cy="-14" rx="2.6" ry="4"/><ellipse cx="50" cy="-4" rx="2.6" ry="4"/><ellipse cx="42" cy="2" rx="2.6" ry="4"/></g>`:""}</g>`)}
   ${door("yard","Path back to the Front Yard",`<rect x="352" y="250" width="48" height="50" fill="transparent"/><g ${N}>${[[366,288,12,5],[382,270,11,4.5],[394,256,9,4]].map(([x,y,a,b])=>`<ellipse cx="${x}" cy="${y}" rx="${a}" ry="${b}" fill="${G("#efe8da")}" ${O2}/>`).join("")}</g>`)}`},
- pond:{name:"Duck Pond",pos:[2,1],bg:["#8fd3ff","#6cc24a"],exits:{left:"yard"},draw:F=>`
+ pond:{name:"Duck Pond",pos:[2,1],bg:["#8fd3ff","#539950"],exits:{left:"yard"},draw:F=>`
   ${sky("#8fd3ff","#e6f7ff")}${sun(60,50)}${cloud(220,64,.85)}
   <path d="M-10 160 Q120 120 250 150 Q330 166 410 140 V300 H-10Z" fill="${LG("#b0e586","#6cc24a")}" ${O}/>
   <ellipse cx="196" cy="236" rx="168" ry="50" fill="${LG("#7cc8ff","#2387d9")}" ${O}/>
@@ -50,7 +50,7 @@
   <g ${N}>${[[24,140],[38,130],[50,146]].map(([x,y])=>`<path d="M${x} 240 V${y+14}" stroke="#3f8a2e" stroke-width="4"/><rect x="${x-5}" y="${y}" width="10" height="24" rx="5" fill="${G("#8a5a33")}" ${O2}/>`).join("")}</g>
   <g ${N}>${rock(340,210,26,16)}</g>${place("rock",332,196,.78)}<g ${N}>${rock(312,226,22,14)}${rock(360,232,24,15)}</g>${T("a4",118,272)}
   ${door("yard","Stepping stones back to the Front Yard",`<rect x="0" y="262" width="56" height="38" fill="transparent"/><g ${N}>${[[12,290,11,4.5],[30,280,10,4],[46,292,9,4]].map(([x,y,a,b])=>`<ellipse cx="${x}" cy="${y}" rx="${a}" ry="${b}" fill="${G("#d9d3c7")}" ${O2}/>`).join("")}</g>`)}`},
- treetop:{name:"Treetop",pos:[1,0],bg:["#a6dcff","#7a4523"],exits:{down:"yard"},draw:F=>`
+ treetop:{name:"Treetop",pos:[1,0],bg:["#98d3c8","#e8f6fc"],exits:{down:"yard"},draw:F=>`
   ${sky("#a6dcff","#e9f8ff")}${cloud(250,70,1)}${cloud(40,110,.7)}
   <g ${N}>${bushBall(-10,40,60,"#55b33e")}${bushBall(60,10,44,"#55b33e")}${bushBall(400,30,64,"#4fa83a")}</g>
   <path d="M-10 230 Q140 196 290 214 Q350 220 410 196 L410 222 Q350 246 290 240 Q140 226 -10 262 Z" fill="${LG("#b5835a","#7a4523")}" ${O} ${N}/>
@@ -59,7 +59,7 @@
   <g ${N}><path d="M174 206 Q206 232 238 206 Q236 222 206 226 Q176 222 174 206 Z" fill="${G("#c89260")}" ${O}/><path d="M180 212 l10 4 M196 218 l12 -2 M214 216 l14 -6" stroke="${INK}" stroke-width="1.8"/></g>
   ${act("birdhouse","Birdhouse",`<g transform="translate(96 150)"><path d="M0 -60 V-34" stroke="${INK}" stroke-width="2.4"/><path d="M-26 -14 L0 -36 L26 -14 Z" fill="${G("#ff6f61")}" ${O}/><rect x="-20" y="-16" width="40" height="38" rx="6" fill="${G("#ffe6a8")}" ${O}/><circle cx="0" cy="2" r="7" fill="#173a5e"/>${F.birdhouse?`<text x="0" y="-44" text-anchor="middle" font-family="Grandstander,sans-serif" font-weight="900" font-size="14" fill="${INK}">tweet!</text>`:""}</g>`)}
   ${door("yard","Rope ladder down to the Front Yard",`<rect x="282" y="226" width="40" height="74" fill="transparent"/><g ${N}><path d="M290 232 Q288 266 292 300 M314 230 Q316 266 312 300" stroke="#c89260" stroke-width="4" fill="none" stroke-linecap="round"/>${[246,262,278,294].map(y=>`<path d="M290 ${y} H314" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><path d="M290 ${y} H314" stroke="#e0b07a" stroke-width="3" stroke-linecap="round"/>`).join("")}</g>`)}`},
- house:{name:"Inside the House",pos:[1,2],bg:["#ffe9c2","#c98d5a"],exits:{up:"yard"},doors:{yard:"up"},draw:F=>`
+ house:{name:"Inside the House",pos:[1,2],bg:["#fff0ce","#ab6d3e"],exits:{up:"yard"},doors:{yard:"up"},draw:F=>`
   <rect width="400" height="300" fill="${LG("#fff1d2","#ffd99a")}"/>
   <g ${N} opacity=".5">${[0,1,2,3,4,5,6,7,8,9].map(i=>`<path d="M${i*44+10} 0 V232" stroke="#ffe6b0" stroke-width="10"/>`).join("")}</g>
   <rect y="226" width="400" height="80" fill="${LG("#d9a06a","#a8693a")}" ${O} ${N}/>

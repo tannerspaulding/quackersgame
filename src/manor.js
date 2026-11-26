@@ -7,7 +7,7 @@
   {id:"bat",name:"Bat Duck",tier:"Tricky",area:"attic",c:{body:"#4b3a6b",wing:"#3a2a55",beak:"#b07a3a"},acc:"bat",hint:"Hangs upside down"},
   {id:"spider",name:"Spider Duck",tier:"Legendary",area:"basement",c:{body:"#7a7a85",wing:"#5f5f6a",beak:"#e07b2f"},acc:"web",hint:"Needs the lights on"}],
  areas:{
- gate:{name:"Front Gate",pos:[1,2],bg:["#2b2350","#2f3d24"],exits:{up:"hall"},doors:{hall:"up"},draw:F=>`
+ gate:{name:"Front Gate",pos:[1,2],bg:["#211a42","#2e3c27"],exits:{up:"hall"},doors:{hall:"up"},draw:F=>`
   ${sky("#211a42","#5a4690")}${stars(34)}
   <g ${N}><circle cx="332" cy="52" r="26" fill="${G("#fff6c9")}" ${O}/><circle cx="322" cy="46" r="5" fill="#ece3b0"/><circle cx="340" cy="62" r="3.4" fill="#ece3b0"/></g>
   <path d="M-10 214 Q120 196 200 206 Q300 196 410 214 V310 H-10 Z" fill="${LG("#3f5a32","#24361c")}" ${O} ${N}/>
@@ -23,7 +23,7 @@
   ${pumpkinAt(58,264,1)}${place("pumpkin",100,258,.62)}${pumpkinAt(122,274,.8)}
   ${pumpkinAt(330,262,1.05,1)}${pumpkinAt(372,276,.7)}
   <g ${N} opacity=".55">${[[60,230],[300,240],[360,226]].map(([x,y])=>`<ellipse cx="${x}" cy="${y}" rx="24" ry="5" fill="#cfc6ff"/>`).join("")}</g>`},
- hall:{name:"Grand Hall",pos:[1,1],bg:["#4a3566","#5a3b28"],exits:{left:"library",right:"kitchen",up:"attic",down:"gate"},doors:{gate:"down",basement:"down"},draw:F=>`
+ hall:{name:"Grand Hall",pos:[1,1],bg:["#5d4483","#452e22"],exits:{left:"library",right:"kitchen",up:"attic",down:"gate"},doors:{gate:"down",basement:"down"},draw:F=>`
   <rect width="400" height="300" fill="${LG("#5a4280","#3f2c5c")}"/>
   <g ${N}>${Array.from({length:14},(_,i)=>`<rect x="${i*30+6}" y="0" width="12" height="232" fill="#6a5090" opacity=".45"/>`).join("")}</g>
   <rect y="228" width="400" height="80" fill="${LG("#7a5236","#4a2e1c")}" ${O} ${N}/>
@@ -38,7 +38,7 @@
   <path d="M316 126 V116 M316 126 L323 130" stroke="${INK}" stroke-width="2" stroke-linecap="round"/><rect x="308" y="152" width="16" height="56" rx="6" fill="${LG("#2a190c","#1a0f06")}" ${O2}/><circle cx="316" cy="196" r="5" fill="${G("#ffcb2f")}" ${O2}/></g>
   ${place("ghost",254,206,.82)}
   <g ${N}><rect x="20" y="232" width="56" height="10" rx="5" fill="#8a3a4a" opacity=".6"/><rect x="350" y="150" width="8" height="80" rx="3" fill="${G("#c8963a")}" ${O2}/><path d="M354 150 Q344 134 354 122 Q364 134 354 150" fill="${G("#ffe066")}" ${O2}/></g>`},
- library:{name:"Library",pos:[0,1],bg:["#3d2b1f","#3d2b1f"],exits:{right:"hall"},draw:F=>`
+ library:{name:"Library",pos:[0,1],bg:["#4a3424","#2e2016"],exits:{right:"hall"},draw:F=>`
   <rect width="400" height="300" fill="${LG("#4a3424","#2e2016")}"/>
   <rect x="58" y="26" width="300" height="262" rx="8" fill="${LG("#7a5236","#5a3a24")}" ${O} ${N}/>
   ${books(38,64,68,348)}${books(124,64,68,348,[220,270])}${books(210,64,68,348)}
@@ -46,7 +46,7 @@
   ${place("book",246,176,.56)}
   <g ${N}><rect x="14" y="36" width="7" height="252" rx="3" fill="${G("#a06a40")}" ${O2}/><rect x="40" y="36" width="7" height="252" rx="3" fill="${G("#a06a40")}" ${O2}/>${[66,106,146,186,226,266].map(y=>`<rect x="14" y="${y}" width="33" height="6" rx="3" fill="${G("#c8925a")}" ${O2}/>`).join("")}
   <rect x="332" y="230" width="60" height="60" rx="16" fill="${G("#8a3a4a")}" ${O}/><rect x="326" y="252" width="72" height="36" rx="12" fill="${G("#a04a5a")}" ${O}/></g>`},
- kitchen:{name:"Kitchen",pos:[2,1],bg:["#5b4a6e","#6b4a35"],exits:{left:"hall"},draw:F=>`
+ kitchen:{name:"Kitchen",pos:[2,1],bg:["#716086","#4e311e"],exits:{left:"hall"},draw:F=>`
   <rect width="400" height="300" fill="${LG("#6a5880","#4e3e62")}"/>
   <g ${N} opacity=".5">${Array.from({length:40},(_,i)=>`<rect x="${(i%10)*40+3}" y="${Math.floor(i/10)*30+34}" width="34" height="24" rx="5" fill="#7a68920"/>`).join("").replace(/#7a68920/g,"#7a6892")}</g>
   <rect y="190" width="400" height="120" fill="${LG("#7a5236","#4a2e1c")}" ${O} ${N}/>
@@ -59,7 +59,7 @@
    :act("lid","Pot lid",`<ellipse cx="238" cy="120" rx="40" ry="8" fill="${G("#8a8a96")}" ${O}/><rect x="231" y="106" width="14" height="9" rx="3" fill="${G("#b7c3d4")}" ${O2}/>`)}
   <g ${N}><rect x="36" y="112" width="68" height="80" rx="8" fill="${LG("#5a3a24","#3a2414")}" ${O}/><circle cx="70" cy="132" r="9" fill="${G("#e8d7b0")}" ${O2}/><path d="M48 160 h44 M48 174 h44" stroke="#2a190c" stroke-width="3"/>
   <path d="M400 0 L344 0 Q372 18 400 60 Z" fill="none" stroke="#e8e8f0" stroke-opacity=".5" stroke-width="1.4"/><path d="M400 0 L364 40 M400 0 L380 52 M400 0 L352 22" stroke="#e8e8f0" stroke-opacity=".5" stroke-width="1.2"/></g>`},
- attic:{name:"Attic",pos:[1,0],bg:["#2a2030","#3a2a22"],exits:{down:"hall"},draw:F=>`
+ attic:{name:"Attic",pos:[1,0],bg:["#56423d","#3d2a1a"],exits:{down:"hall"},draw:F=>`
   <rect width="400" height="300" fill="${LG("#3a2c48","#241a30")}"/>
   <g ${N}><path d="M0 0 L200 -40 L400 0 V30 L200 -8 L0 30 Z" fill="${G("#5a3e2a")}" ${O}/><rect y="36" width="400" height="16" rx="4" fill="${G("#6a4a30")}" ${O2}/>
   <circle cx="90" cy="130" r="30" fill="${G("#5a3e2a")}" ${O}/><circle cx="90" cy="130" r="22" fill="${LG("#3a4a7a","#1f2a50")}" ${O2}/><circle cx="98" cy="122" r="7" fill="${G("#fff6c9")}"/><path d="M68 130 H112 M90 108 V152" stroke="#5a3e2a" stroke-width="4"/></g>
@@ -69,7 +69,7 @@
   <g ${N}><rect x="30" y="184" width="70" height="50" rx="6" fill="${G("#c8925a")}" ${O}/><path d="M30 200 H100" stroke="${INK}" stroke-opacity=".35" stroke-width="2"/><rect x="86" y="198" width="50" height="36" rx="6" fill="${G("#b07a48")}" ${O}/>
   <rect x="282" y="170" width="84" height="64" rx="8" fill="${G("#8a5a3a")}" ${O}/><path d="M282 186 H366" stroke="${G("#ffcb2f")}" stroke-width="4"/>
   <path d="M190 234 L200 170 L214 170 L224 234" fill="none" stroke="#dcdce6" stroke-opacity=".6" stroke-width="3"/><ellipse cx="207" cy="166" rx="16" ry="10" fill="#e6e6ef" opacity=".6"/></g>`},
- basement:{name:"Basement",pos:[2,2],bg:["#07070d","#07070d"],exits:{up:"hall"},doors:{hall:"up"},draw:F=>{
+ basement:{name:"Basement",pos:[2,2],bg:["#07070d","#090810"],exits:{up:"hall"},doors:{hall:"up"},draw:F=>{
   const back=door("hall","Stairs back up to the hall",`<path d="M10 300 V214 H64 V300 Z" fill="${F.light?LG("#4a3a5a","#2a1f3a"):"#141020"}" ${F.light?O:""}/><path d="M14 236 h46 M14 258 h46 M14 280 h46" stroke="${F.light?"#6a5a7a":"#222034"}" stroke-width="3"/>`)+tagAt(37,206,"UP",F.light?"#ffffff":"#5b6a99");
   const sw=act("light",F.light?"Light switch, on":"Light switch",`<rect x="88" y="120" width="28" height="40" rx="7" fill="${G(F.light?"#e3edf7":"#9da8b8")}" ${O}/><rect x="96" y="${F.light?126:142}" width="12" height="13" rx="3" fill="${G(F.light?"#4cd2a0":"#ff7a7a")}" ${O2}/>${F.light?"":`<circle cx="102" cy="140" r="30" fill="#ffd43b" opacity=".14"/>`}`);
   return F.light?`
