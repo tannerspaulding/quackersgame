@@ -88,6 +88,9 @@ const wDucks=w=>w.ducks||[];
 const wTotal=w=>wDucks(w).length;
 const wFound=w=>wDucks(w).filter(d=>S.found.has(d.id)).length;
 const allDucks=()=>WORLDS.reduce((n,w)=>n+wTotal(w),0);
+/* Open every world whose earlier world is finished, so progress saved before a new world was added still opens it. */
+function syncUnlock(){ let u=Math.max(1,S.unlocked|0); for(const w of WORLDS){ const next=WORLDS[w.n]; if(next&&w.n<=u&&wFound(w)>=wTotal(w)) u=Math.max(u,next.n); } u=Math.min(u,WORLDS.length); if(u!==S.unlocked){ S.unlocked=u; save(); } }
+syncUnlock();
 let tt;
 function toast(msg,ms=1900){ const t=$("toast"); t.textContent=msg; t.classList.add("on"); clearTimeout(tt); tt=setTimeout(()=>t.classList.remove("on"),ms); }
 function burst(host,x,y){
