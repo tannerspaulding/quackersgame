@@ -1,4 +1,1327 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Quackers</title>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Quackers</title>
+<meta name="description" content="Quackers: explore the worlds, find the hidden ducks and fill your Duck Log. A game by Mitchell.">
+<meta name="theme-color" content="#BFE6FF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14314F" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="brand/quackers-icon.svg" type="image/svg+xml">
-<style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#EAF6FF;color:#173A5E;font:700 1.4rem system-ui,sans-serif;text-align:center}</style></head>
-<body><p>Quackers is hatching.<br>Check back in a few minutes!</p></body></html>
+<link rel="icon" href="icons/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="icons/favicon-16.png" type="image/png" sizes="16x16">
+<link rel="apple-touch-icon" href="apple-touch-icon.png" sizes="180x180">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-title" content="Quackers">
+<meta name="application-name" content="Quackers">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Grandstander:wght@700;800;900&family=Patrick+Hand&display=swap">
+<style>
+/* Layout: a header, then one phone-sized game frame you can play (home screen with world cards, worlds that go full screen with swipe-to-move, small edge labels and corner buttons, sheets that slide up, and an Egg Guard screen), a caption under it saying what is Mitchell's idea, then a now-versus-new comparison. Pond Morning colors and fonts from the live game; the new look adds shading, thick outlines and bounce. */
+:root{
+  --ink:#173A5E; --duck:#FFCB2F; --pond:#2387D9; --lily:#3FB86A; --bubble:#FF6FA6; --pumpkin:#FF9F43;
+  --cloud:#FFFFFF; --mist:#DCEBF7; --soft:#9DB7D2; --dim:#4F6E8C;
+  --sky-top:#BFE6FF; --sky-bot:#EAF6FF; --text:#173A5E; --muted:#4F6E8C;
+  --display:"Grandstander","Baloo 2","Arial Rounded MT Bold",system-ui,sans-serif;
+  --body:"Andika","Trebuchet MS",system-ui,-apple-system,sans-serif;
+  --note:"Patrick Hand","Comic Neue","Chalkboard SE",cursive;
+  --squish:cubic-bezier(.34,1.56,.64,1);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--sky-top:#14314F;--sky-bot:#0D1F33;--text:#EAF4FF;--muted:#9DB7D2;color-scheme:dark}}
+:root[data-theme="dark"]{--sky-top:#14314F;--sky-bot:#0D1F33;--text:#EAF4FF;--muted:#9DB7D2;color-scheme:dark}
+*{box-sizing:border-box}
+html{background:var(--sky-bot)}
+body{margin:0;color:var(--text);font-family:var(--body);font-size:17px;line-height:1.45;
+  background:linear-gradient(var(--sky-top) 0, var(--sky-bot) 520px) no-repeat, var(--sky-bot);
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-block:14px 40px;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;cursor:pointer}
+[hidden]{display:none!important}
+h1,h2,h3{font-family:var(--display);line-height:1.1;margin:0;text-wrap:balance}
+h3{font-size:1.08rem;font-weight:900}
+p{margin:0}
+.muted{color:var(--muted)}
+section{display:flex;flex-direction:column;gap:12px}
+.who{font-family:var(--display);font-size:.72rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.src{font-family:var(--note);font-size:1.08rem;color:var(--dim);line-height:1.25}
+:focus-visible{outline:3px solid var(--pond);outline-offset:3px}
+
+/* ----- App frame ----- */
+.app{position:relative;width:100%;max-width:520px;margin:0 auto;border:3px solid var(--ink);border-radius:26px;overflow:hidden;background:#EAF6FF;color:var(--ink);box-shadow:0 6px 0 var(--ink)}
+.topbar{display:grid;grid-template-columns:48px minmax(0,1fr) auto;align-items:center;gap:8px;padding:8px 10px;background:var(--cloud);border-bottom:3px solid var(--ink)}
+.topbar h3{font-size:1.1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
+.round{width:44px;height:44px;border-radius:50%;border:3px solid var(--ink);background:var(--duck);box-shadow:0 3px 0 var(--ink);display:grid;place-items:center;padding:0}
+.round:active{transform:translateY(3px);box-shadow:none}
+.round:disabled{visibility:hidden}
+.pts{display:flex;align-items:center;gap:5px;border:3px solid var(--ink);border-radius:999px;padding:2px 10px 2px 4px;background:#FFF3C4;font-family:var(--display);font-weight:900;font-size:.95rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+.pts.pop{animation:pop .45s var(--squish)}
+
+/* Home */
+.home{padding:12px;display:flex;flex-direction:column;gap:12px}
+.logo{display:flex;align-items:center;gap:10px;justify-content:center}
+.logo svg{width:70px;height:62px}
+.logo b{font-family:var(--display);font-size:2.3rem;font-weight:900;color:var(--duck);-webkit-text-stroke:2.5px var(--ink);paint-order:stroke fill;letter-spacing:.01em}
+.event{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:3px solid var(--ink);border-radius:20px;background:linear-gradient(#FFE3C2,#FFC98F);padding:8px 12px;box-shadow:0 4px 0 var(--ink)}
+.event:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.event svg{width:64px;height:54px;flex:none}
+.event b{font-family:var(--display);display:block;font-size:1.05rem;line-height:1.1}
+.event small{font-family:var(--note);font-size:1.02rem;color:#7a3c10}
+.worlds{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.wcard{display:flex;flex-direction:column;gap:0;border:3px solid var(--ink);border-radius:18px;overflow:hidden;background:var(--cloud);padding:0;text-align:left;box-shadow:0 4px 0 var(--ink)}
+.wcard:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.wcard .thumb{aspect-ratio:4/3;border-bottom:3px solid var(--ink);position:relative}
+.wcard .thumb svg{width:100%;height:100%;display:block}
+.wcard .meta{padding:5px 8px 7px;display:flex;flex-direction:column;gap:1px}
+.wcard .num{font-family:var(--display);font-size:.66rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.wcard b{font-family:var(--display);font-size:.98rem;line-height:1.1}
+.wcard small{font-family:var(--note);font-size:.98rem;color:var(--dim);line-height:1.1}
+.wcard .bar2{height:8px;border-radius:9px;background:var(--mist);border:2px solid var(--ink);overflow:hidden;margin-top:3px}
+.wcard .bar2 i{display:block;height:100%;background:var(--lily)}
+.wcard.off{opacity:.62}
+.wcard .tag{position:absolute;top:6px;left:6px;background:var(--bubble);color:#fff;border:2px solid var(--ink);border-radius:999px;font-family:var(--display);font-weight:900;font-size:.64rem;padding:0 7px;line-height:1.6}
+.wcard .tag.old{background:var(--cloud);color:var(--ink)}
+.bigbtns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.bigbtn{display:flex;align-items:center;gap:8px;border:3px solid var(--ink);border-radius:18px;padding:8px 10px;font-family:var(--display);font-weight:900;font-size:1rem;box-shadow:0 4px 0 var(--ink);text-align:left;line-height:1.1}
+.bigbtn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.bigbtn svg{width:34px;height:34px;flex:none}
+.bigbtn.shop{background:#C9F2D6}.bigbtn.games{background:#E2D8FF}
+
+/* World stage: full screen while you play */
+.app.playing{position:fixed;inset:0;overscroll-behavior:none;z-index:100;max-width:none;margin:0;border:0;border-radius:0;box-shadow:none;background:#0d1f33}
+.app.playing .topbar{display:none}
+#scrWorld,#scrEgg{position:absolute;inset:0}
+.stage{position:absolute;inset:0;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;background:#8fd3ff}
+.layer{position:absolute;inset:0;overflow:hidden}
+.layer svg{position:absolute;left:0;top:0;display:block;will-change:transform}
+.duck,.act,.door{cursor:pointer}
+.bob{animation:boing 2.6s var(--squish) infinite;transform-box:fill-box;transform-origin:50% 100%}
+@keyframes boing{0%,62%,100%{transform:translateY(0) scale(1,1)}70%{transform:translateY(-5px) scale(.95,1.06)}80%{transform:translateY(0) scale(1.07,.93)}88%{transform:scale(.98,1.02)}}
+.shadow{animation:shad 2.6s var(--squish) infinite;transform-box:fill-box;transform-origin:50% 50%}
+@keyframes shad{0%,62%,100%{transform:scale(1)}70%{transform:scale(.8)}80%{transform:scale(1.08)}}
+@keyframes pop{0%{filter:brightness(1.25)}40%{transform:translateY(-3px)}}
+.hud{position:absolute;left:0;right:0;top:0;padding:max(10px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) 0 max(10px,env(safe-area-inset-left));display:flex;align-items:center;gap:8px;pointer-events:none;z-index:4}
+.hud>*{pointer-events:auto}
+.hbtn{width:42px;height:42px;flex:none;border-radius:50%;border:2.5px solid var(--ink);background:rgba(255,255,255,.9);color:var(--ink);display:grid;place-items:center;padding:0;box-shadow:0 3px 0 var(--ink)}
+.hbtn:active{transform:translateY(3px);box-shadow:none}
+.hbtn svg{width:22px;height:22px}
+.chip{display:flex;align-items:center;gap:6px;min-width:0;background:rgba(255,255,255,.88);color:var(--ink);border:2.5px solid var(--ink);border-radius:999px;padding:2px 10px 2px 5px;
+  font-family:var(--display);font-weight:900;font-size:.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
+.chip svg{display:block;flex:none}
+.chip.pop,.badge.pop{animation:pop .45s var(--squish)}
+.badge{margin-left:auto;display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.9);color:var(--ink);border:2.5px solid var(--ink);border-radius:999px;padding:1px 9px 1px 4px;
+  font-family:var(--display);font-weight:900;font-size:.82rem;font-variant-numeric:tabular-nums;white-space:nowrap;box-shadow:0 3px 0 var(--ink)}
+.badge:active{transform:translateY(3px);box-shadow:none}
+.badge svg{display:block}
+.badge .sep{width:2px;height:16px;background:var(--soft);margin:0 3px;border-radius:2px}
+.corner{position:absolute;z-index:4;bottom:max(12px,env(safe-area-inset-bottom))}
+.corner.bl{left:max(12px,env(safe-area-inset-left))}.corner.br{right:max(12px,env(safe-area-inset-right))}
+.corner.hint{background:#FFF3C4}
+.edge{position:absolute;z-index:3;display:flex;align-items:center;gap:2px;border:2.5px solid var(--ink);background:rgba(255,243,196,.92);color:var(--ink);
+  font-family:var(--display);font-weight:900;font-size:.74rem;line-height:1;padding:7px 9px;white-space:nowrap;box-shadow:0 2px 0 rgba(23,58,94,.35)}
+.edge svg{width:12px;height:12px;flex:none}
+.e-left{left:0;top:50%;transform:translateY(-50%);border-left:0;border-radius:0 999px 999px 0;padding-left:5px}
+.e-right{right:0;top:50%;transform:translateY(-50%);border-right:0;border-radius:999px 0 0 999px;padding-right:5px}
+.e-up{top:calc(max(10px,env(safe-area-inset-top)) + 50px);left:50%;transform:translateX(-50%);border-radius:999px}
+.e-down{bottom:max(14px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);border-radius:999px}
+.edge.peek.e-left{animation:peekL 1.1s ease-in-out 2}.edge.peek.e-right{animation:peekR 1.1s ease-in-out 2}
+.edge.peek.e-up{animation:peekU 1.1s ease-in-out 2}.edge.peek.e-down{animation:peekD 1.1s ease-in-out 2}
+@keyframes peekL{50%{transform:translate(5px,-50%)}}@keyframes peekR{50%{transform:translate(-5px,-50%)}}
+@keyframes peekU{50%{transform:translate(-50%,-5px)}}@keyframes peekD{50%{transform:translate(-50%,5px)}}
+.edge.lookhere{background:var(--duck);animation:pop .5s var(--squish) 3}
+.toast{position:absolute;left:50%;top:calc(max(10px,env(safe-area-inset-top)) + 94px);transform:translateX(-50%);z-index:5;background:var(--ink);color:#fff;border-radius:999px;padding:5px 14px;
+  font-family:var(--display);font-weight:800;font-size:.9rem;white-space:nowrap;max-width:calc(100% - 24px);overflow:hidden;text-overflow:ellipsis;pointer-events:none;opacity:0;transition:opacity .2s}
+.toast.on{opacity:1}
+.intro{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:5;background:rgba(255,255,255,.94);color:var(--ink);border:3px solid var(--ink);border-radius:22px;padding:12px 18px;
+  text-align:center;box-shadow:0 5px 0 var(--ink);pointer-events:none;max-width:min(320px,calc(100% - 40px));transition:opacity .4s}
+.intro b{font-family:var(--display);font-size:1.4rem;display:block;line-height:1.1}
+.intro span{font-family:var(--note);font-size:1.1rem;color:var(--dim);display:block;line-height:1.2;margin-top:2px}
+.intro .swipe{display:block;margin:6px auto 0;width:64px;height:28px}
+.intro.off{opacity:0}
+.done{position:absolute;inset:0;z-index:6;display:grid;place-items:center;background:rgba(13,31,51,.45);padding:20px}
+.done>div{background:var(--cloud);color:var(--ink);border:3px solid var(--ink);border-radius:26px;box-shadow:0 6px 0 var(--ink);padding:16px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;max-width:320px}
+.done svg{width:120px;height:100px}
+.done .big{font-family:var(--display);font-size:1.6rem;font-weight:900;line-height:1.1}
+.done .row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.menu{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.mbtn{display:flex;align-items:center;gap:8px;border:3px solid var(--ink);border-radius:18px;padding:10px;font-family:var(--display);font-weight:900;font-size:1rem;background:#FFF3C4;box-shadow:0 4px 0 var(--ink);text-align:left;line-height:1.1;position:relative}
+.mbtn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.mbtn svg{width:30px;height:30px;flex:none}
+.mbtn.shop{background:#C9F2D6}.mbtn.games{background:#E2D8FF}.mbtn.leave{background:var(--cloud);grid-column:1/-1;justify-content:center}
+.mbtn .count{position:absolute;top:-9px;right:-4px;background:var(--lily);color:#fff;border:2px solid var(--ink);border-radius:999px;font-size:.66rem;padding:0 6px;line-height:1.5}
+.sheet{position:absolute;left:0;right:0;bottom:0;z-index:8;max-height:88%;overflow:auto;background:var(--cloud);color:var(--ink);border-top:3px solid var(--ink);
+  border-radius:22px 22px 0 0;padding:10px 14px 16px;box-shadow:0 -6px 0 rgba(23,58,94,.15)}
+.scrim{position:absolute;inset:0;z-index:7;background:rgba(23,58,94,.28)}
+.sheet .grab{width:44px;height:5px;border-radius:9px;background:var(--soft);margin:0 auto 8px}
+.sheet header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.x{width:40px;height:40px;flex:none;border-radius:50%;border:3px solid var(--ink);background:var(--cloud);box-shadow:0 3px 0 var(--ink);display:grid;place-items:center;padding:0}
+.note{font-family:var(--note);font-size:1.05rem;color:var(--dim);line-height:1.2;margin:2px 0 8px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
+.card{border:3px solid var(--ink);border-radius:18px;padding:6px 4px 8px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;background:#fff}
+.card.miss{border:2.5px dashed var(--soft);background:var(--mist)}
+.card.final{background:#FFF3C4}
+.card svg{width:72px;height:62px}
+.card b{font-family:var(--display);font-size:.84rem;line-height:1.1}
+.card small{font-family:var(--note);font-size:.95rem;color:var(--dim);line-height:1.1}
+.tier{font-family:var(--display);font-size:.56rem;text-transform:uppercase;letter-spacing:.1em;font-weight:900;border-radius:99px;padding:0 7px;border:2px solid var(--ink)}
+.t-Easy{background:#C9F2D6}.t-Sneaky{background:#E2D8FF}.t-Tricky{background:#FFD4E5}.t-Rare{background:#C7E6FF}.t-Final{background:var(--duck)}.t-Holiday{background:#FFD3A8}.t-Special{background:#FFF3C4}
+.mapgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;max-width:380px;margin:0 auto}
+.mtile{border:3px solid var(--ink);border-radius:16px;min-height:68px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center;
+  background:#C9F2D6;font-family:var(--display);font-weight:900;font-size:.84rem;box-shadow:0 3px 0 var(--ink);padding:4px;line-height:1.1}
+.mtile.here{background:var(--duck)}
+.mtile.soon{background:var(--mist);border:2.5px dashed var(--soft);box-shadow:none;color:var(--dim);cursor:default}
+.mtile small{font-family:var(--note);font-weight:400;font-size:.95rem;color:var(--dim)}
+.mempty{visibility:hidden}
+.hgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.hcard{border:3px solid var(--ink);border-radius:18px;padding:8px;display:flex;flex-direction:column;gap:4px;background:#fff}
+.hcard.now{background:#FFF0DE;border-style:dashed;border-color:#C2560F}
+.hcard svg{width:100%;height:92px;background:var(--mist);border-radius:12px}
+.hcard b{font-family:var(--display);font-size:.95rem;line-height:1.1}
+.hcard small{font-size:.86rem;color:var(--dim);line-height:1.25}
+.hcard .mon{align-self:flex-start;font-family:var(--display);font-weight:900;font-size:.64rem;border:2px solid var(--ink);border-radius:999px;padding:0 8px;background:var(--mist)}
+.hcard.now .mon{background:#FF9F43;color:#fff}
+.det{display:flex;align-items:center;gap:8px;background:var(--mist);border-radius:14px;padding:6px 10px;margin-bottom:10px;font-size:.92rem}
+.det svg{width:36px;height:32px;flex:none}
+.shopwrap{display:grid;grid-template-columns:120px minmax(0,1fr);gap:12px;align-items:start}
+@media (max-width:420px){.shopwrap{grid-template-columns:minmax(0,1fr)}}
+.avatar{display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--mist);border-radius:16px;padding:8px}
+.avatar svg{width:100px;height:90px}
+.shelf{display:flex;flex-direction:column;gap:6px}
+.item{display:flex;align-items:center;gap:8px;background:var(--mist);border-radius:14px;padding:6px 8px}
+.item svg{width:36px;height:32px;flex:none}
+.item .nm{flex:1;min-width:0;font-weight:700;font-size:.92rem;line-height:1.15}
+.item .nm small{display:block;font-weight:400;color:var(--dim);font-size:.8rem}
+.buy{border:3px solid var(--ink);border-radius:12px;padding:5px 8px;font-family:var(--display);font-weight:900;font-size:.85rem;background:var(--lily);color:#fff;min-width:66px;font-variant-numeric:tabular-nums;box-shadow:0 3px 0 var(--ink);white-space:nowrap}
+.buy:active{transform:translateY(3px);box-shadow:none}
+.buy:disabled{background:var(--cloud);color:var(--soft);border-color:var(--soft);box-shadow:none;cursor:default}
+.buy.own{background:var(--duck);color:var(--ink)}
+.mgrid{display:flex;flex-direction:column;gap:10px}
+.mg{display:flex;align-items:center;gap:10px;border:3px solid var(--ink);border-radius:18px;padding:8px 10px;background:#fff}
+.mg svg{width:78px;height:62px;flex:none;background:var(--mist);border-radius:12px}
+.mg div{flex:1;min-width:0}
+.mg b{font-family:var(--display);display:block;font-size:1rem;line-height:1.1}
+.mg small{display:block;font-size:.84rem;color:var(--dim);line-height:1.25}
+.mg .play{border:3px solid var(--ink);border-radius:14px;background:var(--duck);font-family:var(--display);font-weight:900;padding:7px 12px;box-shadow:0 3px 0 var(--ink)}
+.mg .play:active{transform:translateY(3px);box-shadow:none}
+.mg .play:disabled{background:var(--mist);color:var(--dim);border-color:var(--soft);box-shadow:none}
+
+/* Egg Guard */
+#scrEgg{display:grid;place-items:center;background:linear-gradient(#9fdcff 50%,#5fb244 50%)}
+.field{position:relative;width:min(100vw,calc(100dvh * 4 / 3));aspect-ratio:4/3;overflow:hidden;touch-action:manipulation;user-select:none}
+.pill{display:flex;align-items:center;gap:6px;background:var(--cloud);color:var(--ink);border:3px solid var(--ink);border-radius:999px;padding:2px 11px 2px 5px;font-family:var(--display);font-weight:900;font-size:.92rem;box-shadow:0 3px 0 var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pill svg{display:block}
+.field>svg{position:absolute;inset:0;width:100%;height:100%}
+.ehud{position:absolute;inset:10px 10px auto;display:flex;align-items:center;gap:6px;z-index:5;pointer-events:none}
+.ehud .hbtn{pointer-events:auto;margin-right:auto}
+.fox{position:absolute;z-index:2;width:19%;transform:translate(-50%,-50%);border:0;background:transparent;padding:0;touch-action:manipulation}
+.fox svg{width:100%;height:auto;display:block}
+.fox.run{transition:left .45s ease-in,opacity .45s;opacity:0}
+.cover{position:absolute;inset:0;z-index:4;display:grid;place-items:center;background:rgba(234,246,255,.88);color:var(--ink);text-align:center;padding:16px}
+.cover>div{display:flex;flex-direction:column;gap:8px;align-items:center;max-width:320px}
+.cover .big{font-family:var(--display);font-size:1.6rem;font-weight:900;line-height:1.1}
+.cover .stars{font-size:2rem;color:#F0A500;-webkit-text-stroke:1.5px var(--ink);letter-spacing:.1em}
+.go{border:3px solid var(--ink);border-radius:16px;background:var(--duck);font-family:var(--display);font-weight:900;font-size:1.1rem;padding:9px 20px;box-shadow:0 4px 0 var(--ink)}
+.go:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.go.ghost{background:var(--cloud)}
+
+/* Caption + compare */
+@media (max-width:600px){.pair{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:520px){.lineup{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.foot{font-family:var(--note);font-size:1.05rem;color:var(--muted)}
+.confetti{position:absolute;z-index:6;width:10px;height:10px;border-radius:50%;border:2px solid var(--ink);pointer-events:none}
+@media (prefers-reduced-motion:reduce){.bob,.shadow,.chip.pop,.badge.pop,.pts.pop,.edge.peek,.edge.lookhere{animation:none!important}.fox.run{transition:none}}
+/* quackersgame.com additions */
+.page{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.topbar h1{font-size:1.2rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
+.round.snd{background:#C7E6FF}
+.home .total{margin:-6px 0 0;text-align:center;font-family:var(--display);font-weight:900;font-size:1rem;color:var(--dim)}
+.wcard.locked .thumb svg{filter:grayscale(.75) brightness(.9)}
+.wcard.locked{opacity:.82}
+.wcard .tag{display:inline-flex;align-items:center;gap:3px}
+.wcard .tag.lock{background:var(--cloud);color:var(--ink)}
+.wcard .tag.done{background:var(--lily)}
+.bigbtn{position:relative;text-align:left}
+.bigbtn .soonlbl{margin-left:auto;font-family:var(--note);font-weight:400;font-size:.95rem;color:var(--dim)}
+.homefoot{display:flex;justify-content:center}
+.linkbtn{background:none;border:0;padding:6px 10px;font-family:var(--note);font-size:1.05rem;color:var(--dim);text-decoration:underline}
+.linkbtn.armed{color:#c0392b;font-weight:700}
+.soonbox{display:flex;gap:12px;align-items:flex-start;padding:4px 2px}
+.soonbox svg{width:44px;height:44px;flex:none}
+.soonbox p{margin:0;font-family:var(--body)}
+.hcard.more{justify-content:center;opacity:.8}
+.card.hol svg{max-height:84px}
+.foot{text-align:center;margin:4px 0 0}
+
+</style>
+</head>
+<body>
+<svg id="defs" width="0" height="0" style="position:absolute" aria-hidden="true"></svg>
+<main class="page">
+    <div class="app" id="app">
+      <div class="topbar">
+        <button class="round" type="button" id="homeBtn" aria-label="Home"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M3 11 L11 4 L19 11 V19 H13 V14 H9 V19 H3 Z" fill="#fff" stroke="#173A5E" stroke-width="2.4" stroke-linejoin="round"/></svg></button>
+        <h1 id="title">Quackers</h1>
+        <button class="round snd" type="button" id="sndBtn" aria-label="Sound"></button>
+      </div>
+      <div id="scrHome" class="home"></div>
+      <div id="scrWorld" hidden>
+        <div class="stage" id="stage">
+          <div class="hud">
+            <button class="hbtn" type="button" id="exitBtn" aria-label="Back to the worlds"><svg viewBox="0 0 22 22" aria-hidden="true"><path d="M3 11 L11 4 L19 11 V19 H13 V14 H9 V19 H3 Z" fill="#FFCB2F" stroke="#173A5E" stroke-width="2.4" stroke-linejoin="round"/></svg></button>
+            <span class="chip" id="areaPill"></span>
+            <button class="badge" type="button" id="countPill"></button>
+          </div>
+          <button class="hbtn corner bl hint" type="button" id="tabHint" aria-label="Hint"><svg viewBox="0 0 26 26" aria-hidden="true"><path d="M13 3 A7 7 0 0 1 17 16 V18 H9 V16 A7 7 0 0 1 13 3 Z" fill="#FFE066" stroke="#173A5E" stroke-width="2.4" stroke-linejoin="round"/><rect x="9" y="19" width="8" height="4" rx="2" fill="#9DB7D2" stroke="#173A5E" stroke-width="2"/></svg></button>
+          <button class="hbtn corner br" type="button" id="tabMenu" aria-label="Menu"><svg viewBox="0 0 22 22" aria-hidden="true"><path d="M5 7 H17 M5 11 H17 M5 15 H17" stroke="#173A5E" stroke-width="2.8" stroke-linecap="round"/></svg></button>
+          <div class="toast" id="toast" role="status" aria-live="polite"></div>
+          <div class="intro off" id="intro" aria-hidden="true"></div>
+          <div class="done" id="done" hidden></div>
+        </div>
+      </div>
+      <div id="scrEgg" hidden>
+        <div class="field" id="field">
+          <svg viewBox="0 0 400 300" id="fieldArt" aria-hidden="true"></svg>
+          <div class="ehud"><button class="hbtn" type="button" id="eExit" aria-label="Leave Egg Guard"><svg viewBox="0 0 22 22" aria-hidden="true"><path d="M3 11 L11 4 L19 11 V19 H13 V14 H9 V19 H3 Z" fill="#FFCB2F" stroke="#173A5E" stroke-width="2.4" stroke-linejoin="round"/></svg></button><span class="pill" id="eEggs"></span><span class="pill" id="eTime"></span><span class="pill" id="eScared"></span></div>
+          <div class="cover" id="eCover"></div>
+        </div>
+      </div>
+      <div class="scrim" id="scrim" hidden></div>
+      <div class="sheet" id="sheet" hidden role="dialog" aria-modal="true"></div>
+    </div>
+    <p class="foot">A game by Mitchell. Every character is drawn just for Quackers.</p>
+</main>
+<script>
+const INK="#173A5E";
+/* Scenery keeps a thin, light edge. Ducks and characters get none (see soften below), so hidden ducks blend in. */
+const O=`stroke="${INK}" stroke-opacity=".3" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"`;
+const O2=`stroke="${INK}" stroke-opacity=".26" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"`;
+const N='pointer-events="none"';
+
+/* Shading: every shape gets a soft radial or vertical gradient, registered once in #defs */
+const GR=new Map(); let dirty=false;
+function mix(hex,t,to){const a=parseInt(hex.slice(1),16),b=parseInt(to.slice(1),16);
+  const ch=(s)=>Math.round(((a>>s)&255)+((((b>>s)&255)-((a>>s)&255))*t));
+  return "#"+[16,8,0].map(s=>ch(s).toString(16).padStart(2,"0")).join("");}
+function G(hex){hex=hex.toLowerCase();const id="r"+hex.slice(1);
+  if(!GR.has(id)){GR.set(id,`<radialGradient id="${id}" cx="34%" cy="28%" r="80%"><stop offset="0" stop-color="${mix(hex,.5,"#ffffff")}"/><stop offset=".55" stop-color="${hex}"/><stop offset="1" stop-color="${mix(hex,.34,"#173a5e")}"/></radialGradient>`);dirty=true;}
+  return `url(#${id})`;}
+function LG(top,bot){top=top.toLowerCase();bot=bot.toLowerCase();const id="l"+top.slice(1)+bot.slice(1);
+  if(!GR.has(id)){GR.set(id,`<linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${top}"/><stop offset="1" stop-color="${bot}"/></linearGradient>`);dirty=true;}
+  return `url(#${id})`;}
+function RB(){ if(!GR.has("rainbow")){GR.set("rainbow",`<linearGradient id="rainbow" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff6f91"/><stop offset=".25" stop-color="#ffcb2f"/><stop offset=".5" stop-color="#7fd04e"/><stop offset=".75" stop-color="#4fb3ff"/><stop offset="1" stop-color="#b48cff"/></linearGradient>`);dirty=true;} return "url(#rainbow)"; }
+function flush(){if(dirty){document.getElementById("defs").innerHTML="<defs>"+[...GR.values()].join("")+"</defs>";dirty=false;}}
+const sv=(vb,inner,extra="")=>`<svg viewBox="${vb}" aria-hidden="true" ${extra}>${inner}</svg>`;
+
+/* ---------- Toy ducks and what they wear ---------- */
+const YEL={body:"#ffcb2f",wing:"#f0a500",beak:"#ff8a3d"};
+const spark=(x,y,s=1,c="#ffe066")=>`<path transform="translate(${x} ${y}) scale(${s})" d="M0 -8 L2 -2 L8 0 L2 2 L0 8 L-2 2 L-8 0 L-2 -2 Z" fill="${c}" stroke="${INK}" stroke-width="1.4" stroke-linejoin="round"/>`;
+const ACC={
+  mail:()=>`<g transform="translate(30 -10) rotate(-8)"><rect x="0" y="-6" width="17" height="12" rx="2" fill="#ffffff" ${O2}/><path d="M0 -6 L8.5 1 L17 -6" fill="none" ${O2}/><circle cx="13" cy="2" r="2" fill="#ff6fa6"/></g>`,
+  leaf:()=>`<g transform="translate(9 -33) rotate(-20)"><path d="M0 0 Q-4 -16 8 -22 Q16 -8 0 0 Z" fill="${G("#7fd04e")}" ${O2}/><path d="M1 -2 Q4 -11 7 -18" stroke="${INK}" stroke-width="1.6" fill="none"/></g>`,
+  rock:()=>`<circle cx="-14" cy="10" r="2.4" fill="#7d786e"/><circle cx="2" cy="16" r="2" fill="#7d786e"/><circle cx="-6" cy="-4" r="1.6" fill="#7d786e"/><circle cx="6" cy="-22" r="1.6" fill="#7d786e"/>`,
+  bubble:()=>`<g fill="#ffffff" fill-opacity=".55" stroke="#2387d9" stroke-width="2"><circle cx="-26" cy="-22" r="6"/><circle cx="-14" cy="-36" r="4"/><circle cx="34" cy="-32" r="5"/></g><g fill="#fff"><circle cx="-28" cy="-24" r="1.6"/><circle cx="32" cy="-34" r="1.4"/></g><path d="M-2 -30 Q12 -42 26 -28 Q12 -32 -2 -30 Z" fill="${G("#ff9ec7")}" ${O2}/>`,
+  scarf:()=>`<path d="M0 -6 Q12 -1 26 -6 L26 0 Q12 6 0 0 Z" fill="${G("#ff5c5c")}" ${O2}/><path d="M4 -2 L0 12 L6 13 L9 0 Z" fill="${G("#ff5c5c")}" ${O2}/><circle cx="-4" cy="4" r="2.2" fill="#2b2b2b"/><circle cx="-6" cy="13" r="2.2" fill="#2b2b2b"/><path d="M-22 2 L-36 -8 M-31 -4 L-35 -12" stroke="#7a4523" stroke-width="3" stroke-linecap="round"/><g transform="translate(13 -33)"><rect x="-9" y="-12" width="18" height="12" rx="2" fill="${G("#2b2b45")}" ${O2}/><rect x="-14" y="-2" width="28" height="5" rx="2.5" fill="${G("#2b2b45")}" ${O2}/></g>`,
+  icecube:()=>`<g transform="translate(13 -36) rotate(8)"><rect x="-9" y="-9" width="18" height="18" rx="4" fill="${G("#cdefff")}" fill-opacity=".9" ${O2}/><path d="M-5 -5 h5" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></g>${spark(-26,-18,.7,"#e6f7ff")}`,
+  earmuff:()=>`<path d="M2 -30 Q12 -40 24 -30" fill="none" stroke="${INK}" stroke-width="3"/><circle cx="3" cy="-22" r="6" fill="${G("#4fb3ff")}" ${O2}/>`,
+  tutu:()=>`<path d="M-26 10 Q-30 18 -22 20 Q-18 26 -10 22 Q-4 28 4 22 Q12 27 16 20 Q24 20 22 10 Q0 18 -26 10 Z" fill="${G("#ffa7cf")}" ${O2}/><g transform="translate(6 -32)"><path d="M0 0 L-9 -6 L-9 6 Z M0 0 L9 -6 L9 6 Z" fill="${G("#ff5c8a")}" ${O2}/><circle r="3" fill="${G("#ff5c8a")}" ${O2}/></g>`,
+  tophat:(c="#2b2b45",band="#8e44ad")=>`<g transform="translate(12 -30) rotate(-8)"><rect x="-11" y="-20" width="22" height="20" rx="3" fill="${G(c)}" ${O2}/><rect x="-11" y="-8" width="22" height="5" fill="${band}" stroke="${INK}" stroke-width="1.6"/><rect x="-17" y="-2" width="34" height="6" rx="3" fill="${G(c)}" ${O2}/></g>`,
+  magic:()=>ACC.tophat()+`<path d="M-10 8 L-36 -6" stroke="${INK}" stroke-width="6" stroke-linecap="round"/><path d="M-10 8 L-36 -6" stroke="#2b2b45" stroke-width="3" stroke-linecap="round"/><path d="M-32 -4 L-36 -6" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>${spark(-40,-14,.8)}${spark(-26,-26,.55)}`,
+  spot:()=>`${spark(-28,-26,1)}${spark(34,-36,.7)}${spark(-36,6,.6)}<g transform="translate(13 -33)"><path d="M-10 0 L0 -14 L10 0 Z" fill="${G("#ffe066")}" ${O2}/><circle cy="-14" r="3" fill="#ff6fa6" stroke="${INK}" stroke-width="1.6"/></g>`,
+  checker:()=>`<g transform="translate(12 -28) rotate(-6)"><path d="M-14 0 Q-14 -16 0 -16 Q14 -16 14 0 Z" fill="${G("#ffcb2f")}" ${O2}/><path d="M-14 -4 H14 V0 H-14 Z" fill="#fff" stroke="${INK}" stroke-width="1.6"/>${[-12,-6,0,6].map(x=>`<rect x="${x}" y="-4" width="3" height="4" fill="#2b2b2b"/>`).join("")}<path d="M10 0 H24 Q24 4 10 4 Z" fill="${G("#2b2b2b")}" ${O2}/></g>`,
+  barista:()=>`<g transform="translate(12 -29)"><path d="M-13 0 Q-12 -12 0 -12 Q12 -12 13 0 Z" fill="${G("#3fb86a")}" ${O2}/><path d="M-14 0 H22" stroke="${INK}" stroke-width="3" stroke-linecap="round"/></g><g transform="translate(-30 -2)"><path d="M-7 -10 H7 L5 8 H-5 Z" fill="${G("#ffffff")}" ${O2}/><path d="M-7 -4 H7" stroke="#8a5a33" stroke-width="3"/><path d="M-2 -14 Q0 -18 2 -14 Q4 -20 0 -22" stroke="#9db7d2" stroke-width="1.6" fill="none"/></g>`,
+  washer:()=>`<g transform="translate(12 -29)"><path d="M-13 0 Q-12 -12 0 -12 Q12 -12 13 0 Z" fill="${G("#4fb3ff")}" ${O2}/><path d="M8 0 H22" stroke="${INK}" stroke-width="3" stroke-linecap="round"/></g><g transform="translate(-30 -6) rotate(-20)"><rect x="-2" y="-4" width="4" height="22" rx="2" fill="${G("#ffcb2f")}" ${O2}/><rect x="-12" y="-10" width="24" height="7" rx="3" fill="${G("#5b6b80")}" ${O2}/></g>`,
+  witch:()=>`<g transform="translate(12 -31) rotate(-10)"><path d="M-8 0 Q-4 -16 2 -28 Q6 -30 8 -26 Q4 -14 8 0 Z" fill="${G("#4a2a6a")}" ${O2}/><ellipse cx="0" cy="0" rx="20" ry="5" fill="${G("#4a2a6a")}" ${O2}/><rect x="-8" y="-7" width="16" height="5" fill="#ff9f43" stroke="${INK}" stroke-width="1.6"/></g>`,
+  santa:()=>`<g transform="translate(12 -30) rotate(-6)"><path d="M-14 0 Q-10 -20 6 -22 Q20 -20 22 -6 L16 -8 Q10 -14 6 -6 Z" fill="${G("#e8423a")}" ${O2}/><circle cx="22" cy="-6" r="5" fill="${G("#ffffff")}" ${O2}/><rect x="-16" y="-4" width="30" height="8" rx="4" fill="${G("#ffffff")}" ${O2}/></g><path d="M24 -10 Q34 6 22 10 Q16 4 24 -10 Z" fill="${G("#ffffff")}" ${O2}/>`,
+  cupid:()=>`<path d="M-14 -6 Q-30 -26 -40 -10 Q-30 -12 -26 -2 Q-36 0 -30 8 Q-22 2 -14 4 Z" fill="${G("#ffffff")}" ${O2}/><g transform="translate(13 -36)"><path d="M0 4 L-8 -4 A4.5 4.5 0 0 1 0 -8 A4.5 4.5 0 0 1 8 -4 Z" fill="${G("#ff4f7b")}" ${O2}/></g><path d="M8 -33 V-30" stroke="${INK}" stroke-width="2"/>`,
+  lucky:()=>ACC.tophat("#3fb86a","#ffcb2f")+`<g transform="translate(-28 -20)">${[0,90,180,270].map(a=>`<circle cx="0" cy="-5" r="4.4" fill="${G("#3fb86a")}" stroke="${INK}" stroke-width="1.6" transform="rotate(${a})"/>`).join("")}<path d="M0 0 Q2 8 6 10" stroke="${INK}" stroke-width="2" fill="none"/></g>`,
+  clown:()=>`<circle cx="0" cy="-28" r="7" fill="${G("#ff6f91")}" ${O2}/><circle cx="24" cy="-30" r="7" fill="${G("#4fb3ff")}" ${O2}/><circle cx="12" cy="-34" r="7" fill="${G("#7fd04e")}" ${O2}/><circle cx="38" cy="-12" r="5" fill="${G("#ff4040")}" ${O2}/><g transform="translate(16 -2)"><path d="M0 0 L-9 -6 L-9 6 Z M0 0 L9 -6 L9 6 Z" fill="${G("#ffcb2f")}" ${O2}/><circle r="3" fill="${G("#ff6f91")}" ${O2}/></g><circle cx="-10" cy="10" r="2.4" fill="#ff6f91"/><circle cx="-18" cy="2" r="2.4" fill="#4fb3ff"/>`,
+  crown:()=>`<g transform="translate(12 -31)"><path d="M-11 0 L-12 -12 L-5 -6 L0 -15 L5 -6 L12 -12 L11 0 Z" fill="${G("#ffd45c")}" ${O2}/><circle cy="-4" r="2" fill="#ff6fa6"/></g>`,
+  gold:()=>ACC.crown()+spark(-30,-22,.9,"#fff6c9")+spark(36,-34,.6,"#fff6c9"),
+  shades:()=>`<path d="M10 -22 H30" stroke="${INK}" stroke-width="2.4"/><rect x="11" y="-25" width="9" height="7" rx="3" fill="#1a1a1a" stroke="${INK}" stroke-width="1.4"/><rect x="21" y="-25" width="9" height="7" rx="3" fill="#1a1a1a" stroke="${INK}" stroke-width="1.4"/>`
+};
+function toyDuck(c,acc="",extra=""){
+  const a=(acc?acc.split(" "):[]).map(k=>ACC[k]?ACC[k]():"").join("");
+  const body=c.rainbow?RB():G(c.body), wing=c.rainbow?G("#ffffff"):G(c.wing);
+  return `<path d="M-20 0 Q-36 -10 -32 -22 Q-24 -12 -12 -10 Z" fill="${body}" ${O}/>
+  <ellipse cx="-8" cy="22" rx="6" ry="3.4" fill="${G(c.beak)}" ${O2}/><ellipse cx="7" cy="22" rx="6" ry="3.4" fill="${G(c.beak)}" ${O2}/>
+  <ellipse cx="-2" cy="6" rx="25" ry="17" fill="${body}" ${O}/>
+  <path d="M-16 2 Q-6 -7 8 1 Q4 15 -8 13 Q-18 10 -16 2 Z" fill="${wing}" ${O2}/>
+  <ellipse cx="-12" cy="0" rx="6" ry="2.4" fill="#fff" opacity=".45" transform="rotate(-18 -12 0)"/>
+  <circle cx="12" cy="-17" r="15.5" fill="${body}" ${O}/>
+  <ellipse cx="5" cy="-27" rx="5.5" ry="3" fill="#fff" opacity=".8" transform="rotate(-32 5 -27)"/>
+  <ellipse cx="21" cy="-11" rx="3.8" ry="2.3" fill="#ff8fb1" opacity=".75"/>
+  <ellipse cx="17" cy="-21" rx="3.8" ry="4.8" fill="#1a1a1a"/><circle cx="18.4" cy="-23" r="1.7" fill="#fff"/><circle cx="16.2" cy="-18.6" r=".8" fill="#fff"/>
+  <path d="M25 -17 Q37 -17 38 -12 Q37 -7 25 -8 Q23 -12.5 25 -17 Z" fill="${G(c.beak)}" ${O2}/>
+  ${a}${extra}`;
+}
+const GHOST={body:"#c9dcec",wing:"#b6cde2",beak:"#c9dcec"};
+
+/* ---------- Helpers and other characters ---------- */
+function toyPenguin(done){
+  return `<path d="M-18 0 Q-28 10 -24 18 Q-16 12 -13 6 Z" fill="${G("#2b3a55")}" ${O2}/><path d="M18 0 Q28 10 24 18 Q16 12 13 6 Z" fill="${G("#2b3a55")}" ${O2}/>
+  <ellipse cx="-7" cy="25" rx="7" ry="3.6" fill="${G("#ff9f43")}" ${O2}/><ellipse cx="7" cy="25" rx="7" ry="3.6" fill="${G("#ff9f43")}" ${O2}/>
+  <path d="M0 -30 C20 -30 22 -4 20 10 C18 24 -18 24 -20 10 C-22 -4 -20 -30 0 -30 Z" fill="${G("#2b3a55")}" ${O}/>
+  <path d="M0 -14 C12 -14 14 4 12 12 C10 20 -10 20 -12 12 C-14 4 -12 -14 0 -14 Z" fill="${G("#ffffff")}" ${O2}/>
+  <ellipse cx="-6" cy="-24" rx="5" ry="3" fill="#fff" opacity=".55" transform="rotate(-30 -6 -24)"/>
+  <ellipse cx="-6" cy="-14" rx="3.4" ry="4.4" fill="#1a1a1a"/><ellipse cx="6" cy="-14" rx="3.4" ry="4.4" fill="#1a1a1a"/><circle cx="-5" cy="-16" r="1.3" fill="#fff"/><circle cx="7" cy="-16" r="1.3" fill="#fff"/>
+  <ellipse cx="-11" cy="-8" rx="3" ry="1.8" fill="#ff8fb1" opacity=".7"/><ellipse cx="11" cy="-8" rx="3" ry="1.8" fill="#ff8fb1" opacity=".7"/>
+  <path d="M-5 -9 Q0 -11 5 -9 Q0 -2 -5 -9 Z" fill="${G("#ff9f43")}" ${O2}/>
+  <path d="M-16 -2 Q0 6 16 -2 L16 4 Q0 12 -16 4 Z" fill="${G("#ff6f61")}" ${O2}/><path d="M8 4 L12 16 L18 14 L14 3 Z" fill="${G("#ff6f61")}" ${O2}/>
+  ${done?`<g transform="translate(-12 -2)">${crownAt(12,-28)}</g>`:`<g transform="translate(22 6) rotate(-20)">${fishIcon(.7)}</g>`}`;
+}
+const crownAt=(x,y)=>`<g transform="translate(${x} ${y})"><path d="M-11 0 L-12 -12 L-5 -6 L0 -15 L5 -6 L12 -12 L11 0 Z" fill="${G("#ffd45c")}" ${O2}/><circle cy="-4" r="2" fill="#ff6fa6"/></g>`;
+function toyOwl(done){
+  return `<ellipse cx="-8" cy="26" rx="6" ry="3.2" fill="${G("#ff9f43")}" ${O2}/><ellipse cx="8" cy="26" rx="6" ry="3.2" fill="${G("#ff9f43")}" ${O2}/>
+  <path d="M-16 -22 L-20 -36 L-6 -28 Z M16 -22 L20 -36 L6 -28 Z" fill="${G("#a0703f")}" ${O2}/>
+  <ellipse cx="0" cy="0" rx="22" ry="27" fill="${G("#a0703f")}" ${O}/>
+  <ellipse cx="0" cy="10" rx="13" ry="14" fill="${G("#f3dcb4")}" ${O2}/>
+  <path d="M-6 6 q2 3 4 0 M2 6 q2 3 4 0 M-6 13 q2 3 4 0 M2 13 q2 3 4 0" stroke="#c49a66" stroke-width="1.6" fill="none"/>
+  <circle cx="-9" cy="-12" r="9" fill="${G("#ffffff")}" ${O2}/><circle cx="9" cy="-12" r="9" fill="${G("#ffffff")}" ${O2}/>
+  <circle cx="-8" cy="-12" r="4.4" fill="#1a1a1a"/><circle cx="10" cy="-12" r="4.4" fill="#1a1a1a"/><circle cx="-6.6" cy="-14" r="1.5" fill="#fff"/><circle cx="11.4" cy="-14" r="1.5" fill="#fff"/>
+  <path d="M-3 -4 L3 -4 L0 2 Z" fill="${G("#ff9f43")}" ${O2}/>
+  <ellipse cx="-17" cy="-2" rx="3" ry="1.8" fill="#ff8fb1" opacity=".7"/><ellipse cx="17" cy="-2" rx="3" ry="1.8" fill="#ff8fb1" opacity=".7"/>
+  <g transform="translate(0 -27)"><rect x="-12" y="-8" width="24" height="9" rx="3" fill="${G("#d8344f")}" ${O2}/><rect x="-12" y="-2" width="24" height="3" fill="#ffd45c"/><path d="M8 1 H18" stroke="${INK}" stroke-width="3" stroke-linecap="round"/></g>
+  ${done?crownAt(0,-36):`<g transform="translate(22 8) rotate(16)">${ticketIcon(.75)}</g>`}`;
+}
+function toyPigeon(done){
+  return `<ellipse cx="-6" cy="22" rx="5" ry="3" fill="${G("#ff7a59")}" ${O2}/><ellipse cx="6" cy="22" rx="5" ry="3" fill="${G("#ff7a59")}" ${O2}/>
+  <path d="M-20 2 L-34 10 L-20 12 Z" fill="${G("#6f7c92")}" ${O2}/>
+  <ellipse cx="-2" cy="6" rx="22" ry="16" fill="${G("#9aa7bd")}" ${O}/>
+  <path d="M-14 2 Q-4 -6 8 2 Q4 14 -6 12 Q-14 10 -14 2 Z" fill="${G("#7a879e")}" ${O2}/>
+  <path d="M-10 4 h10 M-9 8 h9" stroke="#5e6a80" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="12" cy="-14" r="13" fill="${G("#8a97ae")}" ${O}/>
+  <path d="M2 -4 Q12 4 22 -4 Q20 2 12 4 Q4 2 2 -4 Z" fill="${G("#5fc4a8")}" ${O2}/>
+  <ellipse cx="6" cy="-22" rx="4" ry="2.2" fill="#fff" opacity=".6" transform="rotate(-30 6 -22)"/>
+  <circle cx="16" cy="-17" r="4.2" fill="${G("#ff9f43")}" stroke="${INK}" stroke-width="1.6"/><circle cx="16.4" cy="-17" r="2" fill="#1a1a1a"/><circle cx="17.2" cy="-18" r=".8" fill="#fff"/>
+  <path d="M23 -15 Q31 -13 32 -10 Q30 -8 23 -9 Z" fill="${G("#f3dcb4")}" ${O2}/>
+  ${done?`${crownAt(12,-25)}<g transform="translate(-34 -18)">${detector(.8)}</g>`:`<g transform="translate(-30 -12)">${gearIcon(.7)}</g>`}`;
+}
+function toyTurkey(){
+  const fan=["#d8442e","#ff9f43","#ffcb2f","#a0703f","#ff9f43","#d8442e","#ffcb2f"].map((c,i)=>{const d=-160+i*23,a=d*Math.PI/180,x=(-6+Math.cos(a)*22).toFixed(1),y=(-6+Math.sin(a)*22).toFixed(1);
+    return `<ellipse cx="${x}" cy="${y}" rx="8" ry="17" fill="${G(c)}" stroke="${INK}" stroke-width="2" transform="rotate(${d+90} ${x} ${y})"/>`}).join("");
+  return `${fan}<ellipse cx="-8" cy="22" rx="6" ry="3.4" fill="${G("#ff8a3d")}" ${O2}/><ellipse cx="7" cy="22" rx="6" ry="3.4" fill="${G("#ff8a3d")}" ${O2}/>
+  <ellipse cx="-2" cy="6" rx="22" ry="16" fill="${G("#8a5a33")}" ${O}/>
+  <path d="M-14 2 Q-4 -6 8 2 Q4 14 -6 12 Q-14 10 -14 2 Z" fill="${G("#6e4423")}" ${O2}/>
+  <circle cx="12" cy="-17" r="14" fill="${G("#ffcb2f")}" ${O}/>
+  <ellipse cx="5" cy="-26" rx="5" ry="2.8" fill="#fff" opacity=".8" transform="rotate(-32 5 -26)"/>
+  <ellipse cx="17" cy="-21" rx="3.6" ry="4.6" fill="#1a1a1a"/><circle cx="18.4" cy="-23" r="1.6" fill="#fff"/>
+  <path d="M24 -17 Q35 -17 36 -12 Q35 -8 24 -9 Z" fill="${G("#ff8a3d")}" ${O2}/>
+  <path d="M26 -8 Q30 2 25 6 Q21 2 23 -8 Z" fill="${G("#e8423a")}" ${O2}/>
+  <g transform="translate(10 -30) rotate(-6)"><rect x="-10" y="-12" width="20" height="12" rx="2" fill="${G("#2b2b2b")}" ${O2}/><rect x="-15" y="-2" width="30" height="5" rx="2.5" fill="${G("#2b2b2b")}" ${O2}/><rect x="-4" y="-8" width="8" height="6" rx="1" fill="none" stroke="#ffd45c" stroke-width="2"/></g>`;
+}
+function toyChicken(){
+  return `<ellipse cx="-6" cy="24" rx="5" ry="3" fill="${G("#ff9f43")}" ${O2}/><ellipse cx="6" cy="24" rx="5" ry="3" fill="${G("#ff9f43")}" ${O2}/>
+  <path d="M-20 0 L-32 -16 L-22 -18 L-30 -28 L-14 -10 Z" fill="${G("#ffffff")}" ${O2}/>
+  <ellipse cx="-2" cy="6" rx="23" ry="17" fill="${G("#ffffff")}" ${O}/>
+  <path d="M-14 2 Q-4 -6 8 2 Q4 14 -6 12 Q-14 10 -14 2 Z" fill="${G("#eef3f8")}" ${O2}/>
+  <circle cx="12" cy="-15" r="13" fill="${G("#ffffff")}" ${O}/>
+  <path d="M4 -26 q2 -8 6 -2 q3 -8 7 -1 q4 -6 6 2 Q12 -24 4 -26 Z" fill="${G("#e8423a")}" ${O2}/>
+  <ellipse cx="17" cy="-18" rx="3.2" ry="4" fill="#1a1a1a"/><circle cx="18.2" cy="-19.6" r="1.4" fill="#fff"/>
+  <path d="M24 -15 L33 -12 L24 -9 Z" fill="${G("#ffcb2f")}" ${O2}/><path d="M23 -8 Q26 -2 22 0 Q20 -4 21 -8 Z" fill="${G("#e8423a")}" ${O2}/>
+  <ellipse cx="20" cy="-8" rx="3" ry="1.8" fill="#ff8fb1" opacity=".7"/>`;
+}
+function toyCrow(){
+  return `<ellipse cx="-6" cy="22" rx="5" ry="3" fill="${G("#5b6b80")}" ${O2}/><ellipse cx="6" cy="22" rx="5" ry="3" fill="${G("#5b6b80")}" ${O2}/>
+  <path d="M-20 2 L-36 8 L-20 12 Z" fill="${G("#2b2f3a")}" ${O2}/>
+  <ellipse cx="-2" cy="6" rx="22" ry="16" fill="${G("#3a4050")}" ${O}/>
+  <path d="M-14 2 Q-4 -6 8 2 Q4 14 -6 12 Q-14 10 -14 2 Z" fill="${G("#2b2f3a")}" ${O2}/>
+  <circle cx="12" cy="-14" r="13" fill="${G("#3a4050")}" ${O}/>
+  <ellipse cx="6" cy="-22" rx="4" ry="2" fill="#fff" opacity=".35" transform="rotate(-30 6 -22)"/>
+  <circle cx="16" cy="-17" r="3.8" fill="${G("#ffcb2f")}" stroke="${INK}" stroke-width="1.6"/><circle cx="16.4" cy="-17" r="1.8" fill="#1a1a1a"/>
+  <path d="M23 -16 L38 -12 L23 -8 Z" fill="${G("#7d8ea3")}" ${O2}/>
+  <g transform="translate(10 -26) rotate(-8)"><rect x="-9" y="-14" width="18" height="14" rx="2" fill="${G("#2b2b45")}" ${O2}/><rect x="-9" y="-5" width="18" height="4" fill="#d8344f"/><rect x="-14" y="-2" width="28" height="5" rx="2.5" fill="${G("#2b2b45")}" ${O2}/></g>
+  <g transform="translate(-30 -16)">${gearIcon(.6)}</g>`;
+}
+function toyGull(){
+  return `<ellipse cx="-6" cy="22" rx="5" ry="3" fill="${G("#ffcb2f")}" ${O2}/><ellipse cx="6" cy="22" rx="5" ry="3" fill="${G("#ffcb2f")}" ${O2}/>
+  <path d="M-6 0 Q-26 -26 -42 -10 Q-24 -10 -8 8 Z" fill="${G("#8a9bb2")}" ${O2}/>
+  <ellipse cx="-2" cy="6" rx="23" ry="15" fill="${G("#ffffff")}" ${O}/>
+  <circle cx="12" cy="-13" r="12.5" fill="${G("#ffffff")}" ${O}/>
+  <path d="M22 -15 L36 -12 Q36 -8 32 -8 L22 -8 Z" fill="${G("#ffcb2f")}" ${O2}/><circle cx="33" cy="-9" r="1.6" fill="#e8423a"/>
+  <path d="M6 -19 H24" stroke="${INK}" stroke-width="2.4"/><rect x="7" y="-22" width="8" height="6" rx="3" fill="#1a1a1a"/><rect x="16" y="-22" width="8" height="6" rx="3" fill="#1a1a1a"/>
+  <g transform="translate(-26 18) rotate(-12)"><path d="M-12 -2 Q0 -10 12 -2 Z" fill="${G("#f3dcb4")}" ${O2}/><rect x="-12" y="-2" width="24" height="4" fill="#7fd04e" stroke="${INK}" stroke-width="1.4"/><path d="M-12 2 Q0 6 12 2 Z" fill="${G("#f3dcb4")}" ${O2}/></g>`;
+}
+function toyFox(){
+  return `<path d="M-18 4 Q-40 0 -34 -20 Q-24 -8 -14 -2 Z" fill="${G("#ff8a3d")}" ${O2}/><path d="M-34 -20 Q-38 -12 -31 -9 Q-30 -15 -34 -20 Z" fill="#fff" stroke="${INK}" stroke-width="1.6"/>
+  <ellipse cx="-2" cy="6" rx="19" ry="12" fill="${G("#ff8a3d")}" ${O}/>
+  <ellipse cx="-9" cy="18" rx="4.5" ry="3" fill="${G("#5e3418")}" ${O2}/><ellipse cx="6" cy="18" rx="4.5" ry="3" fill="${G("#5e3418")}" ${O2}/>
+  <path d="M6 -16 L8 -28 L15 -18 Z M14 -16 L22 -26 L24 -14 Z" fill="${G("#ff8a3d")}" ${O2}/>
+  <path d="M2 -12 Q14 -24 26 -10 L34 -4 Q32 2 26 2 Q12 6 2 -2 Z" fill="${G("#ff8a3d")}" ${O}/>
+  <path d="M18 -2 L34 -4 Q32 2 26 2 Q20 2 18 -2 Z" fill="#fff" stroke="${INK}" stroke-width="1.6"/>
+  <circle cx="34" cy="-4" r="2.4" fill="#1a1a1a"/>
+  <ellipse cx="16" cy="-9" rx="2.6" ry="3.2" fill="#1a1a1a"/><circle cx="17" cy="-10.4" r="1" fill="#fff"/>`;
+}
+function fishIcon(s=1){ return `<g transform="scale(${s})"><path d="M-12 0 Q-2 -10 10 0 Q-2 10 -12 0 Z" fill="${G("#4fb3ff")}" ${O2}/><path d="M10 0 L18 -7 L18 7 Z" fill="${G("#4fb3ff")}" ${O2}/><circle cx="-6" cy="-1" r="1.6" fill="#1a1a1a"/></g>`; }
+function ticketIcon(s=1){ return `<g transform="scale(${s})"><path d="M-14 -8 H14 V-3 A3 3 0 0 0 14 3 V8 H-14 V3 A3 3 0 0 0 -14 -3 Z" fill="${G("#ffcb2f")}" ${O2}/><path d="M-6 -8 V8" stroke="${INK}" stroke-width="1.4" stroke-dasharray="2 2"/><circle cx="4" cy="0" r="2.4" fill="#d8344f"/></g>`; }
+function gearIcon(s=1){ return `<g transform="scale(${s})"><path d="${Array.from({length:8},(_,i)=>{const a=i*Math.PI/4,b=a+.3,c=a+Math.PI/4-.3;return `${i?"L":"M"}${(Math.cos(a)*13).toFixed(1)} ${(Math.sin(a)*13).toFixed(1)} L${(Math.cos(b)*13).toFixed(1)} ${(Math.sin(b)*13).toFixed(1)} L${(Math.cos(b)*9).toFixed(1)} ${(Math.sin(b)*9).toFixed(1)} L${(Math.cos(c)*9).toFixed(1)} ${(Math.sin(c)*9).toFixed(1)}`}).join(" ")} Z" fill="${G("#b7c3d4")}" ${O2}/><circle r="4" fill="#fff" ${O2}/></g>`; }
+function detector(s=1){ return `<g transform="scale(${s})"><rect x="-13" y="-10" width="26" height="20" rx="6" fill="${G("#2387d9")}" ${O2}/><circle cx="0" cy="0" r="6" fill="${G("#9fe7ff")}" ${O2}/><path d="M0 -10 V-18" stroke="${INK}" stroke-width="2.4"/><circle cx="0" cy="-20" r="3.4" fill="${G("#ff5c5c")}" ${O2}/></g>`; }
+function acornIcon(s=1){ return `<g transform="scale(${s})"><path d="M-8 -2 Q-8 12 0 14 Q8 12 8 -2 Z" fill="${G("#c98a4f")}" ${O2}/><path d="M-10 -2 Q0 -12 10 -2 Z" fill="${G("#7a4523")}" ${O2}/><path d="M0 -8 V-12" stroke="${INK}" stroke-width="2.4" stroke-linecap="round"/></g>`; }
+function eggIcon(s=1){ return `<g transform="scale(${s})"><ellipse cx="0" cy="0" rx="9" ry="12" fill="${G("#fff8ec")}" ${O2}/></g>`; }
+const TOKEN_ICON={fish:fishIcon,ticket:ticketIcon,gear:gearIcon};
+
+/* ---------- Scene pieces ---------- */
+const sky=(a,b)=>`<rect width="400" height="300" fill="${LG(a,b)}"/>`;
+const sun=(x,y)=>`<g ${N}><circle cx="${x}" cy="${y}" r="24" fill="${G("#ffe066")}" ${O}/><ellipse cx="${x-8}" cy="${y-8}" rx="7" ry="4" fill="#fff" opacity=".7" transform="rotate(-30 ${x-8} ${y-8})"/></g>`;
+const cloud=(x,y,s)=>`<g transform="translate(${x} ${y}) scale(${s})" ${N}><path d="M0 0 H62 A13 13 0 0 0 54 -22 A17 17 0 0 0 24 -28 A14 14 0 0 0 2 -14 A8 8 0 0 0 0 0 Z" fill="#ffffff" ${O}/><path d="M10 -5 H52" stroke="#d6ecff" stroke-width="4" stroke-linecap="round"/></g>`;
+const flower=(x,y,c)=>`<g transform="translate(${x} ${y})" ${N}><path d="M0 0 V12" stroke="#3f8a2e" stroke-width="3"/>${[0,72,144,216,288].map(a=>`<ellipse cx="0" cy="-6" rx="4" ry="6" fill="${G(c)}" stroke="${INK}" stroke-width="1.8" transform="rotate(${a})"/>`).join("")}<circle r="3.6" fill="${G("#ffcb2f")}" stroke="${INK}" stroke-width="1.8"/></g>`;
+const bushBall=(x,y,r,c="#5fbf45")=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${G(c)}" ${O}/><ellipse cx="${x-r*.35}" cy="${y-r*.4}" rx="${r*.3}" ry="${r*.16}" fill="#fff" opacity=".4" transform="rotate(-25 ${x-r*.35} ${y-r*.4})"/>`;
+const rock=(x,y,rx,ry)=>`<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="${G("#b7b2a6")}" ${O}/><ellipse cx="${x-rx*.35}" cy="${y-ry*.45}" rx="${rx*.28}" ry="${ry*.18}" fill="#fff" opacity=".5"/>`;
+const snowman=(x,y,s,hat)=>`<g transform="translate(${x} ${y}) scale(${s})" ${N}><circle cx="0" cy="0" r="20" fill="${G("#ffffff")}" ${O}/><circle cx="0" cy="-30" r="14" fill="${G("#ffffff")}" ${O}/>
+  <circle cx="-5" cy="-33" r="2" fill="#2b2b2b"/><circle cx="5" cy="-33" r="2" fill="#2b2b2b"/><path d="M0 -29 L12 -27 L0 -25 Z" fill="${G("#ff9f43")}" stroke="${INK}" stroke-width="1.4"/>
+  <circle cy="-6" r="2.2" fill="#2b2b2b"/><circle cy="4" r="2.2" fill="#2b2b2b"/><path d="M-18 -6 L-32 -16 M18 -6 L32 -16" stroke="#7a4523" stroke-width="3" stroke-linecap="round"/>
+  ${hat==="beanie"?`<path d="M-13 -38 Q0 -56 13 -38 Z" fill="${G("#4fb3ff")}" ${O2}/><circle cy="-52" r="4" fill="#fff" ${O2}/>`:`<rect x="-11" y="-52" width="22" height="10" rx="2" fill="${G("#ff5c5c")}" ${O2}/><rect x="-15" y="-43" width="30" height="5" rx="2.5" fill="${G("#ff5c5c")}" ${O2}/>`}</g>`;
+
+/* No heavy outlines on ducks and characters: edges come from the soft shading in each gradient,
+   plus a faint hairline so small parts (beaks, hats) still read. */
+const SOFT=`stroke="#173A5E" stroke-opacity=".1" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"`;
+const soften=f=>(...a)=>f(...a).split(O).join(SOFT).split(O2).join(SOFT).replace(/stroke="#173A5E"(?! stroke-opacity)/g,'stroke="#173A5E" stroke-opacity=".35"');
+toyDuck=soften(toyDuck); toyPenguin=soften(toyPenguin); toyOwl=soften(toyOwl); toyPigeon=soften(toyPigeon); toyTurkey=soften(toyTurkey);
+toyChicken=soften(toyChicken); toyCrow=soften(toyCrow); toyGull=soften(toyGull); toyFox=soften(toyFox);
+
+
+/* ---------- More things ducks wear (for Spooky Manor and Under the Sea) ---------- */
+Object.assign(ACC,{
+  chef:()=>`<g transform="translate(12 -31)"><rect x="-9" y="-4" width="18" height="8" rx="2" fill="${G("#ffffff")}" ${O2}/><circle cx="-6" cy="-8" r="6" fill="${G("#ffffff")}" ${O2}/><circle cx="1" cy="-12" r="7" fill="${G("#ffffff")}" ${O2}/><circle cx="7" cy="-7" r="6" fill="${G("#ffffff")}" ${O2}/></g>`,
+  bat:()=>`<path d="M-6 -4 L-30 -26 L-24 -12 L-38 -12 L-26 -2 L-36 4 L-8 6 Z" fill="${G("#3a2a55")}" ${O2}/><path d="M18 -30 L14 -42 L24 -34 Z M8 -30 L4 -42 L12 -32 Z" fill="${G("#3a2a55")}" ${O2}/>`,
+  pirate:()=>`<g transform="translate(12 -30) rotate(-6)"><path d="M-18 0 Q-12 -16 0 -16 Q12 -16 18 0 Q0 -6 -18 0 Z" fill="${G("#2b2b2b")}" ${O2}/><circle cx="0" cy="-8" r="3" fill="#fff"/><path d="M-2 -5 L2 -3 M2 -5 L-2 -3" stroke="#fff" stroke-width="1.2"/></g><path d="M8 -22 L28 -22" stroke="#1a1a1a" stroke-width="2"/><ellipse cx="18" cy="-21" rx="5" ry="5.4" fill="#1a1a1a"/>`,
+  snorkel:()=>`<rect x="9" y="-27" width="18" height="12" rx="5" fill="${G("#9fe7ff")}" fill-opacity=".8" ${O2}/><path d="M4 -20 H9 M27 -20 H30" stroke="#ff6f61" stroke-width="3"/><path d="M-2 -18 V-44 Q-2 -48 3 -48" fill="none" stroke="#ff9f43" stroke-width="4.5" stroke-linecap="round"/>`,
+  glow:()=>`<circle cx="0" cy="-4" r="40" fill="#9bffea" opacity=".16"/><circle cx="0" cy="-4" r="30" fill="#9bffea" opacity=".2"/>${spark(-30,-28,.7,"#e9fffa")}${spark(34,-34,.55,"#e9fffa")}`,
+  specs:()=>`<circle cx="17" cy="-21" r="6.4" fill="none" stroke="#d4ac0d" stroke-width="2"/><path d="M23 -21 H27 M11 -21 L4 -24" stroke="#d4ac0d" stroke-width="2"/>`,
+  web:()=>`<path d="M14 -33 V-90" stroke="#e8e8f0" stroke-width="1.4" opacity=".8"/>`,
+  pumpkin:()=>`<g transform="translate(12 -32)"><path d="M0 0 Q-2 -6 2 -9" stroke="#3f6b1f" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M2 -6 Q8 -10 10 -4 Q5 -3 2 -6 Z" fill="${G("#5fbf45")}" ${O2}/></g>`,
+  sandpail:()=>`<g transform="translate(13 -33)"><path d="M-10 -10 H10 L8 2 H-8 Z" fill="${G("#ff6f61")}" ${O2}/><path d="M-9 -10 Q0 -20 9 -10" fill="none" stroke="${INK}" stroke-opacity=".4" stroke-width="1.6"/></g>`
+});
+
+/* ---------- Scene helpers ---------- */
+const tagAt=(x,y,t,c="#ffffff")=>`<text x="${x}" y="${y}" text-anchor="middle" font-family="Grandstander,sans-serif" font-weight="900" font-size="${t.length>12?14:12}" letter-spacing=".5" fill="${c}"${c==="#ffffff"?` stroke="${INK}" stroke-width="3" paint-order="stroke"`:""} ${N}>${t}</text>`;
+function seeded(n){ let s=n*9301+49297; return ()=>((s=(s*9301+49297)%233280)/233280); }
+const stars=(n)=>{ const r=seeded(n); return `<g ${N}>${Array.from({length:n},()=>`<circle cx="${(r()*400).toFixed(0)}" cy="${(r()*150).toFixed(0)}" r="${(r()*1.4+.6).toFixed(1)}" fill="#fff" opacity="${(r()*.5+.4).toFixed(2)}"/>`).join("")}</g>`; };
+const pumpkinAt=(x,y,s=1,face)=>`<g transform="translate(${x} ${y}) scale(${s})" ${N}><ellipse cx="-9" cy="0" rx="12" ry="15" fill="${G("#ff8c1a")}" ${O2}/><ellipse cx="9" cy="0" rx="12" ry="15" fill="${G("#ff8c1a")}" ${O2}/><ellipse cx="0" cy="0" rx="12" ry="16" fill="${G("#ffa030")}" ${O2}/>
+  <path d="M0 -15 Q-2 -22 3 -25" stroke="#3f6b1f" stroke-width="3.4" fill="none" stroke-linecap="round"/>${face?`<path d="M-11 -4 L-6 -9 L-2 -4 Z M2 -4 L6 -9 L11 -4 Z" fill="#5a2a00"/><path d="M-10 4 Q0 12 10 4 L6 6 L3 3 L0 7 L-3 3 L-6 6 Z" fill="#5a2a00"/>`:""}</g>`;
+const BOOKC=["#d8344f","#2387d9","#3fb86a","#ffcb2f","#8e44ad","#ff8a3d","#1aa3a3"];
+const books=(y,x0,h,x1,gap)=>{ const r=seeded(y+x0); let x=x0+4, out=""; while(x<x1-8){ const w=10+Math.floor(r()*8), hh=h-Math.floor(r()*18);
+    if(!(gap&&x+w>gap[0]&&x<gap[1])) out+=`<rect x="${x}" y="${y+h-hh}" width="${w}" height="${hh}" rx="2" fill="${G(BOOKC[Math.floor(r()*BOOKC.length)])}" ${O2}/>`;
+    x+=w+2; } return `<g ${N}>${out}</g>`; };
+const seaweed=(x,y,h,c="#3f9d3a")=>`<path d="M${x} ${y} Q${x-10} ${y-h*.3} ${x} ${y-h*.55} Q${x+10} ${y-h*.8} ${x} ${y-h}" stroke="${c}" stroke-width="8" fill="none" stroke-linecap="round" ${N}/>`;
+const fish=(x,y,s=1,c="#ffcb2f")=>`<g transform="translate(${x} ${y}) scale(${s} ${Math.abs(s)})" ${N}><path d="M-14 0 Q0 -12 14 0 Q0 12 -14 0 Z" fill="${G(c)}" ${O2}/><path d="M-12 0 L-22 -8 L-22 8 Z" fill="${G(c)}" ${O2}/><circle cx="7" cy="-2" r="2" fill="#1a1a1a"/></g>`;
+const bubbles=(x,y)=>`<g ${N} fill="#e6f7ff" fill-opacity=".35" stroke="#fff" stroke-opacity=".7" stroke-width="1.4"><circle cx="${x}" cy="${y}" r="5"/><circle cx="${x+8}" cy="${y-16}" r="3.4"/><circle cx="${x+2}" cy="${y-30}" r="4"/></g>`;
+const coral=(x,y,c,s=1)=>`<g transform="translate(${x} ${y}) scale(${s})"><path d="M0 0 V-40 M0 -24 L-16 -40 V-56 M0 -30 L14 -46 V-60 M-16 -48 L-26 -56" stroke="${c}" stroke-width="10" fill="none" stroke-linecap="round"/></g>`;
+
+/* ---------- State and saving ---------- */
+const KEY="quackers-v3";
+const NOW_MONTH=(()=>{ try{ const m=+new URLSearchParams(location.search).get("month"); if(m>=1&&m<=12) return m-1; }catch(e){} return new Date().getMonth(); })();
+function load(){ try{ const j=JSON.parse(localStorage.getItem(KEY)||"null"); if(j&&typeof j==="object") return j; }catch(e){} return {}; }
+const SV=load();
+const S={screen:"home",world:null,area:null,found:new Set(SV.found||[]),flags:SV.flags||{},unlocked:SV.unlocked||1,sound:SV.sound!==false,tokens:SV.tokens||[],best:SV.best||0,last:SV.last||{},seen:new Set(),
+  get F(){ return this.flags[this.world]||(this.flags[this.world]={}); }};
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify({found:[...S.found],flags:S.flags,unlocked:S.unlocked,sound:S.sound,tokens:S.tokens,best:S.best,last:S.last})); }catch(e){} }
+
+/* ---------- Sound ---------- */
+let actx;
+function ctx(){ try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); if(actx.state==="suspended") actx.resume(); return actx; }catch(e){ return null; } }
+function tone(f1,f2,dur,type="sine",vol=.18,when=0){ if(!S.sound) return; const c=ctx(); if(!c) return; const t=c.currentTime+when, o=c.createOscillator(), g=c.createGain();
+  o.type=type; o.frequency.setValueAtTime(f1,t); o.frequency.exponentialRampToValueAtTime(Math.max(40,f2),t+dur);
+  g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(.001,t+dur); o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+dur+.02); }
+const quack=()=>{ tone(560,260,.18,"sawtooth",.25); tone(520,250,.16,"sawtooth",.18,.2); };
+const blip=(k)=>tone(k==="door"?300:420,k==="door"?200:520,.08,"triangle",.08);
+const pop=()=>tone(300,700,.12,"sine",.15);
+const fanfare=()=>[523,659,784,1046].forEach((f,i)=>tone(f,f*1.01,.22,"triangle",.16,i*.13));
+
+/* ---------- Ducks in scenes ---------- */
+let delay=0, THUMB=false;
+const shadow=(rx=22)=>`<ellipse class="shadow" cx="0" cy="26" rx="${rx}" ry="4.5" fill="#173a5e" opacity=".2"/>`;
+function place(id,x,y,s,o={}){
+  if(S.found.has(id)&&!THUMB) return "";
+  const d=DUCK[id]; if(!d) return ""; delay=(delay+0.47)%2.6;
+  const art=d.art?d.art():toyDuck(d.c,d.acc);
+  return `<g class="duck" data-duck="${id}" tabindex="0" role="button" aria-label="Something hiding" transform="translate(${x} ${y}) scale(${o.flip?-s:s} ${o.upside?-s:s})"${d.opacity?` opacity="${d.opacity}"`:""}>
+    <circle cx="2" cy="-4" r="34" fill="transparent"/>${o.noShadow?"":shadow()}<g class="bob" style="animation-delay:-${delay.toFixed(2)}s">${art}</g></g>`;
+}
+const door=(to,label,inner,soon)=>`<g class="door" ${soon?`data-soon="${soon}"`:`data-door="${to}"`} tabindex="0" role="button" aria-label="${label}">${inner}</g>`;
+const act=(name,label,inner)=>`<g class="act" data-act="${name}" tabindex="0" role="button" aria-label="${label}">${inner}</g>`;
+const helperAt=(w,x,y,s)=>`<g transform="translate(${x} ${y}) scale(${s})" ${N}>${shadow(20)}<g class="bob">${w.helper.art(false)}</g></g>`;
+
+/* ---------- Holiday ducks ---------- */
+const HOL=[{id:"turkey",name:"Turkey Duck",holiday:"Thanksgiving",m:10,month:"November",world:"yard",area:"garden",tier:"Holiday",
+  hint:"Gobble gobble",task:"Find 6 acorns in The Backyard, then search for the duck.",tokens:{a1:"yard",a2:"yard",a3:"garden",a4:"pond",a5:"treetop",a6:"house"},art:()=>toyTurkey()}];
+const holOn=h=>!!h&&h.m===NOW_MONTH;
+const holLive=h=>holOn(h)&&!S.found.has(h.id);
+const holHere=()=>HOL.find(h=>h.world===S.world);
+const tokAll=h=>Object.keys(h.tokens).length;
+const tokGot=h=>S.tokens.filter(t=>t in h.tokens).length;
+function T(id,x,y){ if(THUMB) return ""; const h=holHere(); if(!holLive(h)||!(id in h.tokens)||S.tokens.includes(id)) return "";
+  return `<g class="token" data-token="${id}" tabindex="0" role="button" aria-label="Something small" transform="translate(${x} ${y})"><circle r="18" fill="transparent"/><g class="bob">${acornIcon(.9)}</g></g>`; }
+function H(id,x,y,s){ const h=HOL.find(k=>k.id===id); if(THUMB||!holOn(h)||tokGot(h)<tokAll(h)) return ""; return place(id,x,y,s); }
+
+/* ---------- Worlds ---------- */
+const WORLDS=[{id:"yard",n:1,name:"The Backyard",start:"yard",
+ idea:"Mitchell's game: move between areas, tap things to open them, and fill the Duck Log. In this test you swipe to move, or tap the gate, the flower arch, the tree or a small edge label.",
+ ducks:[
+  {id:"normal",name:"Normal Duck",tier:"Easy",area:"yard",c:YEL,hint:"Out in the open"},
+  {id:"mail",name:"Mail Duck",tier:"Sneaky",area:"yard",c:{body:"#ffd9a0",wing:"#f2b866",beak:"#ff8a3d"},acc:"mail",hint:"Got a letter?"},
+  {id:"leaf",name:"Leaf Duck",tier:"Sneaky",area:"garden",c:{body:"#8fc94f",wing:"#5e9330",beak:"#e0b43a"},acc:"leaf",hint:"Likes bushes"},
+  {id:"rock",name:"Rock Duck",tier:"Sneaky",area:"pond",c:{body:"#aaa59a",wing:"#8a857b",beak:"#e07b2f"},acc:"rock",hint:"Hides by the water"},
+  {id:"tiny",name:"Tiny Duck",tier:"Tricky",area:"treetop",c:YEL,hint:"Way up high"},
+  {id:"bubble",name:"Bubble Duck",tier:"Tricky",area:"house",c:{body:"#ff9ec7",wing:"#f57ab0",beak:"#ff8a3d"},acc:"bubble",hint:"Loves bath time"}],
+ areas:{
+ yard:{name:"Front Yard",pos:[1,1],bg:["#8fd3ff","#4fa83a"],exits:{left:"garden",right:"pond",up:"treetop"},doors:{house:"down"},draw:F=>`
+  ${sky("#8fd3ff","#dff4ff")}${sun(262,42)}${cloud(40,74,1)}${cloud(190,52,.75)}
+  <path d="M-10 196 Q80 128 190 178 Q290 136 410 184 V300 H-10Z" fill="${LG("#b0e586","#6cc24a")}" ${O}/>
+  <g ${N}><rect x="196" y="182" width="56" height="9" rx="4.5" fill="#e3edf7" ${O2}/><rect x="298" y="182" width="112" height="9" rx="4.5" fill="#e3edf7" ${O2}/>${[202,226].map(x=>`<path d="M${x} 206 V184 Q${x+8} 172 ${x+16} 184 V206 Z" fill="${LG("#ffffff","#dde8f3")}" ${O2}/>`).join("")}</g>
+  ${door("treetop","Climb the tree to the Treetop",`<rect x="330" y="66" width="80" height="150" fill="transparent"/><g ${N}><rect x="372" y="120" width="18" height="90" rx="6" fill="${LG("#b5835a","#8a5a33")}" ${O}/><path d="M376 196 h10 M376 180 h10 M376 164 h10 M376 148 h10" stroke="${INK}" stroke-width="2" opacity=".55"/>${bushBall(378,104,34,"#55b33e")}${bushBall(350,128,22,"#55b33e")}</g>`)}
+  <g ${N}><rect x="38" y="128" width="116" height="86" rx="12" fill="${LG("#ff8f7f","#e0503f")}" ${O}/>
+  <path d="M26 136 L96 80 L166 136 Q96 126 26 136 Z" fill="${LG("#9a7ae0","#5a3a8a")}" ${O}/>
+  <rect x="52" y="146" width="32" height="28" rx="7" fill="${LG("#d8f2ff","#8fd0ff")}" ${O}/><path d="M68 146 V174 M52 160 H84" stroke="${INK}" stroke-width="2.4"/><path d="M57 151 h6" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+  </g>${door("house","Front door into the house",`<rect x="102" y="160" width="34" height="54" rx="13" fill="${LG("#8a62c4","#5a3a8a")}" ${O}/><circle cx="127" cy="190" r="3.4" fill="${G("#ffcb2f")}" stroke="${INK}" stroke-width="2"/>`)}
+  <path d="M-10 214 Q100 198 200 214 Q300 228 410 208 V310 H-10 Z" fill="${LG("#97dc6e","#4fa83a")}" ${O}/>
+  <g ${N}>${[[120,228,13,5],[138,244,14,5.5],[160,262,16,6]].map(([x,y,a,b])=>`<ellipse cx="${x}" cy="${y}" rx="${a}" ry="${b}" fill="${G("#efe8da")}" ${O2}/>`).join("")}
+  ${flower(60,262,"#ffffff")}${flower(270,276,"#ff9f43")}${flower(380,252,"#ff6fa6")}</g>
+  ${door("garden","Flower arch to the Garden",`<rect x="0" y="140" width="38" height="96" fill="transparent"/><g ${N}><path d="M6 236 V176 Q6 146 22 146 Q38 146 38 176 V236" fill="none" stroke="#3f8a2e" stroke-width="5" stroke-linecap="round"/>${[[6,214],[6,190],[10,164],[22,148],[34,164],[38,190],[38,214]].map(([x,y],i)=>flower(x,y,["#ff6fa6","#ffffff","#ff9f43","#ff6fa6","#b48cff","#ffffff","#ff6fa6"][i])).join("")}</g>`)}
+  ${door("pond","Fence gate to the Duck Pond",`<rect x="250" y="160" width="50" height="52" fill="transparent"/><g ${N}><rect x="250" y="170" width="6" height="40" rx="3" fill="${G("#c89260")}" ${O2}/><rect x="292" y="170" width="6" height="40" rx="3" fill="${G("#c89260")}" ${O2}/>
+   <path d="M256 186 L272 178 V206 L256 210 Z" fill="${LG("#ffffff","#dde8f3")}" ${O2}/><path d="M292 186 L280 180 V206 L292 210 Z" fill="${LG("#ffffff","#dde8f3")}" ${O2}/>
+   <path d="M248 172 Q274 154 300 172" fill="none" stroke="#c89260" stroke-width="5" stroke-linecap="round"/><ellipse cx="274" cy="214" rx="20" ry="4" fill="${G("#efe8da")}" ${O2}/></g>`)}
+  ${place("normal",218,244,.95)}${T("a1",72,236)}${T("a2",360,268)}
+  <rect x="320" y="196" width="11" height="58" rx="4" fill="${LG("#b5835a","#8a5a33")}" ${O} ${N}/>
+  ${F.mail ? place("mail",300,184,.58,{flip:true,noShadow:true}) : ""}
+  ${act("mail","Mailbox",`<path d="M300 198 V178 Q300 162 316 162 H334 Q350 162 350 178 V198 Z" fill="${LG("#7cc0ff","#2387d9")}" ${O}/>
+   <ellipse cx="312" cy="170" rx="6" ry="3" fill="#fff" opacity=".6"/>
+   ${F.mail ? `<path d="M300 198 L282 206 L282 186 L300 178 Z" fill="${LG("#7cc0ff","#2387d9")}" ${O}/>` : `<path d="M300 198 V178 Q300 166 308 163" fill="none" ${O2}/>`}
+   <path d="M350 186 h8 v-18 h14 v9 h-14" fill="${G("#ff5c5c")}" ${O2}/>`)}`},
+ garden:{name:"Garden",pos:[0,1],bg:["#8fd3ff","#4fa83a"],exits:{right:"yard"},draw:F=>`
+  ${sky("#8fd3ff","#e6f7ff")}${cloud(250,60,.9)}
+  <path d="M-10 170 Q200 140 410 168 V300 H-10Z" fill="${LG("#a5de7c","#5fb244")}" ${O}/>
+  <g ${N}>${[[30,150],[70,140],[110,148]].map(([x,y])=>`<path d="M${x} 260 V${y+20}" stroke="#3f8a2e" stroke-width="5"/><g transform="translate(${x} ${y})">${Array.from({length:10},(_,k)=>`<ellipse cx="0" cy="-14" rx="5" ry="10" fill="${G("#ffcb2f")}" stroke="${INK}" stroke-width="1.8" transform="rotate(${k*36})"/>`).join("")}<circle r="10" fill="${G("#8a5a33")}" ${O2}/></g>`).join("")}</g>
+  <path d="M-10 236 Q200 222 410 238 V310 H-10Z" fill="${LG("#97dc6e","#4fa83a")}" ${O}/>
+  <g ${N}><rect x="196" y="214" width="190" height="34" rx="10" fill="${LG("#a4673a","#7a4523")}" ${O}/>${[218,256,294,332,366].map((x,i)=>flower(x,208,["#ff6fa6","#ffffff","#ff9f43","#b48cff","#ff6fa6"][i])).join("")}</g>
+  ${H("turkey",168,226,.8)}${place("leaf",104,206,.9)}
+  <g ${N}>${bushBall(70,236,30)}${bushBall(118,230,34)}${bushBall(160,244,24)}</g>
+  ${T("a3",330,278)}${act("can","Watering can",`<g transform="translate(250 268)"><path d="M-22 -18 H14 V12 Q14 18 8 18 H-16 Q-22 18 -22 12 Z" fill="${G("#6fb7ff")}" ${O}/><path d="M14 -10 L36 -26 L40 -22 L16 0" fill="${G("#6fb7ff")}" ${O2}/><path d="M-16 -18 Q-4 -34 8 -18" fill="none" ${O}/>${F.can?`<g fill="#8fd0ff" stroke="${INK}" stroke-width="1.6"><ellipse cx="44" cy="-14" rx="2.6" ry="4"/><ellipse cx="50" cy="-4" rx="2.6" ry="4"/><ellipse cx="42" cy="2" rx="2.6" ry="4"/></g>`:""}</g>`)}
+  ${door("yard","Path back to the Front Yard",`<rect x="352" y="250" width="48" height="50" fill="transparent"/><g ${N}>${[[366,288,12,5],[382,270,11,4.5],[394,256,9,4]].map(([x,y,a,b])=>`<ellipse cx="${x}" cy="${y}" rx="${a}" ry="${b}" fill="${G("#efe8da")}" ${O2}/>`).join("")}</g>`)}`},
+ pond:{name:"Duck Pond",pos:[2,1],bg:["#8fd3ff","#6cc24a"],exits:{left:"yard"},draw:F=>`
+  ${sky("#8fd3ff","#e6f7ff")}${sun(60,50)}${cloud(220,64,.85)}
+  <path d="M-10 160 Q120 120 250 150 Q330 166 410 140 V300 H-10Z" fill="${LG("#b0e586","#6cc24a")}" ${O}/>
+  <ellipse cx="196" cy="236" rx="168" ry="50" fill="${LG("#7cc8ff","#2387d9")}" ${O}/>
+  <g ${N}><path d="M90 226 q16 -6 32 0 M230 252 q16 -6 32 0 M160 270 q12 -4 24 0" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none" opacity=".7"/>
+  <path d="M94 250 a16 9 0 1 1 18 6 L102 250 Z" fill="${G("#5fbf45")}" ${O2}/><path d="M270 222 a14 8 0 1 1 16 6 L278 222 Z" fill="${G("#5fbf45")}" ${O2}/></g>
+  <g ${N}>${[[24,140],[38,130],[50,146]].map(([x,y])=>`<path d="M${x} 240 V${y+14}" stroke="#3f8a2e" stroke-width="4"/><rect x="${x-5}" y="${y}" width="10" height="24" rx="5" fill="${G("#8a5a33")}" ${O2}/>`).join("")}</g>
+  <g ${N}>${rock(340,210,26,16)}</g>${place("rock",332,196,.78)}<g ${N}>${rock(312,226,22,14)}${rock(360,232,24,15)}</g>${T("a4",118,272)}
+  ${door("yard","Stepping stones back to the Front Yard",`<rect x="0" y="262" width="56" height="38" fill="transparent"/><g ${N}>${[[12,290,11,4.5],[30,280,10,4],[46,292,9,4]].map(([x,y,a,b])=>`<ellipse cx="${x}" cy="${y}" rx="${a}" ry="${b}" fill="${G("#d9d3c7")}" ${O2}/>`).join("")}</g>`)}`},
+ treetop:{name:"Treetop",pos:[1,0],bg:["#a6dcff","#7a4523"],exits:{down:"yard"},draw:F=>`
+  ${sky("#a6dcff","#e9f8ff")}${cloud(250,70,1)}${cloud(40,110,.7)}
+  <g ${N}>${bushBall(-10,40,60,"#55b33e")}${bushBall(60,10,44,"#55b33e")}${bushBall(400,30,64,"#4fa83a")}</g>
+  <path d="M-10 230 Q140 196 290 214 Q350 220 410 196 L410 222 Q350 246 290 240 Q140 226 -10 262 Z" fill="${LG("#b5835a","#7a4523")}" ${O} ${N}/>
+  <g ${N}>${bushBall(340,190,26,"#5fbf45")}${bushBall(380,200,22,"#5fbf45")}</g>
+  ${place("tiny",206,200,.5,{noShadow:true})}${T("a5",36,238)}
+  <g ${N}><path d="M174 206 Q206 232 238 206 Q236 222 206 226 Q176 222 174 206 Z" fill="${G("#c89260")}" ${O}/><path d="M180 212 l10 4 M196 218 l12 -2 M214 216 l14 -6" stroke="${INK}" stroke-width="1.8"/></g>
+  ${act("birdhouse","Birdhouse",`<g transform="translate(96 150)"><path d="M0 -60 V-34" stroke="${INK}" stroke-width="2.4"/><path d="M-26 -14 L0 -36 L26 -14 Z" fill="${G("#ff6f61")}" ${O}/><rect x="-20" y="-16" width="40" height="38" rx="6" fill="${G("#ffe6a8")}" ${O}/><circle cx="0" cy="2" r="7" fill="#173a5e"/>${F.birdhouse?`<text x="0" y="-44" text-anchor="middle" font-family="Grandstander,sans-serif" font-weight="900" font-size="14" fill="${INK}">tweet!</text>`:""}</g>`)}
+  ${door("yard","Rope ladder down to the Front Yard",`<rect x="282" y="226" width="40" height="74" fill="transparent"/><g ${N}><path d="M290 232 Q288 266 292 300 M314 230 Q316 266 312 300" stroke="#c89260" stroke-width="4" fill="none" stroke-linecap="round"/>${[246,262,278,294].map(y=>`<path d="M290 ${y} H314" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><path d="M290 ${y} H314" stroke="#e0b07a" stroke-width="3" stroke-linecap="round"/>`).join("")}</g>`)}`},
+ house:{name:"Inside the House",pos:[1,2],bg:["#ffe9c2","#c98d5a"],exits:{up:"yard"},doors:{yard:"up"},draw:F=>`
+  <rect width="400" height="300" fill="${LG("#fff1d2","#ffd99a")}"/>
+  <g ${N} opacity=".5">${[0,1,2,3,4,5,6,7,8,9].map(i=>`<path d="M${i*44+10} 0 V232" stroke="#ffe6b0" stroke-width="10"/>`).join("")}</g>
+  <rect y="226" width="400" height="80" fill="${LG("#d9a06a","#a8693a")}" ${O} ${N}/>
+  <g ${N}>${[0,1,2,3,4,5,6,7].map(i=>`<path d="M${i*56-10} 226 L${i*56-40} 300" stroke="#9a5e32" stroke-opacity=".5" stroke-width="2"/>`).join("")}</g>
+  <g ${N}><rect x="148" y="52" width="76" height="60" rx="8" fill="${LG("#bfe8ff","#8fd0ff")}" ${O}/><path d="M186 52 V112 M148 82 H224" stroke="#fff" stroke-width="5"/><rect x="142" y="110" width="88" height="8" rx="4" fill="${G("#c89260")}" ${O2}/>
+  <path d="M144 50 Q150 90 140 118 L154 118 Q160 86 156 50 Z M228 50 Q222 90 232 118 L218 118 Q212 86 216 50 Z" fill="${G("#ff6fa6")}" ${O2}/>
+  <rect x="268" y="56" width="44" height="36" rx="5" fill="${G("#ffffff")}" ${O}/><path d="M274 86 L286 70 L296 80 L302 74 L308 86 Z" fill="${G("#7fd04e")}" ${O2}/><circle cx="300" cy="66" r="4" fill="${G("#ffe066")}" ${O2}/></g>
+  ${door("yard","Front door back out to the yard",`<rect x="20" y="116" width="58" height="112" rx="16" fill="${LG("#8a62c4","#5a3a8a")}" ${O}/><circle cx="66" cy="176" r="4.4" fill="${G("#ffcb2f")}" stroke="${INK}" stroke-width="2"/><rect x="30" y="128" width="38" height="30" rx="8" fill="${LG("#d8f2ff","#8fd0ff")}" ${O2}/>`)}
+  ${tagAt(49,108,"OUTSIDE")}
+  <g ${N}><rect x="296" y="230" width="12" height="20" rx="4" fill="${G("#b7c3d4")}" ${O2}/><rect x="356" y="230" width="12" height="20" rx="4" fill="${G("#b7c3d4")}" ${O2}/>
+  <path d="M368 150 V136 Q368 126 356 126 H350" fill="none" stroke="#b7c3d4" stroke-width="6" stroke-linecap="round"/><circle cx="350" cy="132" r="4" fill="${G("#b7c3d4")}" ${O2}/></g>
+  ${F.tap?`<g ${N}><path d="M350 136 Q348 156 346 176" stroke="#8fd0ff" stroke-width="5" stroke-linecap="round" opacity=".85"/></g>`:""}
+  ${place("bubble",300,186,.72,{noShadow:true})}
+  <g ${N}>${[[214,184,15],[236,176,13],[258,184,12],[338,182,14],[360,176,12],[382,186,13],[280,190,10],[226,196,11]].concat(F.tap?[[248,164,12],[332,164,13],[372,160,10],[300,168,9],[216,166,9],[262,170,8]]:[]).map(([x,y,r])=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${G("#ffffff")}" ${O2}/>`).join("")}</g>
+  <path d="M200 190 H394 V214 Q394 236 368 236 H226 Q200 236 200 214 Z" fill="${LG("#ffffff","#dde8f3")}" ${O} ${N}/>
+  ${act("tap","Bath tap",`<rect x="340" y="140" width="34" height="22" fill="transparent"/><path d="M344 150 h18" stroke="${INK}" stroke-opacity=".5" stroke-width="5" stroke-linecap="round"/><circle cx="353" cy="146" r="5" fill="${G(F.tap?"#4cd2a0":"#ff7a7a")}" ${O2}/>`)}
+  <g ${N}><rect x="100" y="208" width="70" height="22" rx="8" fill="${G("#3fb86a")}" ${O}/><path d="M108 214 h54 M108 222 h54" stroke="#fff" stroke-opacity=".5" stroke-width="2"/></g>
+  ${T("a6",134,196)}`}
+ },
+ msg:{tap:["Splish! The bath fills with bubbles.","Tap off."],mail:"The mailbox flips open!",can:"Splish splash!",birdhouse:"Nobody home but a tweet."}},
+{id:"manor",n:2,name:"Spooky Manor",start:"gate",
+ ducks:[
+  {id:"pumpkin",name:"Pumpkin Duck",tier:"Easy",area:"gate",c:{body:"#ff8c1a",wing:"#e06f00",beak:"#ffd43b"},acc:"pumpkin",hint:"Sits with the pumpkins"},
+  {id:"ghost",name:"Ghost Duck",tier:"Sneaky",area:"hall",c:{body:"#ffffff",wing:"#dfe6ff",beak:"#c9d3f5"},opacity:.3,hint:"Almost see-through"},
+  {id:"book",name:"Book Duck",tier:"Sneaky",area:"library",c:{body:"#8e44ad",wing:"#6c3483",beak:"#d4ac0d"},acc:"specs",hint:"Reads a lot"},
+  {id:"soup",name:"Soup Duck",tier:"Tricky",area:"kitchen",c:YEL,acc:"chef",hint:"Something's cooking"},
+  {id:"bat",name:"Bat Duck",tier:"Tricky",area:"attic",c:{body:"#4b3a6b",wing:"#3a2a55",beak:"#b07a3a"},acc:"bat",hint:"Hangs upside down"},
+  {id:"spider",name:"Spider Duck",tier:"Legendary",area:"basement",c:{body:"#7a7a85",wing:"#5f5f6a",beak:"#e07b2f"},acc:"web",hint:"Needs the lights on"}],
+ areas:{
+ gate:{name:"Front Gate",pos:[1,2],bg:["#2b2350","#2f3d24"],exits:{up:"hall"},doors:{hall:"up"},draw:F=>`
+  ${sky("#211a42","#5a4690")}${stars(34)}
+  <g ${N}><circle cx="332" cy="52" r="26" fill="${G("#fff6c9")}" ${O}/><circle cx="322" cy="46" r="5" fill="#ece3b0"/><circle cx="340" cy="62" r="3.4" fill="#ece3b0"/></g>
+  <path d="M-10 214 Q120 196 200 206 Q300 196 410 214 V310 H-10 Z" fill="${LG("#3f5a32","#24361c")}" ${O} ${N}/>
+  <g ${N}><path d="M104 76 L200 22 L296 76 Z" fill="${LG("#4a3a6a","#2b2045")}" ${O}/>
+  <rect x="116" y="72" width="168" height="140" rx="6" fill="${LG("#6a5a94","#463a6a")}" ${O}/>
+  <path d="M262 40 V18 H278 V50" fill="${G("#463a6a")}" ${O2}/>
+  ${[[138,92,1],[240,92,0],[138,146,0],[240,146,1]].map(([x,y,l])=>`<rect x="${x}" y="${y}" width="24" height="30" rx="7" fill="${l?LG("#fff3a0","#ffcb2f"):LG("#3a2f5a","#241c3c")}" ${O2}/><path d="M${x+12} ${y} V${y+30}" stroke="${INK}" stroke-opacity=".35" stroke-width="2"/>`).join("")}</g>
+  ${door("hall","Front door of the manor",`<path d="M178 212 V166 Q200 140 222 166 V212 Z" fill="${LG("#8a5a3a","#5a3420")}" ${O}/><circle cx="214" cy="190" r="3.4" fill="${G("#ffcb2f")}" stroke="${INK}" stroke-width="1.6"/>`)}
+  ${tagAt(200,134,"DOOR")}
+  <path d="M182 212 L218 212 L248 300 L152 300 Z" fill="${LG("#8a7a6a","#5a4a3a")}" ${O} ${N}/>
+  <g ${N}>${Array.from({length:22},(_,i)=>{const x=i*19+4; return (x>150&&x<250)?"":`<rect x="${x}" y="194" width="5" height="46" rx="2" fill="${G("#2b2b33")}" ${O2}/><path d="M${x-2} 196 L${x+2.5} 184 L${x+7} 196 Z" fill="${G("#2b2b33")}" ${O2}/>`;}).join("")}
+  <rect x="0" y="204" width="156" height="5" rx="2" fill="#2b2b33"/><rect x="246" y="204" width="160" height="5" rx="2" fill="#2b2b33"/></g>
+  ${pumpkinAt(58,264,1)}${place("pumpkin",100,258,.62)}${pumpkinAt(122,274,.8)}
+  ${pumpkinAt(330,262,1.05,1)}${pumpkinAt(372,276,.7)}
+  <g ${N} opacity=".55">${[[60,230],[300,240],[360,226]].map(([x,y])=>`<ellipse cx="${x}" cy="${y}" rx="24" ry="5" fill="#cfc6ff"/>`).join("")}</g>`},
+ hall:{name:"Grand Hall",pos:[1,1],bg:["#4a3566","#5a3b28"],exits:{left:"library",right:"kitchen",up:"attic",down:"gate"},doors:{gate:"down",basement:"down"},draw:F=>`
+  <rect width="400" height="300" fill="${LG("#5a4280","#3f2c5c")}"/>
+  <g ${N}>${Array.from({length:14},(_,i)=>`<rect x="${i*30+6}" y="0" width="12" height="232" fill="#6a5090" opacity=".45"/>`).join("")}</g>
+  <rect y="228" width="400" height="80" fill="${LG("#7a5236","#4a2e1c")}" ${O} ${N}/>
+  <g ${N}><rect x="164" y="34" width="72" height="84" rx="8" fill="${G("#c8963a")}" ${O}/><rect x="173" y="43" width="54" height="66" rx="5" fill="${LG("#3a4a6a","#1f2a40")}" ${O2}/>
+  <circle cx="200" cy="70" r="14" fill="${G("#e8d7b0")}" ${O2}/><path d="M184 108 Q200 86 216 108" fill="${G("#8a3a4a")}" ${O2}/><circle cx="195" cy="68" r="1.8" fill="#1a1a1a"/><circle cx="205" cy="68" r="1.8" fill="#1a1a1a"/></g>
+  <g ${N}><path d="M200 0 V18" stroke="${INK}" stroke-opacity=".5" stroke-width="2"/></g>
+  ${door("gate","Front door back outside",`<rect x="84" y="138" width="54" height="92" rx="16" fill="${LG("#8a5a3a","#5a3420")}" ${O}/><circle cx="128" cy="186" r="3.4" fill="${G("#ffcb2f")}" stroke="${INK}" stroke-width="1.6"/>`)}
+  ${tagAt(111,128,"OUTSIDE")}
+  ${door("basement","Stairs down to the basement",`<path d="M168 300 L178 238 L222 238 L232 300 Z" fill="${LG("#2a1f3a","#120c1c")}" ${O}/><path d="M178 252 h44 M175 268 h50 M172 284 h56" stroke="#4a3a5a" stroke-width="3"/>`)}
+  ${tagAt(200,230,"STAIRS")}
+  <g ${N}><rect x="296" y="96" width="40" height="134" rx="8" fill="${LG("#6a4024","#3a2414")}" ${O}/><circle cx="316" cy="126" r="14" fill="${G("#f3e6c4")}" ${O2}/>
+  <path d="M316 126 V116 M316 126 L323 130" stroke="${INK}" stroke-width="2" stroke-linecap="round"/><rect x="308" y="152" width="16" height="56" rx="6" fill="${LG("#2a190c","#1a0f06")}" ${O2}/><circle cx="316" cy="196" r="5" fill="${G("#ffcb2f")}" ${O2}/></g>
+  ${place("ghost",254,206,.82)}
+  <g ${N}><rect x="20" y="232" width="56" height="10" rx="5" fill="#8a3a4a" opacity=".6"/><rect x="350" y="150" width="8" height="80" rx="3" fill="${G("#c8963a")}" ${O2}/><path d="M354 150 Q344 134 354 122 Q364 134 354 150" fill="${G("#ffe066")}" ${O2}/></g>`},
+ library:{name:"Library",pos:[0,1],bg:["#3d2b1f","#3d2b1f"],exits:{right:"hall"},draw:F=>`
+  <rect width="400" height="300" fill="${LG("#4a3424","#2e2016")}"/>
+  <rect x="58" y="26" width="300" height="262" rx="8" fill="${LG("#7a5236","#5a3a24")}" ${O} ${N}/>
+  ${books(38,64,68,348)}${books(124,64,68,348,[220,270])}${books(210,64,68,348)}
+  <g ${N}>${[104,190,276].map(y=>`<rect x="58" y="${y}" width="300" height="10" rx="4" fill="${G("#a06a40")}" ${O2}/>`).join("")}</g>
+  ${place("book",246,176,.56)}
+  <g ${N}><rect x="14" y="36" width="7" height="252" rx="3" fill="${G("#a06a40")}" ${O2}/><rect x="40" y="36" width="7" height="252" rx="3" fill="${G("#a06a40")}" ${O2}/>${[66,106,146,186,226,266].map(y=>`<rect x="14" y="${y}" width="33" height="6" rx="3" fill="${G("#c8925a")}" ${O2}/>`).join("")}
+  <rect x="332" y="230" width="60" height="60" rx="16" fill="${G("#8a3a4a")}" ${O}/><rect x="326" y="252" width="72" height="36" rx="12" fill="${G("#a04a5a")}" ${O}/></g>`},
+ kitchen:{name:"Kitchen",pos:[2,1],bg:["#5b4a6e","#6b4a35"],exits:{left:"hall"},draw:F=>`
+  <rect width="400" height="300" fill="${LG("#6a5880","#4e3e62")}"/>
+  <g ${N} opacity=".5">${Array.from({length:40},(_,i)=>`<rect x="${(i%10)*40+3}" y="${Math.floor(i/10)*30+34}" width="34" height="24" rx="5" fill="#7a68920"/>`).join("").replace(/#7a68920/g,"#7a6892")}</g>
+  <rect y="190" width="400" height="120" fill="${LG("#7a5236","#4a2e1c")}" ${O} ${N}/>
+  <g ${N}><rect x="164" y="156" width="152" height="40" rx="8" fill="${G("#3a3a46")}" ${O}/><circle cx="196" cy="176" r="8" fill="${G("#e8423a")}" ${O2}/><circle cx="284" cy="176" r="8" fill="${G("#55555f")}" ${O2}/>
+  <rect x="170" y="196" width="140" height="70" rx="6" fill="${LG("#4a4a56","#2b2b33")}" ${O}/><rect x="190" y="212" width="100" height="40" rx="8" fill="${LG("#ffb35c","#e06f00")}" fill-opacity=".55" ${O2}/></g>
+  ${F.lid?place("soup",238,118,.55,{noShadow:true}):""}
+  <g ${N}><path d="M200 120 H276 V150 Q276 160 266 160 H210 Q200 160 200 150 Z" fill="${G("#6a6a78")}" ${O}/><rect x="190" y="126" width="12" height="7" rx="3" fill="${G("#6a6a78")}" ${O2}/><rect x="274" y="126" width="12" height="7" rx="3" fill="${G("#6a6a78")}" ${O2}/></g>
+  ${F.lid?`<g ${N} opacity=".6"><path d="M220 110 q-6 -10 0 -20 q6 -10 0 -20" stroke="#fff" stroke-width="3" fill="none"/><path d="M256 110 q-6 -10 0 -20 q6 -10 0 -20" stroke="#fff" stroke-width="3" fill="none"/></g>
+   <g ${N}><ellipse cx="338" cy="184" rx="30" ry="7" fill="${G("#8a8a96")}" ${O}/><rect x="332" y="172" width="12" height="8" rx="3" fill="${G("#b7c3d4")}" ${O2}/></g>`
+   :act("lid","Pot lid",`<ellipse cx="238" cy="120" rx="40" ry="8" fill="${G("#8a8a96")}" ${O}/><rect x="231" y="106" width="14" height="9" rx="3" fill="${G("#b7c3d4")}" ${O2}/>`)}
+  <g ${N}><rect x="36" y="112" width="68" height="80" rx="8" fill="${LG("#5a3a24","#3a2414")}" ${O}/><circle cx="70" cy="132" r="9" fill="${G("#e8d7b0")}" ${O2}/><path d="M48 160 h44 M48 174 h44" stroke="#2a190c" stroke-width="3"/>
+  <path d="M400 0 L344 0 Q372 18 400 60 Z" fill="none" stroke="#e8e8f0" stroke-opacity=".5" stroke-width="1.4"/><path d="M400 0 L364 40 M400 0 L380 52 M400 0 L352 22" stroke="#e8e8f0" stroke-opacity=".5" stroke-width="1.2"/></g>`},
+ attic:{name:"Attic",pos:[1,0],bg:["#2a2030","#3a2a22"],exits:{down:"hall"},draw:F=>`
+  <rect width="400" height="300" fill="${LG("#3a2c48","#241a30")}"/>
+  <g ${N}><path d="M0 0 L200 -40 L400 0 V30 L200 -8 L0 30 Z" fill="${G("#5a3e2a")}" ${O}/><rect y="36" width="400" height="16" rx="4" fill="${G("#6a4a30")}" ${O2}/>
+  <circle cx="90" cy="130" r="30" fill="${G("#5a3e2a")}" ${O}/><circle cx="90" cy="130" r="22" fill="${LG("#3a4a7a","#1f2a50")}" ${O2}/><circle cx="98" cy="122" r="7" fill="${G("#fff6c9")}"/><path d="M68 130 H112 M90 108 V152" stroke="#5a3e2a" stroke-width="4"/></g>
+  <g ${N}>${[150,214,350].map((x,i)=>`<g transform="translate(${x} 54) scale(${i===1?.9:1})"><path d="M0 0 V8" stroke="${INK}" stroke-opacity=".4" stroke-width="1.6"/><path d="M0 8 q-12 6 -18 0 q4 12 18 10 q14 2 18 -10 q-6 6 -18 0z" fill="${G("#3a2a55")}" ${O2}/><ellipse cx="0" cy="14" rx="6" ry="9" fill="${G("#3a2a55")}" ${O2}/></g>`).join("")}</g>
+  ${place("bat",290,90,.6,{upside:true,noShadow:true})}
+  <rect y="228" width="400" height="80" fill="${LG("#5a3e2a","#3a2818")}" ${O} ${N}/>
+  <g ${N}><rect x="30" y="184" width="70" height="50" rx="6" fill="${G("#c8925a")}" ${O}/><path d="M30 200 H100" stroke="${INK}" stroke-opacity=".35" stroke-width="2"/><rect x="86" y="198" width="50" height="36" rx="6" fill="${G("#b07a48")}" ${O}/>
+  <rect x="282" y="170" width="84" height="64" rx="8" fill="${G("#8a5a3a")}" ${O}/><path d="M282 186 H366" stroke="${G("#ffcb2f")}" stroke-width="4"/>
+  <path d="M190 234 L200 170 L214 170 L224 234" fill="none" stroke="#dcdce6" stroke-opacity=".6" stroke-width="3"/><ellipse cx="207" cy="166" rx="16" ry="10" fill="#e6e6ef" opacity=".6"/></g>`},
+ basement:{name:"Basement",pos:[2,2],bg:["#07070d","#07070d"],exits:{up:"hall"},doors:{hall:"up"},draw:F=>{
+  const back=door("hall","Stairs back up to the hall",`<path d="M10 300 V214 H64 V300 Z" fill="${F.light?LG("#4a3a5a","#2a1f3a"):"#141020"}" ${F.light?O:""}/><path d="M14 236 h46 M14 258 h46 M14 280 h46" stroke="${F.light?"#6a5a7a":"#222034"}" stroke-width="3"/>`)+tagAt(37,206,"UP",F.light?"#ffffff":"#5b6a99");
+  const sw=act("light",F.light?"Light switch, on":"Light switch",`<rect x="88" y="120" width="28" height="40" rx="7" fill="${G(F.light?"#e3edf7":"#9da8b8")}" ${O}/><rect x="96" y="${F.light?126:142}" width="12" height="13" rx="3" fill="${G(F.light?"#4cd2a0":"#ff7a7a")}" ${O2}/>${F.light?"":`<circle cx="102" cy="140" r="30" fill="#ffd43b" opacity=".14"/>`}`);
+  return F.light?`
+  <rect width="400" height="300" fill="${LG("#6a6a76","#4a4a56")}"/>
+  <g ${N} opacity=".6">${Array.from({length:40},(_,i)=>`<rect x="${(i%8)*52+((Math.floor(i/8))%2?26:0)-10}" y="${Math.floor(i/8)*40+18}" width="48" height="34" rx="6" fill="#7a7a86"/>`).join("")}</g>
+  <rect y="238" width="400" height="70" fill="${LG("#4a4a56","#2e2e36")}" ${O} ${N}/>
+  <g ${N}><path d="M200 0 V36" stroke="${INK}" stroke-opacity=".6" stroke-width="2"/><circle cx="200" cy="46" r="30" fill="#ffe066" opacity=".22"/><circle cx="200" cy="46" r="12" fill="${G("#ffe066")}" ${O2}/></g>
+  ${back}${sw}
+  <g ${N}><rect x="128" y="196" width="64" height="46" rx="6" fill="${G("#b07a48")}" ${O}/><path d="M128 212 H192 M160 196 V242" stroke="${INK}" stroke-opacity=".3" stroke-width="2"/><rect x="236" y="206" width="84" height="36" rx="6" fill="${G("#8a5a3a")}" ${O}/></g>
+  <g ${N} stroke="#f0f0f6" stroke-width="1.2" fill="none" opacity=".85"><path d="M400 24 L296 132"/><path d="M400 24 L286 70"/><path d="M400 24 L348 152"/><path d="M400 24 L396 152"/>
+  <path d="M332 102 Q346 86 352 66"/><path d="M314 116 Q340 106 372 72 Q378 110 366 128"/><path d="M300 130 Q330 118 350 152"/><path d="M322 120 Q354 112 380 140"/></g>
+  ${place("spider",334,112,.48,{noShadow:true})}
+  <g ${N}><path d="M372 30 V54" stroke="${INK}" stroke-width="1.2"/><circle cx="372" cy="58" r="5" fill="${G("#2b2b33")}"/></g>`
+  :`<rect width="400" height="300" fill="#07070d"/>${back}${sw}${tagAt(232,150,"It's too dark to see anything...","#7d86b8")}`; }}
+ },
+ msg:{lid:"You lift the lid... something smells good!",light:["Click! The light is on.","Lights off. Spooky!"]}},
+{id:"sea",n:3,name:"Under the Sea",start:"beach",
+ ducks:[
+  {id:"snorkel",name:"Snorkel Duck",tier:"Easy",area:"shallows",c:YEL,acc:"snorkel",hint:"Out for a swim"},
+  {id:"sand",name:"Sandcastle Duck",tier:"Sneaky",area:"beach",c:{body:"#e8c98a",wing:"#d6b06e",beak:"#f08a2b"},hint:"Lives in a castle"},
+  {id:"coral",name:"Coral Duck",tier:"Sneaky",area:"reef",c:{body:"#ff7aa8",wing:"#e0558a",beak:"#ffd43b"},hint:"Pink like the reef"},
+  {id:"clam",name:"Clam Duck",tier:"Tricky",area:"reef",c:{body:"#fff4dc",wing:"#f0dfbf",beak:"#ff8a1f"},hint:"Shy, hides in a shell"},
+  {id:"pirate",name:"Pirate Duck",tier:"Tricky",area:"cabin",c:YEL,acc:"pirate",hint:"Arr! Behind the barrel"},
+  {id:"glow",name:"Glow Duck",tier:"Tricky",area:"trench",c:{body:"#9bffea",wing:"#5fe0c8",beak:"#ffd43b"},acc:"glow",hint:"Only seen with a light"},
+  {id:"golden",name:"Golden Duck",tier:"Legendary",area:"cabin",c:{body:"#ffcf33",wing:"#e0a800",beak:"#ff8a1f"},acc:"gold",hint:"Locked away"}],
+ areas:{
+ beach:{name:"Sunny Beach",pos:[1,0],bg:["#8fd3ff","#f3d79a"],exits:{down:"shallows"},draw:F=>`
+  ${sky("#8fd3ff","#e3f6ff")}${sun(330,46)}${cloud(40,62,.9)}${cloud(196,44,.65)}
+  <path d="M-10 150 Q200 136 410 150 V210 H-10 Z" fill="${LG("#5cc4f0","#2a9fd6")}" ${O} ${N}/>
+  <g ${N} stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".7"><path d="M30 166 q10 -6 20 0"/><path d="M150 176 q10 -6 20 0"/><path d="M300 168 q10 -6 20 0"/></g>
+  <path d="M-10 196 Q120 180 210 192 Q320 178 410 196 V310 H-10 Z" fill="${LG("#ffe6a8","#e6c27a")}" ${O} ${N}/>
+  <g ${N}><rect x="64" y="96" width="10" height="112" rx="5" fill="${LG("#c8925a","#9a6a3a")}" ${O2} transform="rotate(8 69 208)"/>
+  ${[[-50,-8],[-24,-26],[8,-26],[34,-6]].map(([dx,dy])=>`<path d="M84 96 q${dx/2} ${dy-10} ${dx} ${dy+18}" stroke="${G("#3f9d3a")}" stroke-width="12" fill="none" stroke-linecap="round"/>`).join("")}
+  <circle cx="80" cy="102" r="6" fill="${G("#8a5a33")}" ${O2}/><circle cx="90" cy="104" r="6" fill="${G("#8a5a33")}" ${O2}/></g>
+  <g ${N}><path d="M250 268 V214 H268 V200 H282 V214 H298 V200 H312 V214 H330 V268 Z" fill="${LG("#f6dca0","#d9b46c")}" ${O}/><path d="M268 200 V188 h4 v4 h6 v-4 h4 V200" fill="${G("#f6dca0")}" ${O2}/>
+  <path d="M276 188 V172 L290 178 L276 184" fill="${G("#ff6f61")}" ${O2}/></g>
+  ${place("sand",290,250,.55)}
+  <g ${N}><path d="M276 268 V244 Q290 228 304 244 V268 Z" fill="${G("#c79a55")}" opacity=".0"/></g>
+  <g ${N}><path d="M150 236 L188 236 L182 276 L156 276 Z" fill="${G("#4fb3ff")}" ${O}/><path d="M152 236 Q169 214 186 236" fill="none" stroke="${INK}" stroke-opacity=".4" stroke-width="2"/><rect x="186" y="246" width="30" height="6" rx="3" fill="${G("#ffcb2f")}" ${O2} transform="rotate(-24 186 246)"/>
+  <path d="M352 236 l6 -10 l6 10 l10 2 l-8 7 l2 10 l-10 -5 l-10 5 l2 -10 l-8 -7 z" fill="${G("#ff9f43")}" ${O2}/>
+  <ellipse cx="40" cy="262" rx="30" ry="10" fill="${LG("#ff6f91","#e0477a")}" ${O2}/><path d="M14 262 H66" stroke="#fff" stroke-width="3" opacity=".7"/></g>`},
+ shallows:{name:"Shallow Water",pos:[1,1],bg:["#3fb6e8","#e6cf9a"],exits:{up:"beach",left:"reef",right:"wreck",down:"trench"},draw:F=>`
+  <rect width="400" height="300" fill="${LG("#5cc4f0","#1f8ac4")}"/>
+  <g ${N} opacity=".35">${[[60,0],[170,0],[300,0]].map(([x])=>`<path d="M${x} 0 L${x+40} 0 L${x+90} 300 L${x+30} 300 Z" fill="#ffffff" opacity=".35"/>`).join("")}</g>
+  <path d="M-10 250 Q100 232 200 244 Q300 230 410 248 V310 H-10 Z" fill="${LG("#f3dca0","#d6b06e")}" ${O} ${N}/>
+  ${seaweed(36,252,70)}${seaweed(58,256,48)}${seaweed(346,250,80)}${seaweed(370,254,54)}
+  ${fish(110,96,1,"#ffcb2f")}${fish(290,70,-.8,"#ff7a7a")}${fish(250,150,.7,"#7fd04e")}
+  ${bubbles(170,150)}${bubbles(320,200)}
+  ${place("snorkel",200,136,.72,{noShadow:true})}
+  <g ${N}><ellipse cx="130" cy="252" rx="22" ry="8" fill="${G("#b7b2a6")}" ${O2}/><path d="M270 248 l6 -10 l6 10 l10 2 l-8 7 l2 10 l-10 -5 l-10 5 l2 -10 l-8 -7 z" fill="${G("#ff6f61")}" ${O2}/></g>`},
+ reef:{name:"Coral Reef",pos:[0,1],bg:["#2f9fd8","#d6b06e"],exits:{right:"shallows"},draw:F=>`
+  <rect width="400" height="300" fill="${LG("#48b4e8","#1d7fb8")}"/>
+  <path d="M-10 246 Q120 230 220 242 Q320 230 410 246 V310 H-10 Z" fill="${LG("#f3dca0","#d6b06e")}" ${O} ${N}/>
+  <g ${N}>${coral(60,250,"#ff7aa8",1.1)}${coral(150,248,"#ff9f43",.8)}${coral(212,252,"#ff7aa8",.95)}${coral(330,250,"#b48cff",1)}
+  ${bushBall(110,236,20,"#ff6f91")}${bushBall(270,240,16,"#ffb35c")}</g>
+  ${place("coral",196,206,.6)}
+  ${fish(120,90,.9,"#4fb3ff")}${fish(310,120,-.9,"#ffcb2f")}${bubbles(60,140)}
+  ${F.clam?`<g ${N}><path d="M284 252 Q314 226 344 252 Z" fill="${G("#e8d6f0")}" ${O}/><path d="M282 224 Q314 196 346 224 Q314 214 282 224 Z" fill="${G("#f3e6fb")}" ${O}/><circle cx="314" cy="244" r="6" fill="${G("#ffffff")}" ${O2}/></g>${place("clam",312,236,.42,{noShadow:true})}`
+   :act("clam","Big shell",`<path d="M282 252 Q314 214 346 252 Z" fill="${G("#e8d6f0")}" ${O}/><path d="M290 250 L300 228 M314 250 V220 M338 250 L328 228" stroke="${INK}" stroke-opacity=".25" stroke-width="2"/>`)}`},
+ wreck:{name:"Shipwreck",pos:[2,1],bg:["#1f7fb8","#b89a62"],exits:{left:"shallows",down:"cabin"},doors:{cabin:"down"},draw:F=>`
+  <rect width="400" height="300" fill="${LG("#2f8fc8","#155d8a")}"/>
+  <path d="M-10 250 Q120 236 220 246 Q320 234 410 250 V310 H-10 Z" fill="${LG("#d9c08a","#b0925a")}" ${O} ${N}/>
+  <g ${N}><path d="M60 250 L90 150 L330 140 L360 250 Z" fill="${LG("#8a5a3a","#5a3420")}" ${O} transform="rotate(-6 210 200)"/>
+  <path d="M96 170 H326 M90 198 H340 M84 226 H348" stroke="#3a2414" stroke-width="3" opacity=".6" transform="rotate(-6 210 200)"/>
+  <rect x="196" y="40" width="10" height="118" rx="4" fill="${LG("#a06a40","#6a4024")}" ${O2} transform="rotate(14 200 158)"/>
+  <path d="M206 54 Q262 70 246 120 L210 112 Z" fill="${G("#e8e0c8")}" opacity=".7" ${O2} transform="rotate(14 200 158)"/>
+  ${[130,280].map(x=>`<circle cx="${x}" cy="182" r="9" fill="${G("#2a1f1a")}" ${O2}/>`).join("")}</g>
+  ${door("cabin","Hatch down into the cabin",`<rect x="180" y="176" width="56" height="34" rx="6" fill="${LG("#3a2414","#1a0f06")}" ${O}/><path d="M184 186 H232 M184 198 H232" stroke="#6a4024" stroke-width="3"/>`)}
+  ${tagAt(208,168,"HATCH")}
+  ${fish(330,80,-.8,"#ffcb2f")}${bubbles(90,110)}${seaweed(30,252,60)}${seaweed(376,254,46)}`},
+ cabin:{name:"Captain's Cabin",pos:[2,2],bg:["#4a3020","#3a2414"],exits:{up:"wreck"},doors:{wreck:"up"},draw:F=>`
+  <rect width="400" height="300" fill="${LG("#6a4430","#3e2618")}"/>
+  <g ${N}>${Array.from({length:9},(_,i)=>`<path d="M0 ${i*34+10} H400" stroke="#2a190c" stroke-width="2" opacity=".5"/>`).join("")}
+  <circle cx="84" cy="96" r="30" fill="${G("#c8963a")}" ${O}/><circle cx="84" cy="96" r="22" fill="${LG("#5cc4f0","#1f8ac4")}" ${O2}/>${fish(84,98,.5,"#ffcb2f")}</g>
+  <rect y="236" width="400" height="80" fill="${LG("#5a3a24","#3a2414")}" ${O} ${N}/>
+  ${door("wreck","Ladder back up to the ship",`<rect x="196" y="0" width="44" height="150" fill="transparent"/><path d="M200 0 V146 M236 0 V146" stroke="${G("#a06a40")}" stroke-width="6"/><path d="M200 20 H236 M200 50 H236 M200 80 H236 M200 110 H236 M200 140 H236" stroke="${G("#a06a40")}" stroke-width="5"/>`)}
+  ${tagAt(218,164,"UP")}
+  ${place("pirate",112,204,.58)}
+  <g ${N}><rect x="36" y="186" width="72" height="62" rx="18" fill="${LG("#b07a48","#7a4a24")}" ${O}/><path d="M36 204 H108 M36 230 H108" stroke="#4a2a14" stroke-width="4"/></g>
+  ${F.chest?`<g ${N}><rect x="290" y="208" width="84" height="40" rx="6" fill="${LG("#a06a40","#6a4024")}" ${O}/><path d="M290 208 Q332 168 374 208" fill="${G("#8a5a3a")}" ${O} transform="rotate(-24 290 208)"/><circle cx="332" cy="214" r="18" fill="#ffe066" opacity=".35"/></g>${place("golden",332,206,.5,{noShadow:true})}`
+   :act("chest",F.key?"Treasure chest, you have the key":"Treasure chest",`<rect x="290" y="208" width="84" height="40" rx="6" fill="${LG("#a06a40","#6a4024")}" ${O}/><path d="M290 210 Q332 176 374 210 Z" fill="${G("#8a5a3a")}" ${O}/><rect x="324" y="204" width="16" height="18" rx="4" fill="${G("#ffcb2f")}" ${O2}/><circle cx="332" cy="212" r="2.4" fill="${INK}"/>`)}
+  <g ${N}><rect x="150" y="196" width="70" height="44" rx="6" fill="${G("#8a5a3a")}" ${O}/><rect x="160" y="182" width="12" height="16" rx="4" fill="${G("#e8e0c8")}" ${O2}/><path d="M166 182 q-4 -8 0 -12 q4 4 0 12" fill="${G("#ffcb2f")}"/></g>`},
+ trench:{name:"Deep Trench",pos:[1,2],bg:["#061a33","#061a33"],exits:{up:"shallows"},draw:F=>`
+  <rect width="400" height="300" fill="${LG(F.lamp?"#0e3a66":"#0a2a4d","#030c1a")}"/>
+  ${F.lamp?`<circle cx="230" cy="150" r="150" fill="#9bffea" opacity=".08" ${N}/><circle cx="230" cy="150" r="90" fill="#9bffea" opacity=".08" ${N}/>`:""}
+  <path d="M-10 262 Q100 248 200 256 Q300 246 410 262 V310 H-10 Z" fill="${LG(F.lamp?"#3a4a5a":"#141c26","#0a1018")}" ${O} ${N}/>
+  <g ${N}><path d="M-10 0 L40 0 L60 120 L20 300 L-10 300 Z" fill="${F.lamp?"#22344a":"#0b1626"}"/><path d="M410 0 L350 0 L330 140 L372 300 L410 300 Z" fill="${F.lamp?"#22344a":"#0b1626"}"/></g>
+  ${act("lamp",F.lamp?"Glowing fish, light on":"Sleepy fish with a light",`<g transform="translate(120 140)"><path d="M-30 0 Q-6 -26 26 0 Q-6 26 -30 0 Z" fill="${G("#3a4a7a")}" ${O}/><path d="M26 0 L42 -12 L42 12 Z" fill="${G("#3a4a7a")}" ${O2}/><circle cx="-16" cy="-3" r="3" fill="#fff"/><path d="M-22 -14 Q-30 -40 -12 -46" fill="none" stroke="${INK}" stroke-opacity=".5" stroke-width="2"/><circle cx="-12" cy="-46" r="${F.lamp?8:5}" fill="${F.lamp?G("#e9fffa"):"#5b6a99"}" ${O2}/>${F.lamp?`<circle cx="-12" cy="-46" r="18" fill="#9bffea" opacity=".35"/>`:""}</g>`)}
+  ${F.lamp?place("glow",250,196,.6,{noShadow:true}):""}
+  ${F.lamp&&!F.key?act("key","Shiny key",`<g transform="translate(320 250) rotate(-20)"><circle r="8" fill="none" stroke="${G("#ffcb2f")}" stroke-width="4"/><path d="M8 0 H28 M22 0 V7 M28 0 V6" stroke="#ffcb2f" stroke-width="4" stroke-linecap="round"/></g>`):""}
+  ${F.lamp?"":tagAt(250,214,"So dark down here...","#5b7ab0")}
+  ${F.lamp?`${seaweed(170,262,40,"#2f7a6a")}${seaweed(360,264,30,"#2f7a6a")}`:""}`}
+ },
+ msg:{clam:"The clam opens up!",lamp:["The fish's light glows bright!","Back to the dark..."],key:"You found a key! It must open something."}}];
+const SOON=[{id:"snow",n:4,name:"Snowy Peaks",start:"igloo",
+ idea:"Mitchell's idea: 7 ducks, a fish for every duck, and the penguin becomes the final duck. This test shows one area with 4 of them.",
+ helper:{name:"Penguin",token:"fish",plural:"fish",icon:"fish",art:toyPenguin},
+ ducks:[
+  {id:"s_plain",name:"Yellow Duck",tier:"Easy",area:"igloo",c:YEL,hint:"By the igloo"},
+  {id:"s_snowman",name:"Snowman Duck",tier:"Sneaky",area:"igloo",c:{body:"#ffffff",wing:"#e3edf7",beak:"#ff8a3d"},acc:"scarf",hint:"Blends in with friends"},
+  {id:"s_ice",name:"Ice Cube Duck",tier:"Tricky",area:"igloo",c:{body:"#bfe8ff",wing:"#8fd0ff",beak:"#ff8a3d"},acc:"icecube",hint:"Frozen solid"},
+  {id:"s_polar",name:"Polar Duck",tier:"Rare",area:"igloo",c:{body:"#fdfeff",wing:"#e8eef5",beak:"#f5c9a0"},acc:"earmuff",hint:"White on white"}],
+ areas:{igloo:{name:"Igloo Village",pos:[0,0],bg:["#a9dcff","#d9e9f7"],exits:{},soon:{right:"Ice Rink"},draw:F=>`
+  ${sky("#a9dcff","#eaf7ff")}${sun(342,44)}
+  <g ${N}><path d="M-20 176 L70 70 L150 176 Z" fill="${LG("#ffffff","#c9dcee")}" ${O}/><path d="M100 176 L196 52 L300 176 Z" fill="${LG("#ffffff","#d6e6f4")}" ${O}/><path d="M240 176 L330 88 L420 176 Z" fill="${LG("#f4f9ff","#c9dcee")}" ${O}/>
+  <path d="M174 80 L196 52 L218 80 L206 76 L196 86 L186 76 Z" fill="#fff" ${O2}/></g>
+  <path d="M-10 182 Q200 158 410 182 V310 H-10Z" fill="${LG("#ffffff","#d9e9f7")}" ${O}/>
+  <g ${N}><path d="M56 216 A62 54 0 0 1 180 216 Z" fill="${G("#ffffff")}" ${O}/>
+  <path d="M68 196 H168 M60 208 H176 M84 180 H152 M100 168 H136" stroke="#c9dcee" stroke-width="2.4"/>
+  <path d="M100 216 A18 22 0 0 1 136 216 Z" fill="${LG("#3d5a80","#22385a")}" ${O2}/></g>
+  ${place("s_plain",176,232,.68)}
+  ${snowman(226,214,.9,"top")}${place("s_snowman",270,214,.62)}${snowman(318,218,.85,"beanie")}
+  ${place("s_polar",206,272,.58,{noShadow:true})}
+  <g ${N}><path d="M150 300 Q166 272 200 278 Q236 270 254 300 Z" fill="${G("#ffffff")}" ${O}/></g>
+  ${!F.crack?act("crack","Ice block",`<rect x="24" y="228" width="76" height="58" rx="10" fill="${LG("#d7f3ff","#7cc8ff")}" ${O}/><g transform="translate(62 262) scale(.55)" opacity=".35">${toyDuck(GHOST)}</g><path d="M34 238 h12 M84 236 l-6 10" stroke="#fff" stroke-width="3" stroke-linecap="round"/>`)
+    :`${place("s_ice",62,262,.6)}<g ${N}><path d="M28 286 l10 -10 l8 10 Z M84 288 l8 -14 l8 14 Z M54 290 l6 -8 l6 8 Z" fill="${G("#bfe8ff")}" ${O2}/></g>`}
+  <ellipse cx="352" cy="276" rx="40" ry="12" fill="${LG("#3f7fb6","#1f4f80")}" ${O} ${N}/>
+  ${helperAt(WORLDS_REF("snow"),352,244,.82)}
+  <g fill="#fff" ${N} opacity=".9">${[[40,40],[120,30],[260,30],[300,120],[20,120],[380,150]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="3"/>`).join("")}</g>`}},
+ plan:[{name:"Ice Rink",pos:[1,0]},{name:"Fishing Hut",pos:[2,0]}],
+ msg:{crack:"Crack! Something was frozen inside."}},
+
+{id:"theater",n:5,name:"The Theater",start:"stage",
+ idea:"Mitchell's idea: a main stage, seats and backstage, with ducks dressed like show characters we make up. The usher owl collects a ticket for each duck.",
+ helper:{name:"Usher Owl",token:"ticket",plural:"tickets",icon:"ticket",art:toyOwl},
+ ducks:[
+  {id:"t_plain",name:"Yellow Duck",tier:"Easy",area:"stage",c:YEL,hint:"Watching the show"},
+  {id:"t_ballet",name:"Ballet Duck",tier:"Sneaky",area:"stage",c:{body:"#ffe1ef",wing:"#ffc2dc",beak:"#ff8a3d"},acc:"tutu",hint:"Behind the curtain"},
+  {id:"t_magic",name:"Magician Duck",tier:"Tricky",area:"stage",c:YEL,acc:"magic",hint:"Abracadabra"},
+  {id:"t_spot",name:"Spotlight Duck",tier:"Rare",area:"stage",c:{body:"#ffe27a",wing:"#f5c400",beak:"#ff8a3d"},acc:"spot",hint:"Only in the light"}],
+ areas:{stage:{name:"Main Stage",pos:[1,0],bg:["#3a1446","#1a0a14"],exits:{},soon:{down:"Seats",right:"Backstage"},draw:F=>`
+  <rect width="400" height="300" fill="${LG("#3a1446","#1d0a24")}"/>
+  <rect x="40" y="30" width="320" height="172" fill="${F.light?LG("#7a5a9e","#4a2a6a"):LG("#2a1238","#1a0b20")}" ${O}/>
+  <g ${N}><rect x="28" y="18" width="344" height="16" rx="6" fill="${G("#ffd45c")}" ${O}/><rect x="26" y="26" width="16" height="200" rx="6" fill="${G("#ffd45c")}" ${O}/><rect x="358" y="26" width="16" height="200" rx="6" fill="${G("#ffd45c")}" ${O}/>
+  <path d="M42 34 H358 V50 Q330 64 302 50 Q274 64 246 50 Q218 64 190 50 Q162 64 134 50 Q106 64 78 50 Q60 62 42 50 Z" fill="${G("#d8344f")}" ${O2}/></g>
+  <rect x="42" y="196" width="316" height="32" fill="${LG("#c08050","#7a4523")}" ${O} ${N}/>
+  ${F.curtain?place("t_ballet",200,176,.85):""}
+  ${F.light?`<polygon points="350,40 232,198 306,198" fill="#fff3a0" opacity=".38" ${N}/>`:""}
+  ${F.light?place("t_spot",268,180,.7):""}
+  ${!F.curtain?act("curtain","Big red curtain",`<path d="M44 52 H200 V196 H44 Z" fill="${LG("#e04460","#a51c34")}" ${O}/><path d="M200 52 H356 V196 H200 Z" fill="${LG("#d8344f","#8e1b2a")}" ${O}/>${[72,102,132,162,238,268,298,328].map(x=>`<path d="M${x} 58 V192" stroke="#7d1426" stroke-width="3" stroke-linecap="round"/>`).join("")}<circle cx="200" cy="124" r="10" fill="${G("#ffd45c")}" ${O2}/>`)
+    :`<g ${N}><path d="M44 52 H94 Q70 124 94 196 H44 Z" fill="${LG("#e04460","#a51c34")}" ${O}/><path d="M356 52 H306 Q330 124 306 196 H356 Z" fill="${LG("#d8344f","#8e1b2a")}" ${O}/></g>`}
+  ${act("light","Spotlight switch",`<rect x="374" y="114" width="22" height="44" rx="6" fill="${G("#5b6b80")}" ${O2}/><rect x="379" y="${F.light?120:140}" width="12" height="14" rx="3" fill="${G(F.light?"#4cd2a0":"#ff7a7a")}" stroke="${INK}" stroke-width="1.6"/>`)}
+  ${!F.hat?act("hat","Magic hat",`<g transform="translate(92 214)"><rect x="-17" y="-24" width="34" height="24" rx="4" fill="${G("#2b2b45")}" ${O}/><rect x="-17" y="-10" width="34" height="6" fill="#8e44ad" stroke="${INK}" stroke-width="1.6"/><rect x="-24" y="-3" width="48" height="8" rx="4" fill="${G("#2b2b45")}" ${O}/>${spark(18,-32,.8)}</g>`)
+    :`<g transform="translate(92 214)" ${N}><rect x="-17" y="-24" width="34" height="24" rx="4" fill="${G("#2b2b45")}" ${O}/><rect x="-24" y="-3" width="48" height="8" rx="4" fill="${G("#2b2b45")}" ${O}/></g>${place("t_magic",96,174,.68)}`}
+  <rect y="228" width="400" height="72" fill="${LG("#2a0e1e","#1a0a14")}" ${N}/>
+  <g ${N}>${[0,1,2,3,4,5,6,7].map(i=>`<rect x="${6+i*50}" y="244" width="42" height="34" rx="10" fill="${G("#c0283f")}" ${O2}/>`).join("")}</g>
+  ${place("t_plain",178,250,.5,{noShadow:true})}
+  <g ${N}>${[0,1,2,3,4,5,6].map(i=>`<rect x="${2+i*50}" y="268" width="48" height="36" rx="10" fill="${G("#a51c34")}" ${O2}/>`).join("")}</g>
+  ${helperAt(WORLDS_REF("theater"),360,256,.74)}`}},
+ plan:[{name:"Seats",pos:[1,1]},{name:"Backstage",pos:[2,0]}],
+ msg:{curtain:"The curtain opens!",hat:"Poof! Something popped out of the hat."}},
+
+{id:"city",n:6,name:"The City",start:"street",
+ idea:"Mitchell's idea: nine ducks, a scrap part for every duck, and the pigeon builds a device that unlocks limited edition ducks. This test shows one area with 4 of them.",
+ helper:{name:"Pigeon",token:"scrap part",plural:"scrap parts",icon:"gear",art:toyPigeon},
+ ducks:[
+  {id:"c_plain",name:"Yellow Duck",tier:"Easy",area:"street",c:YEL,hint:"Waiting for the bus"},
+  {id:"c_barista",name:"Barista Duck",tier:"Sneaky",area:"street",c:YEL,acc:"barista",hint:"Smells like coffee"},
+  {id:"c_taxi",name:"Taxi Duck",tier:"Tricky",area:"street",c:YEL,acc:"checker",hint:"Honk honk"},
+  {id:"c_washer",name:"Window Washer Duck",tier:"Rare",area:"street",c:{body:"#ffd9a0",wing:"#f2b866",beak:"#ff8a3d"},acc:"washer",hint:"High up on a building"}],
+ areas:{street:{name:"City Street",pos:[0,1],bg:["#8fd3ff","#3e434d"],exits:{},soon:{up:"Skyscraper",right:"Garbage Dump"},draw:F=>`
+  ${sky("#8fd3ff","#e3f4ff")}${cloud(300,40,.7)}
+  <g ${N}><rect x="150" y="50" width="76" height="180" rx="6" fill="${LG("#b7c3d4","#8597b8")}" ${O}/><rect x="306" y="84" width="86" height="146" rx="6" fill="${LG("#a4b3cc","#7085a8")}" ${O}/>
+  <rect x="218" y="12" width="94" height="220" rx="6" fill="${LG("#8597b8","#5b6b90")}" ${O}/>
+  ${Array.from({length:8},(_,r)=>Array.from({length:4},(_,c)=>`<rect x="${228+c*20}" y="${24+r*24}" width="13" height="15" rx="3" fill="${LG("#e6f4ff","#9fd0ff")}" stroke="${INK}" stroke-width="1.6"/>`).join("")).join("")}
+  <path d="M232 112 V92 M298 112 V92" stroke="${INK}" stroke-width="2"/></g>
+  ${door("","Skyscraper door, coming later",`<g ${N}><rect x="250" y="200" width="30" height="28" rx="4" fill="${LG("#d8f2ff","#8fd0ff")}" ${O2}/><path d="M265 200 V228" stroke="${INK}" stroke-width="2"/><rect x="244" y="194" width="42" height="7" rx="3" fill="${G("#2387d9")}" ${O2}/></g><rect x="244" y="190" width="42" height="40" fill="transparent"/>`,"Skyscraper")}
+  ${place("c_washer",262,104,.48,{noShadow:true})}
+  <rect x="226" y="112" width="78" height="7" rx="3" fill="${G("#5b6b80")}" ${O2} ${N}/>
+  <g ${N}><rect x="10" y="108" width="142" height="122" rx="8" fill="${LG("#f3dcb4","#d8b47a")}" ${O}/><rect x="6" y="100" width="150" height="12" rx="5" fill="${G("#a0703f")}" ${O2}/></g>
+  ${helperAt(WORLDS_REF("city"),70,84,.72)}
+  <g ${N}><path d="M14 126 H148 L140 148 H22 Z" fill="${G("#e8423a")}" ${O2}/>${[36,60,84,108,132].map(x=>`<path d="M${x} 128 L${x-2} 146" stroke="#fff" stroke-width="7"/>`).join("")}
+  <rect x="22" y="158" width="72" height="54" rx="6" fill="${G("#7a4523")}" ${O2}/><rect x="27" y="163" width="62" height="44" rx="4" fill="${LG("#fff3d6","#ffd9a0")}" stroke="${INK}" stroke-width="1.6"/></g>
+  ${place("c_barista",58,194,.52,{noShadow:true})}
+  <g ${N}><rect x="104" y="166" width="34" height="62" rx="8" fill="${G("#8a5a33")}" ${O2}/><circle cx="130" cy="198" r="2.6" fill="#ffcb2f"/></g>
+  <rect y="226" width="400" height="14" fill="${LG("#dfe5ec","#b9c2ce")}" ${O} ${N}/><rect y="240" width="400" height="70" fill="${LG("#5a606c","#3e434d")}" ${N}/>
+  <path d="M0 274 H400" stroke="#ffcb2f" stroke-width="5" stroke-dasharray="24 16" ${N}/>
+  ${act("taxi","Taxi",`<g transform="translate(200 254)"><rect x="-54" y="-8" width="108" height="28" rx="10" fill="${G("#ffcb2f")}" ${O}/><path d="M-34 -8 L-24 -28 H24 L34 -8 Z" fill="${G("#ffcb2f")}" ${O}/><path d="M-27 -10 L-20 -24 H-3 V-10 Z" fill="${LG("#e6f4ff","#9fd0ff")}" stroke="${INK}" stroke-width="1.8"/><path d="M3 -10 V-24 H20 L27 -10 Z" fill="${LG("#e6f4ff","#9fd0ff")}" stroke="${INK}" stroke-width="1.8"/><rect x="-12" y="-36" width="24" height="9" rx="3" fill="${G("#2b2b2b")}" ${O2}/><text x="0" y="-29.4" text-anchor="middle" font-family="Grandstander,sans-serif" font-weight="900" font-size="7" fill="#ffcb2f">TAXI</text><circle cx="-30" cy="20" r="10" fill="${G("#2b2b2b")}" ${O2}/><circle cx="30" cy="20" r="10" fill="${G("#2b2b2b")}" ${O2}/><circle cx="-30" cy="20" r="3.6" fill="#b7c3d4"/><circle cx="30" cy="20" r="3.6" fill="#b7c3d4"/></g>`)}
+  ${F.taxi?place("c_taxi",212,236,.34,{noShadow:true}):""}
+  <g ${N}><rect x="328" y="158" width="5" height="70" fill="${G("#5b6b80")}" ${O2}/><rect x="312" y="146" width="74" height="14" rx="5" fill="${G("#2387d9")}" ${O2}/><text x="349" y="156.5" text-anchor="middle" font-family="Grandstander,sans-serif" font-size="9" font-weight="900" fill="#fff">BUS</text><rect x="338" y="204" width="48" height="8" rx="3" fill="${G("#a0703f")}" ${O2}/><path d="M344 212 V226 M380 212 V226" stroke="${INK}" stroke-width="3"/></g>
+  ${place("c_plain",362,192,.48)}`}},
+ plan:[{name:"Skyscraper",pos:[1,0]},{name:"Garbage Dump",pos:[2,1]}],
+ msg:{taxi:"Honk honk! Someone waved from the taxi."}}];
+function WORLDS_REF(id){ return WORLDS.concat(SOON).find(w=>w.id===id); }
+const W=Object.fromEntries(WORLDS.map(w=>[w.id,w]));
+const DUCK={}; WORLDS.concat(SOON).forEach(w=>(w.ducks||[]).forEach(d=>{d.world=w.id; DUCK[d.id]=d;}));
+HOL.forEach(h=>{ DUCK[h.id]=h; });
+const TOGGLE=new Set(["mail","can","birdhouse"]);
+
+/* ---------- UI helpers ---------- */
+const $=id=>document.getElementById(id);
+const stage=$("stage");
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const CHEV={left:"M16 5 L8 13 L16 21",right:"M10 5 L18 13 L10 21",up:"M5 16 L13 8 L21 16",down:"M5 10 L13 18 L21 10"};
+const wDucks=w=>w.ducks||[];
+const wTotal=w=>wDucks(w).length;
+const wFound=w=>wDucks(w).filter(d=>S.found.has(d.id)).length;
+const allDucks=()=>WORLDS.reduce((n,w)=>n+wTotal(w),0);
+let tt;
+function toast(msg,ms=1900){ const t=$("toast"); t.textContent=msg; t.classList.add("on"); clearTimeout(tt); tt=setTimeout(()=>t.classList.remove("on"),ms); }
+function burst(host,x,y){
+  if(reduce) return;
+  const r=host.getBoundingClientRect();
+  for(let i=0;i<10;i++){
+    const d=document.createElement("i"); d.className="confetti"; const a=i/10*Math.PI*2;
+    d.style.cssText=`left:${x-r.left-5}px;top:${y-r.top-5}px;background:${["#FFCB2F","#FF6FA6","#3FB86A","#8FD0FF"][i%4]}`;
+    host.appendChild(d);
+    const an=d.animate?d.animate([{transform:"translate(0,0) scale(1)"},{transform:`translate(${Math.cos(a)*52}px,${Math.sin(a)*52}px) scale(.3)`,opacity:0}],{duration:600,easing:"cubic-bezier(.2,.8,.4,1)"}):null;
+    if(an) an.onfinish=()=>d.remove(); else d.remove();
+  }
+}
+const SND_ON=`<svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M3 8 H7 L12 4 V18 L7 14 H3 Z" fill="#fff" stroke="#173A5E" stroke-width="2.2" stroke-linejoin="round"/><path d="M15 8 Q17 11 15 14 M17 6 Q21 11 17 16" fill="none" stroke="#173A5E" stroke-width="2.2" stroke-linecap="round"/></svg>`;
+const SND_OFF=`<svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M3 8 H7 L12 4 V18 L7 14 H3 Z" fill="#fff" stroke="#173A5E" stroke-width="2.2" stroke-linejoin="round"/><path d="M15 8 L20 14 M20 8 L15 14" stroke="#173A5E" stroke-width="2.2" stroke-linecap="round"/></svg>`;
+function renderSound(){ const b=$("sndBtn"); b.innerHTML=S.sound?SND_ON:SND_OFF; b.setAttribute("aria-label",S.sound?"Sound on":"Sound off"); b.setAttribute("aria-pressed",S.sound?"true":"false"); }
+function toggleSound(){ S.sound=!S.sound; save(); renderSound(); if(S.sound) blip(); }
+$("sndBtn").addEventListener("click",toggleSound);
+
+/* ---------- Screens ---------- */
+function setScreen(name){
+  S.screen=name; closeSheet();
+  $("scrHome").hidden=name!=="home"; $("scrWorld").hidden=name!=="world"; $("scrEgg").hidden=name!=="egg";
+  $("homeBtn").disabled=name==="home";
+  const play=name==="world"||name==="egg";
+  $("app").classList.toggle("playing",play); document.documentElement.style.overflow=play?"hidden":"";
+  if(name!=="world"){ $("done").hidden=true; $("intro").classList.add("off"); }
+  if(name!=="egg") stopEgg();
+}
+const lockSvg=`<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="2" fill="#FFCB2F" stroke="#173A5E" stroke-width="1.8"/><path d="M5.5 7 V5 A2.5 2.5 0 0 1 10.5 5 V7" fill="none" stroke="#173A5E" stroke-width="1.8"/></svg>`;
+function goHome(){
+  setScreen("home"); $("title").textContent="Quackers";
+  const hol=HOL.find(h=>holOn(h));
+  const got=WORLDS.reduce((n,w)=>n+wFound(w),0);
+  let ev;
+  if(hol&&!S.found.has(hol.id)) ev=`<b>A ${hol.holiday} visitor is here!</b><small>${hol.name}: ${tokGot(hol)<tokAll(hol)?`find ${tokAll(hol)} acorns in The Backyard (${tokGot(hol)} of ${tokAll(hol)}), then search for the duck.`:"all acorns found! Search The Backyard for the duck."}</small>`;
+  else if(hol) ev=`<b>You found the ${hol.name}!</b><small>It's in your Backyard Duck Log. More holiday ducks are on the way.</small>`;
+  else ev=`<b>Holiday ducks</b><small>Special ducks visit on holidays. Look out for them!</small>`;
+  const heroH=HOL[0];
+  $("scrHome").innerHTML=`
+   <div class="logo"><svg viewBox="-40 -48 82 78" aria-hidden="true">${shadow()}<g class="bob">${toyDuck(YEL)}</g></svg><b>Quackers</b></div>
+   <p class="total">${got} of ${allDucks()} ducks found</p>
+   <button type="button" class="event" id="evt"><svg viewBox="-46 -48 92 76" aria-hidden="true"><g class="bob">${(hol||heroH).art()}</g></svg><span>${ev}</span></button>
+   <div class="worlds">${WORLDS.map(w=>{ const f=wFound(w), t=wTotal(w), open=w.n<=S.unlocked, prev=WORLDS[w.n-2];
+     return `<button type="button" class="wcard${open?"":" locked"}" data-world="${w.id}" aria-label="${w.name}${open?`, ${f} of ${t} found`:", locked"}">
+      <span class="thumb">${sv("0 0 400 300",thumbOf(w),'style="pointer-events:none"')}${open?(f===t?`<span class="tag done">Complete</span>`:""):`<span class="tag lock">${lockSvg}Locked</span>`}</span>
+      <span class="meta"><span class="num">World ${w.n}</span><b>${w.name}</b>${open?`<small>${f} of ${t} found</small><span class="bar2"><i style="width:${t?f/t*100:0}%"></i></span>`:`<small>Find every duck in ${prev.name} to open</small>`}</span></button>`;}).join("")}
+     ${SOON.map(w=>`<button type="button" class="wcard off" data-soon="${w.id}" aria-label="${w.name}, coming soon">
+      <span class="thumb">${sv("0 0 400 300",thumbOf(w),'style="pointer-events:none"')}<span class="tag">Coming soon</span></span>
+      <span class="meta"><span class="num">World ${w.n}</span><b>${w.name}</b><small>Coming soon</small></span></button>`).join("")}</div>
+   <div class="bigbtns"><button type="button" class="bigbtn games" id="hGames">${IC.games}Mini games</button>
+   <button type="button" class="bigbtn shop" id="hShop">${IC.shop}Pond Points shop<small class="soonlbl">Soon</small></button></div>
+   <div class="homefoot"><button type="button" class="linkbtn" id="hReset">Start over</button></div>`;
+  flush();
+  $("evt").addEventListener("click",openHoliday);
+  $("hShop").addEventListener("click",openShop);
+  $("hGames").addEventListener("click",openGames);
+  $("hReset").addEventListener("click",askReset);
+  $("scrHome").querySelectorAll("[data-world]").forEach(b=>b.addEventListener("click",()=>{ const w=W[b.dataset.world];
+    if(w.n>S.unlocked){ homeToast(b,`Find every duck in ${WORLDS[w.n-2].name} first.`); blip(); return; } enterWorld(w.id); }));
+  $("scrHome").querySelectorAll("[data-soon]").forEach(b=>b.addEventListener("click",()=>{ homeToast(b,"Mitchell is still building this one!"); blip(); }));
+}
+let resetT;
+function askReset(){ const b=$("hReset");
+  if(b.dataset.armed){ localStorage.removeItem(KEY); S.found=new Set(); S.flags={}; S.unlocked=1; S.tokens=[]; S.best=0; S.last={}; doneShown.clear(); save(); goHome(); return; }
+  b.dataset.armed="1"; b.textContent="Tap again to erase all your ducks"; b.classList.add("armed");
+  clearTimeout(resetT); resetT=setTimeout(()=>{ if(b.isConnected){ delete b.dataset.armed; b.textContent="Start over"; b.classList.remove("armed"); } },3500);
+}
+function homeToast(b,msg){ const s=b.querySelector("small"); if(s){ const old=s.dataset.old||s.textContent; s.dataset.old=old; s.textContent=msg; clearTimeout(s._t); s._t=setTimeout(()=>{s.textContent=old;},1900);} }
+function thumbOf(w){ THUMB=true; const svg=w.areas[w.start].draw({}).replace(/class="(duck|act|door|token)"/g,'class="x-$1"').replace(/tabindex="0" role="button"/g,""); THUMB=false; return svg; }
+
+function enterWorld(id){
+  const w=W[id]; S.world=id; setScreen("world"); lockW=0; $("title").textContent=w.name;
+  stage.querySelectorAll(".layer").forEach(l=>l.remove());
+  const start=(S.last[id]&&w.areas[S.last[id]])?S.last[id]:w.start;
+  show(start);
+  if(!S.seen.has(id)){ S.seen.add(id); intro(w); }
+  const h=holHere();
+  if(holLive(h)&&tokGot(h)===0) setTimeout(()=>{ if(S.world===id&&S.screen==="world") toast(`A ${h.holiday} visitor is in ${w.name}! Find ${tokAll(h)} hidden acorns.`,3400); },2700);
+}
+let introT;
+function intro(w){ const el=$("intro");
+  el.innerHTML=`<b>${w.name}</b><span>Swipe to look around and move</span><svg class="swipe" viewBox="0 0 64 28" aria-hidden="true"><path d="M6 14 H58 M14 6 L6 14 L14 22 M50 6 L58 14 L50 22" fill="none" stroke="#173A5E" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  el.classList.remove("off"); clearTimeout(introT); introT=setTimeout(()=>el.classList.add("off"),2600);
+}
+function sceneSVG(id){ const w=W[S.world]; const svg=`<svg viewBox="0 0 400 300" preserveAspectRatio="none" role="img" aria-label="${w.areas[id].name}">${w.areas[id].draw(S.F)}</svg>`; flush(); return svg; }
+function gridOf(w){ const ps=Object.values(w.areas).map(a=>a.pos); return {cols:Math.max(...ps.map(p=>p[0]))+1, rows:Math.max(...ps.map(p=>p[1]))+1}; }
+function miniMap(){
+  const w=W[S.world]; const {cols,rows}=gridOf(w);
+  return `<svg width="${cols*11+2}" height="${rows*11+2}" viewBox="0 0 ${cols*11+2} ${rows*11+2}" aria-hidden="true">${Object.entries(w.areas).map(([k,a])=>`<rect x="${a.pos[0]*11+1}" y="${a.pos[1]*11+1}" width="10" height="10" rx="3" fill="${k===S.area?"#FFCB2F":"#C9F2D6"}" stroke="#173A5E" stroke-width="1.8"/>`).join("")}</svg>`;
+}
+function renderHud(pop){
+  const w=W[S.world];
+  const p=$("areaPill"); p.innerHTML=miniMap()+w.areas[S.area].name;
+  if(pop){p.classList.remove("pop");void p.offsetWidth;p.classList.add("pop");}
+  const n=wFound(w), t=wTotal(w), b=$("countPill"), h=holHere();
+  let tok="", lab=`Duck Log: ${n} of ${t} found`;
+  if(holLive(h)){ tok=`<i class="sep"></i><svg width="18" height="20" viewBox="-11 -14 22 30" aria-hidden="true">${acornIcon(1)}</svg>${tokGot(h)}/${tokAll(h)}`; lab+=`, ${tokGot(h)} of ${tokAll(h)} acorns`; }
+  b.setAttribute("aria-label",lab);
+  b.innerHTML=`<svg width="26" height="22" viewBox="-36 -44 78 70" aria-hidden="true">${toyDuck(YEL)}</svg>${n}/${t}${tok}`;
+  flush();
+}
+function bumpBadge(){ const b=$("countPill"); b.classList.remove("pop"); void b.offsetWidth; b.classList.add("pop"); }
+const DIRS=["left","right","up","down"];
+function renderEdges(peek){
+  stage.querySelectorAll(".edge").forEach(a=>a.remove());
+  const w=W[S.world], a=w.areas[S.area];
+  for(const dir of DIRS){
+    const to=a.exits[dir]; if(!to) continue;
+    const name=w.areas[to].name;
+    const b=document.createElement("button"); b.type="button"; b.className=`edge e-${dir}${peek?" peek":""}`;
+    b.dataset.go=to; b.setAttribute("aria-label",`Go to the ${name}`);
+    const ch=`<svg viewBox="0 0 26 26" aria-hidden="true"><path d="${CHEV[dir]}" fill="none" stroke="#173A5E" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    b.innerHTML=dir==="right"?`<span>${name}</span>${ch}`:`${ch}<span>${name}</span>`;
+    stage.insertBefore(b,$("toast"));
+  }
+}
+function layer(){ const ls=stage.querySelectorAll(".layer"); return ls[ls.length-1]; }
+const OPP={left:"right",right:"left",up:"down",down:"up"};
+const CAM={s:1,W:400,H:300,x:0,y:0,minX:0,maxX:0,minY:0,maxY:0};
+function vp(){ return {w:stage.clientWidth||innerWidth||400, h:stage.clientHeight||innerHeight||300}; }
+let lockW=0;
+function fit(relock){
+  const {w,h}=vp();
+  if(relock||!lockW||Math.abs(w-lockW)>60){ let s=Math.max(w/400,h/300); s=Math.min(s,2*w/400,2*h/300); s=Math.max(s,Math.min(w/400,h/300)); CAM.s=s; lockW=w; }
+  const s=CAM.s; CAM.W=400*s; CAM.H=300*s;
+  if(CAM.W>w){CAM.minX=w-CAM.W;CAM.maxX=0;}else{CAM.minX=CAM.maxX=(w-CAM.W)/2;}
+  if(CAM.H>h){CAM.minY=h-CAM.H;CAM.maxY=0;}else{CAM.minY=CAM.maxY=(h-CAM.H)/2;}
+}
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+const band=(v,a,b)=>v>b?b+(v-b)*.35:v<a?a-(a-v)*.35:v;
+function paint(el=layer(),anim){ if(!el) return; const svg=el.querySelector("svg"); if(!svg) return;
+  svg.style.width=CAM.W+"px"; svg.style.height=CAM.H+"px";
+  svg.style.transition=anim?"transform .28s ease-out":"none";
+  svg.style.transform=`translate(${CAM.x.toFixed(1)}px,${CAM.y.toFixed(1)}px)`; }
+function aim(dir){ fit();
+  const mx=(CAM.minX+CAM.maxX)/2, my=(CAM.minY+CAM.maxY)/2;
+  CAM.x=dir==="right"?CAM.maxX:dir==="left"?CAM.minX:mx;
+  CAM.y=dir==="up"?CAM.minY:dir==="down"?CAM.maxY:my; }
+addEventListener("resize",()=>{ if(S.screen!=="world") return; fit(); CAM.x=clamp(CAM.x,CAM.minX,CAM.maxX); CAM.y=clamp(CAM.y,CAM.minY,CAM.maxY); paint(); });
+function show(id,dir){
+  const old=layer(); S.area=id; S.last[S.world]=id; save(); const a=W[S.world].areas[id];
+  const el=document.createElement("div"); el.className="layer"; el.innerHTML=sceneSVG(id);
+  if(a.bg) el.style.background=`linear-gradient(${a.bg[0]} 50%,${a.bg[1]} 50%)`;
+  stage.insertBefore(el,stage.querySelector(".hud"));
+  aim(dir); paint(el);
+  renderHud(!!dir); renderEdges(true); closeSheet();
+  if(dir) blip("door");
+  if(old){
+    if(dir && !reduce && el.animate){
+      const off={left:"translateX(-100%)",right:"translateX(100%)",up:"translateY(-100%)",down:"translateY(100%)"};
+      el.animate([{transform:off[dir]},{transform:"none"}],{duration:380,easing:"cubic-bezier(.25,.8,.35,1)"});
+      old.style.pointerEvents="none";
+      const an=old.animate([{transform:"none"},{transform:off[OPP[dir]]}],{duration:380,easing:"cubic-bezier(.25,.8,.35,1)"}); an.onfinish=()=>old.remove();
+    } else old.remove();
+  }
+}
+function go(dir){ const a=W[S.world].areas[S.area]; if(a.exits[dir]){ show(a.exits[dir],dir); return true; } return false; }
+function dirTo(to){ const a=W[S.world].areas[S.area]; if(a.doors&&a.doors[to]) return a.doors[to];
+  const e=Object.entries(a.exits).find(([,v])=>v===to); if(e) return e[0];
+  const p=a.pos, q=W[S.world].areas[to].pos, dx=q[0]-p[0], dy=q[1]-p[1]; return Math.abs(dx)>=Math.abs(dy)?(dx>0?"right":"left"):(dy>0?"down":"up"); }
+["gesturestart","gesturechange"].forEach(t=>document.addEventListener(t,e=>{ if(S.screen!=="home") e.preventDefault(); },{passive:false}));
+document.addEventListener("touchmove",e=>{ if(S.screen!=="home"&&e.touches&&e.touches.length>1) e.preventDefault(); },{passive:false});
+let drag=null, dragEnd=-1e9;
+stage.addEventListener("pointerdown",e=>{
+  if(S.screen!=="world"||(e.button&&e.button>0)) return;
+  if(e.target.closest(".hud,.corner,.edge,.done")) return;
+  $("intro").classList.add("off");
+  drag={id:e.pointerId,sx:e.clientX,sy:e.clientY,cx:CAM.x,cy:CAM.y,moved:false};
+});
+stage.addEventListener("pointermove",e=>{
+  if(!drag||e.pointerId!==drag.id) return;
+  const dx=e.clientX-drag.sx, dy=e.clientY-drag.sy;
+  if(!drag.moved){ if(Math.hypot(dx,dy)<8) return; drag.moved=true; try{stage.setPointerCapture(e.pointerId);}catch(_){} }
+  CAM.x=band(drag.cx+dx,CAM.minX,CAM.maxX); CAM.y=band(drag.cy+dy,CAM.minY,CAM.maxY); paint();
+});
+function endDrag(e){
+  if(!drag||(e&&e.pointerId!==drag.id)) return; const d=drag; drag=null; if(!d.moved) return;
+  dragEnd=performance.now();
+  const rx=d.cx+(e.clientX-d.sx), ry=d.cy+(e.clientY-d.sy);
+  const over={left:rx-CAM.maxX, right:CAM.minX-rx, up:ry-CAM.maxY, down:CAM.minY-ry};
+  const best=DIRS.filter(k=>over[k]>56).sort((a,b)=>over[b]-over[a])[0];
+  CAM.x=clamp(CAM.x,CAM.minX,CAM.maxX); CAM.y=clamp(CAM.y,CAM.minY,CAM.maxY); paint(layer(),true);
+  if(best) go(best);
+}
+stage.addEventListener("pointerup",endDrag);
+stage.addEventListener("pointercancel",e=>{ if(drag&&e.pointerId===drag.id){ drag=null; CAM.x=clamp(CAM.x,CAM.minX,CAM.maxX); CAM.y=clamp(CAM.y,CAM.minY,CAM.maxY); paint(layer(),true);} });
+document.addEventListener("keydown",e=>{
+  if(S.screen!=="world"||!$("sheet").hidden||!$("done").hidden) return;
+  const k={ArrowLeft:"left",ArrowRight:"right",ArrowUp:"up",ArrowDown:"down"}[e.key];
+  if(k&&!(e.target.closest&&e.target.closest("input,textarea"))){ e.preventDefault(); go(k); }
+});
+function rerender(){ const l=layer(); if(l) l.innerHTML=sceneSVG(S.area); }
+function catchDuck(g){
+  const id=g.dataset.duck, d=DUCK[id], w=W[S.world]; if(S.found.has(id)) return;
+  const b=g.getBoundingClientRect(); burst(stage,b.left+b.width/2,b.top+b.height/2);
+  S.found.add(id); save(); quack(); g.style.pointerEvents="none";
+  if(g.animate && !reduce){ const inner=g.querySelector(".bob"); if(inner){ inner.style.animation="none"; inner.animate([{transform:"none",opacity:1},{transform:"translateY(-18px)",opacity:0}],{duration:420,fill:"forwards",easing:"ease-out"}); } }
+  const every=wDucks(w).every(x=>S.found.has(x.id));
+  let msg=`${d.name} found!`;
+  if(d.tier==="Holiday") msg=`You found the ${d.name}! Happy ${d.holiday}!`;
+  else if(every) msg=`Every ${w.name} duck found!`;
+  toast(msg,every||d.tier==="Holiday"?3000:1900);
+  renderHud(false); bumpBadge(); setTimeout(rerender,430); if(d.tier!=="Holiday") checkDone();
+}
+function tapToken(tk){
+  const h=holHere(); const id=tk.dataset.token; if(!h||S.tokens.includes(id)) return;
+  const b=tk.getBoundingClientRect(); burst(stage,b.left+b.width/2,b.top+b.height/2);
+  S.tokens.push(id); save(); pop();
+  const n=tokGot(h), t=tokAll(h);
+  toast(n<t?`Acorn ${n} of ${t}!`:`All ${t} acorns! The ${h.name} is hiding somewhere in ${W[S.world].name}. Go find it!`,n<t?1800:3400);
+  rerender(); renderHud(false); bumpBadge();
+}
+const doneShown=new Set();
+function checkDone(){ const w=W[S.world]; if(doneShown.has(w.id)||wFound(w)<wTotal(w)) return; doneShown.add(w.id);
+  const next=WORLDS[w.n]; if(next&&S.unlocked<next.n){ S.unlocked=next.n; save(); }
+  setTimeout(()=>{ if(S.screen!=="world"||S.world!==w.id) return; const el=$("done"); fanfare();
+    const last=!next;
+    el.innerHTML=`<div><svg viewBox="-44 -54 88 86" aria-hidden="true">${shadow()}<g class="bob">${toyDuck(YEL,"crown")}</g></svg><span class="big">World complete!</span>
+      <span>${last?`You found all ${allDucks()} ducks! Snowy Peaks, the Theater and the City are coming soon.`:`Every duck in ${w.name} is in your Duck Log. ${next.name} is open!`}</span>
+      <span class="row">${last?`<button class="go" type="button" id="doneHome">Back to worlds</button>`:`<button class="go" type="button" id="doneNext">Go to ${next.name}</button>`}<button class="go ghost" type="button" id="doneStay">Keep exploring</button></span></div>`;
+    flush(); el.hidden=false; if(el.animate&&!reduce) el.firstElementChild.animate([{transform:"translateY(24px)",opacity:0},{transform:"none",opacity:1}],{duration:380,easing:"ease-out"});
+    if(last) $("doneHome").addEventListener("click",goHome); else $("doneNext").addEventListener("click",()=>enterWorld(next.id));
+    $("doneStay").addEventListener("click",()=>{el.hidden=true;}); el.querySelector(".go").focus({preventScroll:true});
+  },1400);
+}
+function doAct(k,a){
+  const w=W[S.world], F=S.F, m=w.msg[k];
+  if(k==="chest"){ if(!F.key){ toast("Locked tight. A key must be hiding somewhere dark."); blip(); return; } F.chest=1; toast("The key fits. The chest pops open!"); }
+  else if(Array.isArray(m)){ F[k]=!F[k]; toast(F[k]?m[0]:m[1]); }
+  else if(TOGGLE.has(k)){ F[k]=!F[k]; toast(F[k]?m:"Closed."); }
+  else { if(F[k]) return; F[k]=1; if(m) toast(m); }
+  pop(); save(); rerender();
+}
+function onTap(e){
+  if(performance.now()-dragEnd<350){ e.preventDefault(); return; }
+  if(!$("done").hidden) return;
+  const eg=e.target.closest(".edge"); if(eg){ show(eg.dataset.go,dirTo(eg.dataset.go)); return; }
+  const tk=e.target.closest(".token"); if(tk){ tapToken(tk); return; }
+  const d=e.target.closest(".duck"); if(d){ catchDuck(d); return; }
+  const dr=e.target.closest(".door"); if(dr){ if(dr.dataset.door) show(dr.dataset.door,dirTo(dr.dataset.door)); return; }
+  const a=e.target.closest(".act"); if(a) doAct(a.dataset.act,a);
+}
+stage.addEventListener("click",onTap);
+stage.addEventListener("keydown",e=>{ if((e.key==="Enter"||e.key===" ")&&e.target.closest(".duck,.act,.door,.token")){ e.preventDefault(); onTap(e);} });
+
+/* ---------- Sheets ---------- */
+let lastFocus=null;
+function openSheet(html,label){ const s=$("sheet"); lastFocus=document.activeElement;
+  s.innerHTML=`<div class="grab"></div><header><h3>${label}</h3><button class="x" type="button" id="closeSheet" aria-label="Close"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3 L13 13 M13 3 L3 13" stroke="#173A5E" stroke-width="3" stroke-linecap="round"/></svg></button></header>${html}`;
+  s.setAttribute("aria-label",label); s.hidden=false; $("scrim").hidden=false; flush();
+  if(s.animate&&!reduce) s.animate([{transform:"translateY(100%)"},{transform:"none"}],{duration:300,easing:"cubic-bezier(.25,.8,.35,1)"});
+  $("closeSheet").addEventListener("click",closeSheet); $("closeSheet").focus({preventScroll:true});
+}
+function closeSheet(){ if($("sheet").hidden) return; $("sheet").hidden=true; $("scrim").hidden=true; if(lastFocus&&lastFocus.focus&&lastFocus.isConnected) lastFocus.focus({preventScroll:true}); }
+$("scrim").addEventListener("click",closeSheet);
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeSheet(); });
+
+function duckCard(d,got){
+  return `<div class="card ${got?"":"miss"}"><svg viewBox="-40 -48 82 78" aria-hidden="true">${got?toyDuck(d.c,d.acc):`<g opacity=".35">${toyDuck(GHOST)}</g>`}</svg>
+    <span class="tier t-${d.tier}">${d.tier}</span>${got?`<b>${d.name}</b>`:`<small>${d.hint}</small>`}</div>`;
+}
+function holCard(h){ const got=S.found.has(h.id), on=holOn(h), n=tokGot(h), t=tokAll(h);
+  const note=got?"":!on?`Comes back in ${h.month}`:n<t?`Find ${t} acorns: ${n} of ${t}`:"All acorns found. Search the Backyard!";
+  return `<div class="card hol ${got?"":"miss"}"><svg viewBox="-46 -52 92 82" aria-hidden="true">${got?h.art():`<g opacity=".35">${h.art()}</g>`}</svg><span class="tier t-Holiday">Holiday</span>${got?`<b>${h.name}</b>`:`<small>${note}</small>`}</div>`; }
+function openLog(){
+  const w=W[S.world];
+  let cards=wDucks(w).map(d=>duckCard(d,S.found.has(d.id))).join("");
+  HOL.filter(h=>h.world===w.id&&(holOn(h)||S.found.has(h.id))).forEach(h=>cards+=holCard(h));
+  openSheet(`<div class="cards">${cards}</div>`, `${w.name} Duck Log: ${wFound(w)} of ${wTotal(w)}`);
+}
+function openMap(){
+  const w=W[S.world]; const {cols,rows}=gridOf(w); const cells=[];
+  for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
+    const k=Object.keys(w.areas).find(k=>w.areas[k].pos[0]===c&&w.areas[k].pos[1]===r);
+    if(k){ const left=wDucks(w).filter(d=>d.area===k&&!S.found.has(d.id)).length;
+      cells.push(`<button type="button" class="mtile ${k===S.area?"here":""}" data-map="${k}">${w.areas[k].name}<small>${k===S.area?"You are here":left?`${left} duck${left>1?"s":""} left`:"All found"}</small></button>`); }
+    else cells.push(`<div class="mtile mempty"></div>`);
+  }
+  openSheet(`<div class="mapgrid" style="grid-template-columns:repeat(${cols},minmax(0,1fr))">${cells.join("")}</div>`,`${w.name} map`);
+  $("sheet").querySelectorAll("[data-map]").forEach(b=>b.addEventListener("click",()=>{ const k=b.dataset.map; if(k===S.area){closeSheet();return;} show(k,dirTo(k)); }));
+}
+function hint(){
+  closeSheet(); const w=W[S.world], h=holHere();
+  const left=wDucks(w).filter(d=>!S.found.has(d.id));
+  let area=null;
+  if(left.length){
+    const here=left.find(d=>d.area===S.area);
+    if(here){ toast(`A duck is right here. ${here.hint}...`,2600); return; }
+    area=left[0].area; toast(`Psst... try the ${w.areas[area].name}.`,2600);
+  } else if(holLive(h)){
+    const miss=Object.entries(h.tokens).find(([id])=>!S.tokens.includes(id)); area=miss?miss[1]:h.area;
+    if(area===S.area){ toast(miss?"An acorn is somewhere right here!":`The ${h.name} is right here somewhere!`,2600); return; }
+    toast(miss?`Psst... an acorn is in the ${w.areas[area].name}.`:`The ${h.name} is hiding in the ${w.areas[area].name}.`,2600);
+  } else { toast("Every duck here is found!"); return; }
+  const dir=dirTo(area); const arr=stage.querySelector(`.e-${dir}`)||stage.querySelector(".edge");
+  if(arr){ arr.classList.add("lookhere"); setTimeout(()=>arr.classList.remove("lookhere"),2600); }
+}
+$("tabHint").addEventListener("click",hint);
+$("countPill").addEventListener("click",openLog);
+$("exitBtn").addEventListener("click",goHome);
+$("homeBtn").addEventListener("click",goHome);
+const IC={
+ log:`<svg viewBox="-36 -44 78 70" aria-hidden="true">${toyDuck(YEL)}</svg>`,
+ map:`<svg viewBox="0 0 26 26" aria-hidden="true"><path d="M3 6 L9 4 L17 7 L23 5 V20 L17 22 L9 19 L3 21 Z" fill="#C9F2D6" stroke="#173A5E" stroke-width="2.2" stroke-linejoin="round"/><path d="M9 4 V19 M17 7 V22" stroke="#173A5E" stroke-width="2"/></svg>`,
+ shop:`<svg viewBox="0 0 26 26" aria-hidden="true"><path d="M5 9 H21 L20 22 H6 Z" fill="#3FB86A" stroke="#173A5E" stroke-width="2.4" stroke-linejoin="round"/><path d="M9 11 V8 A4 4 0 0 1 17 8 V11" fill="none" stroke="#173A5E" stroke-width="2.4"/></svg>`,
+ games:`<svg viewBox="0 0 26 26" aria-hidden="true"><rect x="3" y="8" width="20" height="12" rx="6" fill="#B48CFF" stroke="#173A5E" stroke-width="2.4"/><path d="M8 12 V16 M6 14 H10" stroke="#173A5E" stroke-width="2.2" stroke-linecap="round"/></svg>`};
+function openMenu(){ const w=W[S.world];
+  openSheet(`<div class="menu"><button type="button" class="mbtn" id="mLog">${IC.log}Duck Log<span class="count">${wFound(w)}/${wTotal(w)}</span></button>
+   <button type="button" class="mbtn" id="mMap">${IC.map}Map</button>
+   <button type="button" class="mbtn games" id="mGames">${IC.games}Mini games</button>
+   <button type="button" class="mbtn" id="mSound">${S.sound?SND_ON:SND_OFF}Sound: ${S.sound?"on":"off"}</button>
+   <button type="button" class="mbtn leave" id="mLeave">Leave ${w.name}</button></div>`,"Paused");
+  $("mLog").addEventListener("click",openLog); $("mMap").addEventListener("click",openMap);
+  $("mGames").addEventListener("click",openGames); $("mLeave").addEventListener("click",goHome);
+  $("mSound").addEventListener("click",()=>{ toggleSound(); openMenu(); });
+}
+$("tabMenu").addEventListener("click",openMenu);
+
+function openHoliday(){
+  openSheet(`<p class="note">Holiday ducks only visit in their month, after a special task.</p><div class="hgrid">${HOL.map(h=>`<div class="hcard${holOn(h)?" now":""}"><svg viewBox="-48 -56 96 84" aria-hidden="true">${h.art()}</svg>
+    <span class="mon">${S.found.has(h.id)?"Found!":holOn(h)?"Here this month":h.month}</span><b>${h.name}</b><small>${h.holiday}: ${h.task}${holLive(h)?` You have ${tokGot(h)} of ${tokAll(h)} acorns.`:""}</small></div>`).join("")}
+    <div class="hcard more"><b>More on the way</b><small>More holiday ducks are coming soon.</small></div></div>`,"Holiday ducks");
+}
+function openShop(){
+  openSheet(`<div class="soonbox">${IC.shop}<p><b>The Pond Points shop is coming soon.</b> You'll earn Pond Points in mini games and spend them on special ducks, things for your duck and hints.</p></div>`,"Pond Points shop");
+}
+
+const MINI=[
+ {id:"egg",n:"Egg Guard",star:"The Chicken",d:"Tap the foxes before they reach the nest.",a:()=>toyChicken(),live:true},
+ {id:"scrap",n:"Scrap Hunt",star:"Mr. Crow",d:"Tap the scrap parts as they fall and skip the junk.",a:()=>toyCrow()},
+ {id:"sand",n:"Sandwich Snatch",star:"Mr. Seagull",d:"Swoop in when the picnic folks look away.",a:()=>toyGull()}
+];
+function openGames(){
+  openSheet(`<div class="mgrid">${MINI.map(m=>`<div class="mg"><svg viewBox="-44 -40 88 70" aria-hidden="true"><g class="bob">${m.a()}</g></svg><div><b>${m.n}</b><small>${m.live?`${m.d}${S.best?` Best: ${"★".repeat(S.best)}${"☆".repeat(3-S.best)}`:""}`:"Coming soon."}</small></div>
+    <button type="button" class="play" data-mini="${m.id}"${m.live?"":" disabled"}>${m.live?"Play":"Soon"}</button></div>`).join("")}</div>`,"Mini games");
+  $("sheet").querySelector('[data-mini="egg"]').addEventListener("click",openEgg);
+}
+
+/* ---------- Egg Guard ---------- */
+const E={run:false,eggs:3,scared:0,left:25,spawn:.4,foxes:[],last:0,raf:0,back:"home"};
+const field=$("field");
+function fieldArt(){
+  return `${sky("#9fdcff","#e6f7ff")}${sun(60,46)}${cloud(250,58,.9)}
+  <path d="M-10 150 Q200 120 410 150 V310 H-10 Z" fill="${LG("#b0e586","#5fb244")}" ${O}/>
+  <g ${N}>${[0,1,2,3,4,5,6,7,8].map(i=>`<rect x="${6+i*46}" y="128" width="12" height="40" rx="4" fill="${G("#f3dcb4")}" ${O2}/>`).join("")}<rect x="0" y="138" width="400" height="8" rx="4" fill="${G("#f3dcb4")}" ${O2}/></g>
+  <g ${N} transform="translate(320 120)"><rect x="-30" y="-30" width="60" height="44" rx="6" fill="${LG("#ff8f7f","#e0503f")}" ${O}/><path d="M-38 -26 L0 -54 L38 -26 Z" fill="${LG("#9a7ae0","#5a3a8a")}" ${O}/><rect x="-10" y="-14" width="20" height="28" rx="8" fill="${G("#7a4523")}" ${O2}/></g>
+  <g transform="translate(200 236)" ${N}><ellipse cx="0" cy="16" rx="60" ry="16" fill="${G("#c89260")}" ${O}/><path d="M-54 10 Q0 32 54 10" stroke="${INK}" stroke-width="2" fill="none"/>
+  ${[[-22,4],[0,0],[22,4]].slice(0,E.eggs).map(([x,y])=>`<g transform="translate(${x} ${y})">${eggIcon(1)}</g>`).join("")}
+  <g transform="translate(0 -22) scale(.85)"><g class="bob">${toyChicken()}</g></g></g>`;
+}
+function eHud(){ $("eEggs").innerHTML=`<svg width="18" height="22" viewBox="-11 -14 22 28" aria-hidden="true">${eggIcon(1)}</svg>${E.eggs}`; const t=Math.max(0,Math.ceil(E.left)); $("eTime").textContent=`0:${String(t).padStart(2,"0")}`; $("eScared").textContent=`Scared ${E.scared}`; flush(); }
+function drawField(){ $("fieldArt").innerHTML=fieldArt(); flush(); }
+function openEgg(){
+  E.back=S.screen==="world"?"world":"home";
+  setScreen("egg"); $("title").textContent="Egg Guard";
+  Object.assign(E,{eggs:3,scared:0,left:25}); drawField(); eHud();
+  $("eCover").hidden=false;
+  $("eCover").innerHTML=`<div><div class="big">Egg Guard</div><p>Foxes are sneaking up on the chicken's eggs. Tap each fox to scare it away before time runs out.</p><button class="go" id="ePlay" type="button">Play</button></div>`;
+  $("ePlay").addEventListener("click",startEgg);
+}
+function startEgg(){
+  field.querySelectorAll(".fox").forEach(f=>f.remove());
+  Object.assign(E,{run:true,eggs:3,scared:0,left:25,spawn:.4,foxes:[],last:performance.now()});
+  $("eCover").hidden=true; drawField(); eHud(); blip(); E.raf=requestAnimationFrame(eLoop);
+}
+function spawnFox(){
+  const fromLeft=Math.random()<.5, b=document.createElement("button");
+  b.type="button"; b.className="fox"; b.setAttribute("aria-label","Fox, tap to scare it"); b.innerHTML=sv("-40 -30 80 54",toyFox()); flush();
+  const f={b,x:fromLeft?-8:108,y:52+Math.random()*24,dir:fromLeft?1:-1,sp:7+(25-E.left)*.35};
+  b.querySelector("svg").style.transform=fromLeft?"":"scaleX(-1)";
+  b.addEventListener("pointerdown",e=>{ e.preventDefault(); scare(f); });
+  b.addEventListener("click",()=>scare(f));
+  field.appendChild(b); E.foxes.push(f); posFox(f);
+}
+function posFox(f){ f.b.style.left=f.x+"%"; f.b.style.top=f.y+"%"; }
+function scare(f){
+  if(!E.run||f.gone) return; f.gone=true; E.scared++; eHud(); pop();
+  f.b.querySelector("svg").style.transform=f.dir>0?"scaleX(-1)":"";
+  f.b.classList.add("run"); f.b.style.left=(f.dir>0?-20:120)+"%"; setTimeout(()=>f.b.remove(),500);
+}
+function eLoop(now){
+  if(!E.run) return;
+  const dt=Math.min(.05,(now-E.last)/1000); E.last=now; E.left-=dt; E.spawn-=dt;
+  if(E.spawn<=0){ spawnFox(); E.spawn=Math.max(.9,1.8-(25-E.left)*.03); }
+  for(const f of E.foxes){ if(f.gone) continue;
+    const dx=50-f.x, dy=78-f.y, d=Math.hypot(dx,dy);
+    if(d<7){ f.gone=true; f.b.remove(); E.eggs--; blip("door"); drawField(); if(E.eggs<=0) break; continue; }
+    f.x+=dx/d*f.sp*dt; f.y+=dy/d*f.sp*dt; posFox(f);
+  }
+  E.foxes=E.foxes.filter(f=>!f.gone); eHud();
+  if(E.eggs<=0||E.left<=0){ endEgg(); return; }
+  E.raf=requestAnimationFrame(eLoop);
+}
+function leaveEgg(){ if(E.back==="world"&&S.world) enterWorld(S.world); else goHome(); }
+$("eExit").addEventListener("click",leaveEgg);
+function stopEgg(){ E.run=false; cancelAnimationFrame(E.raf); field.querySelectorAll(".fox").forEach(f=>f.remove()); E.foxes=[]; }
+function endEgg(){
+  stopEgg();
+  const stars=E.eggs, rec=stars>S.best; if(rec){ S.best=stars; save(); }
+  if(stars) fanfare();
+  $("eCover").innerHTML=`<div><div class="big">${stars?"Eggs saved!":"The foxes got the eggs!"}</div>
+    <div class="stars" aria-label="${stars} of 3 stars">${"★".repeat(stars)}${"☆".repeat(3-stars)}</div>
+    <p>${stars?`You saved ${stars} egg${stars>1?"s":""}${rec?", a new best":""}.`:"Try again to earn stars."} You scared off ${E.scared} fox${E.scared===1?"":"es"}. Pond Points for stars are coming soon.</p>
+    <span style="display:flex;gap:8px"><button class="go" id="eAgain" type="button">Play again</button><button class="go ghost" id="eBack" type="button">Done</button></span></div>`;
+  $("eCover").hidden=false;
+  $("eAgain").addEventListener("click",startEgg);
+  $("eBack").addEventListener("click",leaveEgg);
+}
+
+renderSound(); goHome();
+window.QUACKERS={WORLDS,HOL,DUCK,S,month:NOW_MONTH,enterWorld,show,goHome,doAct};
+
+</script>
+</body>
+</html>

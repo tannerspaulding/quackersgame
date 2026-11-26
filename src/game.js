@@ -1,0 +1,491 @@
+/* ---------- Scene helpers ---------- */
+const tagAt=(x,y,t,c="#ffffff")=>`<text x="${x}" y="${y}" text-anchor="middle" font-family="Grandstander,sans-serif" font-weight="900" font-size="${t.length>12?14:12}" letter-spacing=".5" fill="${c}"${c==="#ffffff"?` stroke="${INK}" stroke-width="3" paint-order="stroke"`:""} ${N}>${t}</text>`;
+function seeded(n){ let s=n*9301+49297; return ()=>((s=(s*9301+49297)%233280)/233280); }
+const stars=(n)=>{ const r=seeded(n); return `<g ${N}>${Array.from({length:n},()=>`<circle cx="${(r()*400).toFixed(0)}" cy="${(r()*150).toFixed(0)}" r="${(r()*1.4+.6).toFixed(1)}" fill="#fff" opacity="${(r()*.5+.4).toFixed(2)}"/>`).join("")}</g>`; };
+const pumpkinAt=(x,y,s=1,face)=>`<g transform="translate(${x} ${y}) scale(${s})" ${N}><ellipse cx="-9" cy="0" rx="12" ry="15" fill="${G("#ff8c1a")}" ${O2}/><ellipse cx="9" cy="0" rx="12" ry="15" fill="${G("#ff8c1a")}" ${O2}/><ellipse cx="0" cy="0" rx="12" ry="16" fill="${G("#ffa030")}" ${O2}/>
+  <path d="M0 -15 Q-2 -22 3 -25" stroke="#3f6b1f" stroke-width="3.4" fill="none" stroke-linecap="round"/>${face?`<path d="M-11 -4 L-6 -9 L-2 -4 Z M2 -4 L6 -9 L11 -4 Z" fill="#5a2a00"/><path d="M-10 4 Q0 12 10 4 L6 6 L3 3 L0 7 L-3 3 L-6 6 Z" fill="#5a2a00"/>`:""}</g>`;
+const BOOKC=["#d8344f","#2387d9","#3fb86a","#ffcb2f","#8e44ad","#ff8a3d","#1aa3a3"];
+const books=(y,x0,h,x1,gap)=>{ const r=seeded(y+x0); let x=x0+4, out=""; while(x<x1-8){ const w=10+Math.floor(r()*8), hh=h-Math.floor(r()*18);
+    if(!(gap&&x+w>gap[0]&&x<gap[1])) out+=`<rect x="${x}" y="${y+h-hh}" width="${w}" height="${hh}" rx="2" fill="${G(BOOKC[Math.floor(r()*BOOKC.length)])}" ${O2}/>`;
+    x+=w+2; } return `<g ${N}>${out}</g>`; };
+const seaweed=(x,y,h,c="#3f9d3a")=>`<path d="M${x} ${y} Q${x-10} ${y-h*.3} ${x} ${y-h*.55} Q${x+10} ${y-h*.8} ${x} ${y-h}" stroke="${c}" stroke-width="8" fill="none" stroke-linecap="round" ${N}/>`;
+const fish=(x,y,s=1,c="#ffcb2f")=>`<g transform="translate(${x} ${y}) scale(${s} ${Math.abs(s)})" ${N}><path d="M-14 0 Q0 -12 14 0 Q0 12 -14 0 Z" fill="${G(c)}" ${O2}/><path d="M-12 0 L-22 -8 L-22 8 Z" fill="${G(c)}" ${O2}/><circle cx="7" cy="-2" r="2" fill="#1a1a1a"/></g>`;
+const bubbles=(x,y)=>`<g ${N} fill="#e6f7ff" fill-opacity=".35" stroke="#fff" stroke-opacity=".7" stroke-width="1.4"><circle cx="${x}" cy="${y}" r="5"/><circle cx="${x+8}" cy="${y-16}" r="3.4"/><circle cx="${x+2}" cy="${y-30}" r="4"/></g>`;
+const coral=(x,y,c,s=1)=>`<g transform="translate(${x} ${y}) scale(${s})"><path d="M0 0 V-40 M0 -24 L-16 -40 V-56 M0 -30 L14 -46 V-60 M-16 -48 L-26 -56" stroke="${c}" stroke-width="10" fill="none" stroke-linecap="round"/></g>`;
+
+/* ---------- State and saving ---------- */
+const KEY="quackers-v3";
+const NOW_MONTH=(()=>{ try{ const m=+new URLSearchParams(location.search).get("month"); if(m>=1&&m<=12) return m-1; }catch(e){} return new Date().getMonth(); })();
+function load(){ try{ const j=JSON.parse(localStorage.getItem(KEY)||"null"); if(j&&typeof j==="object") return j; }catch(e){} return {}; }
+const SV=load();
+const S={screen:"home",world:null,area:null,found:new Set(SV.found||[]),flags:SV.flags||{},unlocked:SV.unlocked||1,sound:SV.sound!==false,tokens:SV.tokens||[],best:SV.best||0,last:SV.last||{},seen:new Set(),
+  get F(){ return this.flags[this.world]||(this.flags[this.world]={}); }};
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify({found:[...S.found],flags:S.flags,unlocked:S.unlocked,sound:S.sound,tokens:S.tokens,best:S.best,last:S.last})); }catch(e){} }
+
+/* ---------- Sound ---------- */
+let actx;
+function ctx(){ try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); if(actx.state==="suspended") actx.resume(); return actx; }catch(e){ return null; } }
+function tone(f1,f2,dur,type="sine",vol=.18,when=0){ if(!S.sound) return; const c=ctx(); if(!c) return; const t=c.currentTime+when, o=c.createOscillator(), g=c.createGain();
+  o.type=type; o.frequency.setValueAtTime(f1,t); o.frequency.exponentialRampToValueAtTime(Math.max(40,f2),t+dur);
+  g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(.001,t+dur); o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+dur+.02); }
+const quack=()=>{ tone(560,260,.18,"sawtooth",.25); tone(520,250,.16,"sawtooth",.18,.2); };
+const blip=(k)=>tone(k==="door"?300:420,k==="door"?200:520,.08,"triangle",.08);
+const pop=()=>tone(300,700,.12,"sine",.15);
+const fanfare=()=>[523,659,784,1046].forEach((f,i)=>tone(f,f*1.01,.22,"triangle",.16,i*.13));
+
+/* ---------- Ducks in scenes ---------- */
+let delay=0, THUMB=false;
+const shadow=(rx=22)=>`<ellipse class="shadow" cx="0" cy="26" rx="${rx}" ry="4.5" fill="#173a5e" opacity=".2"/>`;
+function place(id,x,y,s,o={}){
+  if(S.found.has(id)&&!THUMB) return "";
+  const d=DUCK[id]; if(!d) return ""; delay=(delay+0.47)%2.6;
+  const art=d.art?d.art():toyDuck(d.c,d.acc);
+  return `<g class="duck" data-duck="${id}" tabindex="0" role="button" aria-label="Something hiding" transform="translate(${x} ${y}) scale(${o.flip?-s:s} ${o.upside?-s:s})"${d.opacity?` opacity="${d.opacity}"`:""}>
+    <circle cx="2" cy="-4" r="34" fill="transparent"/>${o.noShadow?"":shadow()}<g class="bob" style="animation-delay:-${delay.toFixed(2)}s">${art}</g></g>`;
+}
+const door=(to,label,inner,soon)=>`<g class="door" ${soon?`data-soon="${soon}"`:`data-door="${to}"`} tabindex="0" role="button" aria-label="${label}">${inner}</g>`;
+const act=(name,label,inner)=>`<g class="act" data-act="${name}" tabindex="0" role="button" aria-label="${label}">${inner}</g>`;
+const helperAt=(w,x,y,s)=>`<g transform="translate(${x} ${y}) scale(${s})" ${N}>${shadow(20)}<g class="bob">${w.helper.art(false)}</g></g>`;
+
+/* ---------- Holiday ducks ---------- */
+const HOL=[{id:"turkey",name:"Turkey Duck",holiday:"Thanksgiving",m:10,month:"November",world:"yard",area:"garden",tier:"Holiday",
+  hint:"Gobble gobble",task:"Find 6 acorns in The Backyard, then search for the duck.",tokens:{a1:"yard",a2:"yard",a3:"garden",a4:"pond",a5:"treetop",a6:"house"},art:()=>toyTurkey()}];
+const holOn=h=>!!h&&h.m===NOW_MONTH;
+const holLive=h=>holOn(h)&&!S.found.has(h.id);
+const holHere=()=>HOL.find(h=>h.world===S.world);
+const tokAll=h=>Object.keys(h.tokens).length;
+const tokGot=h=>S.tokens.filter(t=>t in h.tokens).length;
+function T(id,x,y){ if(THUMB) return ""; const h=holHere(); if(!holLive(h)||!(id in h.tokens)||S.tokens.includes(id)) return "";
+  return `<g class="token" data-token="${id}" tabindex="0" role="button" aria-label="Something small" transform="translate(${x} ${y})"><circle r="18" fill="transparent"/><g class="bob">${acornIcon(.9)}</g></g>`; }
+function H(id,x,y,s){ const h=HOL.find(k=>k.id===id); if(THUMB||!holOn(h)||tokGot(h)<tokAll(h)) return ""; return place(id,x,y,s); }
+
+/* ---------- Worlds ---------- */
+const WORLDS=[/*WORLDS*/];
+const SOON=[/*SOON*/];
+function WORLDS_REF(id){ return WORLDS.concat(SOON).find(w=>w.id===id); }
+const W=Object.fromEntries(WORLDS.map(w=>[w.id,w]));
+const DUCK={}; WORLDS.concat(SOON).forEach(w=>(w.ducks||[]).forEach(d=>{d.world=w.id; DUCK[d.id]=d;}));
+HOL.forEach(h=>{ DUCK[h.id]=h; });
+const TOGGLE=new Set(["mail","can","birdhouse"]);
+
+/* ---------- UI helpers ---------- */
+const $=id=>document.getElementById(id);
+const stage=$("stage");
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const CHEV={left:"M16 5 L8 13 L16 21",right:"M10 5 L18 13 L10 21",up:"M5 16 L13 8 L21 16",down:"M5 10 L13 18 L21 10"};
+const wDucks=w=>w.ducks||[];
+const wTotal=w=>wDucks(w).length;
+const wFound=w=>wDucks(w).filter(d=>S.found.has(d.id)).length;
+const allDucks=()=>WORLDS.reduce((n,w)=>n+wTotal(w),0);
+let tt;
+function toast(msg,ms=1900){ const t=$("toast"); t.textContent=msg; t.classList.add("on"); clearTimeout(tt); tt=setTimeout(()=>t.classList.remove("on"),ms); }
+function burst(host,x,y){
+  if(reduce) return;
+  const r=host.getBoundingClientRect();
+  for(let i=0;i<10;i++){
+    const d=document.createElement("i"); d.className="confetti"; const a=i/10*Math.PI*2;
+    d.style.cssText=`left:${x-r.left-5}px;top:${y-r.top-5}px;background:${["#FFCB2F","#FF6FA6","#3FB86A","#8FD0FF"][i%4]}`;
+    host.appendChild(d);
+    const an=d.animate?d.animate([{transform:"translate(0,0) scale(1)"},{transform:`translate(${Math.cos(a)*52}px,${Math.sin(a)*52}px) scale(.3)`,opacity:0}],{duration:600,easing:"cubic-bezier(.2,.8,.4,1)"}):null;
+    if(an) an.onfinish=()=>d.remove(); else d.remove();
+  }
+}
+const SND_ON=`<svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M3 8 H7 L12 4 V18 L7 14 H3 Z" fill="#fff" stroke="#173A5E" stroke-width="2.2" stroke-linejoin="round"/><path d="M15 8 Q17 11 15 14 M17 6 Q21 11 17 16" fill="none" stroke="#173A5E" stroke-width="2.2" stroke-linecap="round"/></svg>`;
+const SND_OFF=`<svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M3 8 H7 L12 4 V18 L7 14 H3 Z" fill="#fff" stroke="#173A5E" stroke-width="2.2" stroke-linejoin="round"/><path d="M15 8 L20 14 M20 8 L15 14" stroke="#173A5E" stroke-width="2.2" stroke-linecap="round"/></svg>`;
+function renderSound(){ const b=$("sndBtn"); b.innerHTML=S.sound?SND_ON:SND_OFF; b.setAttribute("aria-label",S.sound?"Sound on":"Sound off"); b.setAttribute("aria-pressed",S.sound?"true":"false"); }
+function toggleSound(){ S.sound=!S.sound; save(); renderSound(); if(S.sound) blip(); }
+$("sndBtn").addEventListener("click",toggleSound);
+
+/* ---------- Screens ---------- */
+function setScreen(name){
+  S.screen=name; closeSheet();
+  $("scrHome").hidden=name!=="home"; $("scrWorld").hidden=name!=="world"; $("scrEgg").hidden=name!=="egg";
+  $("homeBtn").disabled=name==="home";
+  const play=name==="world"||name==="egg";
+  $("app").classList.toggle("playing",play); document.documentElement.style.overflow=play?"hidden":"";
+  if(name!=="world"){ $("done").hidden=true; $("intro").classList.add("off"); }
+  if(name!=="egg") stopEgg();
+}
+const lockSvg=`<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="2" fill="#FFCB2F" stroke="#173A5E" stroke-width="1.8"/><path d="M5.5 7 V5 A2.5 2.5 0 0 1 10.5 5 V7" fill="none" stroke="#173A5E" stroke-width="1.8"/></svg>`;
+function goHome(){
+  setScreen("home"); $("title").textContent="Quackers";
+  const hol=HOL.find(h=>holOn(h));
+  const got=WORLDS.reduce((n,w)=>n+wFound(w),0);
+  let ev;
+  if(hol&&!S.found.has(hol.id)) ev=`<b>A ${hol.holiday} visitor is here!</b><small>${hol.name}: ${tokGot(hol)<tokAll(hol)?`find ${tokAll(hol)} acorns in The Backyard (${tokGot(hol)} of ${tokAll(hol)}), then search for the duck.`:"all acorns found! Search The Backyard for the duck."}</small>`;
+  else if(hol) ev=`<b>You found the ${hol.name}!</b><small>It's in your Backyard Duck Log. More holiday ducks are on the way.</small>`;
+  else ev=`<b>Holiday ducks</b><small>Special ducks visit on holidays. Look out for them!</small>`;
+  const heroH=HOL[0];
+  $("scrHome").innerHTML=`
+   <div class="logo"><svg viewBox="-40 -48 82 78" aria-hidden="true">${shadow()}<g class="bob">${toyDuck(YEL)}</g></svg><b>Quackers</b></div>
+   <p class="total">${got} of ${allDucks()} ducks found</p>
+   <button type="button" class="event" id="evt"><svg viewBox="-46 -48 92 76" aria-hidden="true"><g class="bob">${(hol||heroH).art()}</g></svg><span>${ev}</span></button>
+   <div class="worlds">${WORLDS.map(w=>{ const f=wFound(w), t=wTotal(w), open=w.n<=S.unlocked, prev=WORLDS[w.n-2];
+     return `<button type="button" class="wcard${open?"":" locked"}" data-world="${w.id}" aria-label="${w.name}${open?`, ${f} of ${t} found`:", locked"}">
+      <span class="thumb">${sv("0 0 400 300",thumbOf(w),'style="pointer-events:none"')}${open?(f===t?`<span class="tag done">Complete</span>`:""):`<span class="tag lock">${lockSvg}Locked</span>`}</span>
+      <span class="meta"><span class="num">World ${w.n}</span><b>${w.name}</b>${open?`<small>${f} of ${t} found</small><span class="bar2"><i style="width:${t?f/t*100:0}%"></i></span>`:`<small>Find every duck in ${prev.name} to open</small>`}</span></button>`;}).join("")}
+     ${SOON.map(w=>`<button type="button" class="wcard off" data-soon="${w.id}" aria-label="${w.name}, coming soon">
+      <span class="thumb">${sv("0 0 400 300",thumbOf(w),'style="pointer-events:none"')}<span class="tag">Coming soon</span></span>
+      <span class="meta"><span class="num">World ${w.n}</span><b>${w.name}</b><small>Coming soon</small></span></button>`).join("")}</div>
+   <div class="bigbtns"><button type="button" class="bigbtn games" id="hGames">${IC.games}Mini games</button>
+   <button type="button" class="bigbtn shop" id="hShop">${IC.shop}Pond Points shop<small class="soonlbl">Soon</small></button></div>
+   <div class="homefoot"><button type="button" class="linkbtn" id="hReset">Start over</button></div>`;
+  flush();
+  $("evt").addEventListener("click",openHoliday);
+  $("hShop").addEventListener("click",openShop);
+  $("hGames").addEventListener("click",openGames);
+  $("hReset").addEventListener("click",askReset);
+  $("scrHome").querySelectorAll("[data-world]").forEach(b=>b.addEventListener("click",()=>{ const w=W[b.dataset.world];
+    if(w.n>S.unlocked){ homeToast(b,`Find every duck in ${WORLDS[w.n-2].name} first.`); blip(); return; } enterWorld(w.id); }));
+  $("scrHome").querySelectorAll("[data-soon]").forEach(b=>b.addEventListener("click",()=>{ homeToast(b,"Mitchell is still building this one!"); blip(); }));
+}
+let resetT;
+function askReset(){ const b=$("hReset");
+  if(b.dataset.armed){ localStorage.removeItem(KEY); S.found=new Set(); S.flags={}; S.unlocked=1; S.tokens=[]; S.best=0; S.last={}; doneShown.clear(); save(); goHome(); return; }
+  b.dataset.armed="1"; b.textContent="Tap again to erase all your ducks"; b.classList.add("armed");
+  clearTimeout(resetT); resetT=setTimeout(()=>{ if(b.isConnected){ delete b.dataset.armed; b.textContent="Start over"; b.classList.remove("armed"); } },3500);
+}
+function homeToast(b,msg){ const s=b.querySelector("small"); if(s){ const old=s.dataset.old||s.textContent; s.dataset.old=old; s.textContent=msg; clearTimeout(s._t); s._t=setTimeout(()=>{s.textContent=old;},1900);} }
+function thumbOf(w){ THUMB=true; const svg=w.areas[w.start].draw({}).replace(/class="(duck|act|door|token)"/g,'class="x-$1"').replace(/tabindex="0" role="button"/g,""); THUMB=false; return svg; }
+
+function enterWorld(id){
+  const w=W[id]; S.world=id; setScreen("world"); lockW=0; $("title").textContent=w.name;
+  stage.querySelectorAll(".layer").forEach(l=>l.remove());
+  const start=(S.last[id]&&w.areas[S.last[id]])?S.last[id]:w.start;
+  show(start);
+  if(!S.seen.has(id)){ S.seen.add(id); intro(w); }
+  const h=holHere();
+  if(holLive(h)&&tokGot(h)===0) setTimeout(()=>{ if(S.world===id&&S.screen==="world") toast(`A ${h.holiday} visitor is in ${w.name}! Find ${tokAll(h)} hidden acorns.`,3400); },2700);
+}
+let introT;
+function intro(w){ const el=$("intro");
+  el.innerHTML=`<b>${w.name}</b><span>Swipe to look around and move</span><svg class="swipe" viewBox="0 0 64 28" aria-hidden="true"><path d="M6 14 H58 M14 6 L6 14 L14 22 M50 6 L58 14 L50 22" fill="none" stroke="#173A5E" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  el.classList.remove("off"); clearTimeout(introT); introT=setTimeout(()=>el.classList.add("off"),2600);
+}
+function sceneSVG(id){ const w=W[S.world]; const svg=`<svg viewBox="0 0 400 300" preserveAspectRatio="none" role="img" aria-label="${w.areas[id].name}">${w.areas[id].draw(S.F)}</svg>`; flush(); return svg; }
+function gridOf(w){ const ps=Object.values(w.areas).map(a=>a.pos); return {cols:Math.max(...ps.map(p=>p[0]))+1, rows:Math.max(...ps.map(p=>p[1]))+1}; }
+function miniMap(){
+  const w=W[S.world]; const {cols,rows}=gridOf(w);
+  return `<svg width="${cols*11+2}" height="${rows*11+2}" viewBox="0 0 ${cols*11+2} ${rows*11+2}" aria-hidden="true">${Object.entries(w.areas).map(([k,a])=>`<rect x="${a.pos[0]*11+1}" y="${a.pos[1]*11+1}" width="10" height="10" rx="3" fill="${k===S.area?"#FFCB2F":"#C9F2D6"}" stroke="#173A5E" stroke-width="1.8"/>`).join("")}</svg>`;
+}
+function renderHud(pop){
+  const w=W[S.world];
+  const p=$("areaPill"); p.innerHTML=miniMap()+w.areas[S.area].name;
+  if(pop){p.classList.remove("pop");void p.offsetWidth;p.classList.add("pop");}
+  const n=wFound(w), t=wTotal(w), b=$("countPill"), h=holHere();
+  let tok="", lab=`Duck Log: ${n} of ${t} found`;
+  if(holLive(h)){ tok=`<i class="sep"></i><svg width="18" height="20" viewBox="-11 -14 22 30" aria-hidden="true">${acornIcon(1)}</svg>${tokGot(h)}/${tokAll(h)}`; lab+=`, ${tokGot(h)} of ${tokAll(h)} acorns`; }
+  b.setAttribute("aria-label",lab);
+  b.innerHTML=`<svg width="26" height="22" viewBox="-36 -44 78 70" aria-hidden="true">${toyDuck(YEL)}</svg>${n}/${t}${tok}`;
+  flush();
+}
+function bumpBadge(){ const b=$("countPill"); b.classList.remove("pop"); void b.offsetWidth; b.classList.add("pop"); }
+const DIRS=["left","right","up","down"];
+function renderEdges(peek){
+  stage.querySelectorAll(".edge").forEach(a=>a.remove());
+  const w=W[S.world], a=w.areas[S.area];
+  for(const dir of DIRS){
+    const to=a.exits[dir]; if(!to) continue;
+    const name=w.areas[to].name;
+    const b=document.createElement("button"); b.type="button"; b.className=`edge e-${dir}${peek?" peek":""}`;
+    b.dataset.go=to; b.setAttribute("aria-label",`Go to the ${name}`);
+    const ch=`<svg viewBox="0 0 26 26" aria-hidden="true"><path d="${CHEV[dir]}" fill="none" stroke="#173A5E" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    b.innerHTML=dir==="right"?`<span>${name}</span>${ch}`:`${ch}<span>${name}</span>`;
+    stage.insertBefore(b,$("toast"));
+  }
+}
+function layer(){ const ls=stage.querySelectorAll(".layer"); return ls[ls.length-1]; }
+const OPP={left:"right",right:"left",up:"down",down:"up"};
+const CAM={s:1,W:400,H:300,x:0,y:0,minX:0,maxX:0,minY:0,maxY:0};
+function vp(){ return {w:stage.clientWidth||innerWidth||400, h:stage.clientHeight||innerHeight||300}; }
+let lockW=0;
+function fit(relock){
+  const {w,h}=vp();
+  if(relock||!lockW||Math.abs(w-lockW)>60){ let s=Math.max(w/400,h/300); s=Math.min(s,2*w/400,2*h/300); s=Math.max(s,Math.min(w/400,h/300)); CAM.s=s; lockW=w; }
+  const s=CAM.s; CAM.W=400*s; CAM.H=300*s;
+  if(CAM.W>w){CAM.minX=w-CAM.W;CAM.maxX=0;}else{CAM.minX=CAM.maxX=(w-CAM.W)/2;}
+  if(CAM.H>h){CAM.minY=h-CAM.H;CAM.maxY=0;}else{CAM.minY=CAM.maxY=(h-CAM.H)/2;}
+}
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+const band=(v,a,b)=>v>b?b+(v-b)*.35:v<a?a-(a-v)*.35:v;
+function paint(el=layer(),anim){ if(!el) return; const svg=el.querySelector("svg"); if(!svg) return;
+  svg.style.width=CAM.W+"px"; svg.style.height=CAM.H+"px";
+  svg.style.transition=anim?"transform .28s ease-out":"none";
+  svg.style.transform=`translate(${CAM.x.toFixed(1)}px,${CAM.y.toFixed(1)}px)`; }
+function aim(dir){ fit();
+  const mx=(CAM.minX+CAM.maxX)/2, my=(CAM.minY+CAM.maxY)/2;
+  CAM.x=dir==="right"?CAM.maxX:dir==="left"?CAM.minX:mx;
+  CAM.y=dir==="up"?CAM.minY:dir==="down"?CAM.maxY:my; }
+addEventListener("resize",()=>{ if(S.screen!=="world") return; fit(); CAM.x=clamp(CAM.x,CAM.minX,CAM.maxX); CAM.y=clamp(CAM.y,CAM.minY,CAM.maxY); paint(); });
+function show(id,dir){
+  const old=layer(); S.area=id; S.last[S.world]=id; save(); const a=W[S.world].areas[id];
+  const el=document.createElement("div"); el.className="layer"; el.innerHTML=sceneSVG(id);
+  if(a.bg) el.style.background=`linear-gradient(${a.bg[0]} 50%,${a.bg[1]} 50%)`;
+  stage.insertBefore(el,stage.querySelector(".hud"));
+  aim(dir); paint(el);
+  renderHud(!!dir); renderEdges(true); closeSheet();
+  if(dir) blip("door");
+  if(old){
+    if(dir && !reduce && el.animate){
+      const off={left:"translateX(-100%)",right:"translateX(100%)",up:"translateY(-100%)",down:"translateY(100%)"};
+      el.animate([{transform:off[dir]},{transform:"none"}],{duration:380,easing:"cubic-bezier(.25,.8,.35,1)"});
+      old.style.pointerEvents="none";
+      const an=old.animate([{transform:"none"},{transform:off[OPP[dir]]}],{duration:380,easing:"cubic-bezier(.25,.8,.35,1)"}); an.onfinish=()=>old.remove();
+    } else old.remove();
+  }
+}
+function go(dir){ const a=W[S.world].areas[S.area]; if(a.exits[dir]){ show(a.exits[dir],dir); return true; } return false; }
+function dirTo(to){ const a=W[S.world].areas[S.area]; if(a.doors&&a.doors[to]) return a.doors[to];
+  const e=Object.entries(a.exits).find(([,v])=>v===to); if(e) return e[0];
+  const p=a.pos, q=W[S.world].areas[to].pos, dx=q[0]-p[0], dy=q[1]-p[1]; return Math.abs(dx)>=Math.abs(dy)?(dx>0?"right":"left"):(dy>0?"down":"up"); }
+["gesturestart","gesturechange"].forEach(t=>document.addEventListener(t,e=>{ if(S.screen!=="home") e.preventDefault(); },{passive:false}));
+document.addEventListener("touchmove",e=>{ if(S.screen!=="home"&&e.touches&&e.touches.length>1) e.preventDefault(); },{passive:false});
+let drag=null, dragEnd=-1e9;
+stage.addEventListener("pointerdown",e=>{
+  if(S.screen!=="world"||(e.button&&e.button>0)) return;
+  if(e.target.closest(".hud,.corner,.edge,.done")) return;
+  $("intro").classList.add("off");
+  drag={id:e.pointerId,sx:e.clientX,sy:e.clientY,cx:CAM.x,cy:CAM.y,moved:false};
+});
+stage.addEventListener("pointermove",e=>{
+  if(!drag||e.pointerId!==drag.id) return;
+  const dx=e.clientX-drag.sx, dy=e.clientY-drag.sy;
+  if(!drag.moved){ if(Math.hypot(dx,dy)<8) return; drag.moved=true; try{stage.setPointerCapture(e.pointerId);}catch(_){} }
+  CAM.x=band(drag.cx+dx,CAM.minX,CAM.maxX); CAM.y=band(drag.cy+dy,CAM.minY,CAM.maxY); paint();
+});
+function endDrag(e){
+  if(!drag||(e&&e.pointerId!==drag.id)) return; const d=drag; drag=null; if(!d.moved) return;
+  dragEnd=performance.now();
+  const rx=d.cx+(e.clientX-d.sx), ry=d.cy+(e.clientY-d.sy);
+  const over={left:rx-CAM.maxX, right:CAM.minX-rx, up:ry-CAM.maxY, down:CAM.minY-ry};
+  const best=DIRS.filter(k=>over[k]>56).sort((a,b)=>over[b]-over[a])[0];
+  CAM.x=clamp(CAM.x,CAM.minX,CAM.maxX); CAM.y=clamp(CAM.y,CAM.minY,CAM.maxY); paint(layer(),true);
+  if(best) go(best);
+}
+stage.addEventListener("pointerup",endDrag);
+stage.addEventListener("pointercancel",e=>{ if(drag&&e.pointerId===drag.id){ drag=null; CAM.x=clamp(CAM.x,CAM.minX,CAM.maxX); CAM.y=clamp(CAM.y,CAM.minY,CAM.maxY); paint(layer(),true);} });
+document.addEventListener("keydown",e=>{
+  if(S.screen!=="world"||!$("sheet").hidden||!$("done").hidden) return;
+  const k={ArrowLeft:"left",ArrowRight:"right",ArrowUp:"up",ArrowDown:"down"}[e.key];
+  if(k&&!(e.target.closest&&e.target.closest("input,textarea"))){ e.preventDefault(); go(k); }
+});
+function rerender(){ const l=layer(); if(l) l.innerHTML=sceneSVG(S.area); }
+function catchDuck(g){
+  const id=g.dataset.duck, d=DUCK[id], w=W[S.world]; if(S.found.has(id)) return;
+  const b=g.getBoundingClientRect(); burst(stage,b.left+b.width/2,b.top+b.height/2);
+  S.found.add(id); save(); quack(); g.style.pointerEvents="none";
+  if(g.animate && !reduce){ const inner=g.querySelector(".bob"); if(inner){ inner.style.animation="none"; inner.animate([{transform:"none",opacity:1},{transform:"translateY(-18px)",opacity:0}],{duration:420,fill:"forwards",easing:"ease-out"}); } }
+  const every=wDucks(w).every(x=>S.found.has(x.id));
+  let msg=`${d.name} found!`;
+  if(d.tier==="Holiday") msg=`You found the ${d.name}! Happy ${d.holiday}!`;
+  else if(every) msg=`Every ${w.name} duck found!`;
+  toast(msg,every||d.tier==="Holiday"?3000:1900);
+  renderHud(false); bumpBadge(); setTimeout(rerender,430); if(d.tier!=="Holiday") checkDone();
+}
+function tapToken(tk){
+  const h=holHere(); const id=tk.dataset.token; if(!h||S.tokens.includes(id)) return;
+  const b=tk.getBoundingClientRect(); burst(stage,b.left+b.width/2,b.top+b.height/2);
+  S.tokens.push(id); save(); pop();
+  const n=tokGot(h), t=tokAll(h);
+  toast(n<t?`Acorn ${n} of ${t}!`:`All ${t} acorns! The ${h.name} is hiding somewhere in ${W[S.world].name}. Go find it!`,n<t?1800:3400);
+  rerender(); renderHud(false); bumpBadge();
+}
+const doneShown=new Set();
+function checkDone(){ const w=W[S.world]; if(doneShown.has(w.id)||wFound(w)<wTotal(w)) return; doneShown.add(w.id);
+  const next=WORLDS[w.n]; if(next&&S.unlocked<next.n){ S.unlocked=next.n; save(); }
+  setTimeout(()=>{ if(S.screen!=="world"||S.world!==w.id) return; const el=$("done"); fanfare();
+    const last=!next;
+    el.innerHTML=`<div><svg viewBox="-44 -54 88 86" aria-hidden="true">${shadow()}<g class="bob">${toyDuck(YEL,"crown")}</g></svg><span class="big">World complete!</span>
+      <span>${last?`You found all ${allDucks()} ducks! Snowy Peaks, the Theater and the City are coming soon.`:`Every duck in ${w.name} is in your Duck Log. ${next.name} is open!`}</span>
+      <span class="row">${last?`<button class="go" type="button" id="doneHome">Back to worlds</button>`:`<button class="go" type="button" id="doneNext">Go to ${next.name}</button>`}<button class="go ghost" type="button" id="doneStay">Keep exploring</button></span></div>`;
+    flush(); el.hidden=false; if(el.animate&&!reduce) el.firstElementChild.animate([{transform:"translateY(24px)",opacity:0},{transform:"none",opacity:1}],{duration:380,easing:"ease-out"});
+    if(last) $("doneHome").addEventListener("click",goHome); else $("doneNext").addEventListener("click",()=>enterWorld(next.id));
+    $("doneStay").addEventListener("click",()=>{el.hidden=true;}); el.querySelector(".go").focus({preventScroll:true});
+  },1400);
+}
+function doAct(k,a){
+  const w=W[S.world], F=S.F, m=w.msg[k];
+  if(k==="chest"){ if(!F.key){ toast("Locked tight. A key must be hiding somewhere dark."); blip(); return; } F.chest=1; toast("The key fits. The chest pops open!"); }
+  else if(Array.isArray(m)){ F[k]=!F[k]; toast(F[k]?m[0]:m[1]); }
+  else if(TOGGLE.has(k)){ F[k]=!F[k]; toast(F[k]?m:"Closed."); }
+  else { if(F[k]) return; F[k]=1; if(m) toast(m); }
+  pop(); save(); rerender();
+}
+function onTap(e){
+  if(performance.now()-dragEnd<350){ e.preventDefault(); return; }
+  if(!$("done").hidden) return;
+  const eg=e.target.closest(".edge"); if(eg){ show(eg.dataset.go,dirTo(eg.dataset.go)); return; }
+  const tk=e.target.closest(".token"); if(tk){ tapToken(tk); return; }
+  const d=e.target.closest(".duck"); if(d){ catchDuck(d); return; }
+  const dr=e.target.closest(".door"); if(dr){ if(dr.dataset.door) show(dr.dataset.door,dirTo(dr.dataset.door)); return; }
+  const a=e.target.closest(".act"); if(a) doAct(a.dataset.act,a);
+}
+stage.addEventListener("click",onTap);
+stage.addEventListener("keydown",e=>{ if((e.key==="Enter"||e.key===" ")&&e.target.closest(".duck,.act,.door,.token")){ e.preventDefault(); onTap(e);} });
+
+/* ---------- Sheets ---------- */
+let lastFocus=null;
+function openSheet(html,label){ const s=$("sheet"); lastFocus=document.activeElement;
+  s.innerHTML=`<div class="grab"></div><header><h3>${label}</h3><button class="x" type="button" id="closeSheet" aria-label="Close"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3 L13 13 M13 3 L3 13" stroke="#173A5E" stroke-width="3" stroke-linecap="round"/></svg></button></header>${html}`;
+  s.setAttribute("aria-label",label); s.hidden=false; $("scrim").hidden=false; flush();
+  if(s.animate&&!reduce) s.animate([{transform:"translateY(100%)"},{transform:"none"}],{duration:300,easing:"cubic-bezier(.25,.8,.35,1)"});
+  $("closeSheet").addEventListener("click",closeSheet); $("closeSheet").focus({preventScroll:true});
+}
+function closeSheet(){ if($("sheet").hidden) return; $("sheet").hidden=true; $("scrim").hidden=true; if(lastFocus&&lastFocus.focus&&lastFocus.isConnected) lastFocus.focus({preventScroll:true}); }
+$("scrim").addEventListener("click",closeSheet);
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeSheet(); });
+
+function duckCard(d,got){
+  return `<div class="card ${got?"":"miss"}"><svg viewBox="-40 -48 82 78" aria-hidden="true">${got?toyDuck(d.c,d.acc):`<g opacity=".35">${toyDuck(GHOST)}</g>`}</svg>
+    <span class="tier t-${d.tier}">${d.tier}</span>${got?`<b>${d.name}</b>`:`<small>${d.hint}</small>`}</div>`;
+}
+function holCard(h){ const got=S.found.has(h.id), on=holOn(h), n=tokGot(h), t=tokAll(h);
+  const note=got?"":!on?`Comes back in ${h.month}`:n<t?`Find ${t} acorns: ${n} of ${t}`:"All acorns found. Search the Backyard!";
+  return `<div class="card hol ${got?"":"miss"}"><svg viewBox="-46 -52 92 82" aria-hidden="true">${got?h.art():`<g opacity=".35">${h.art()}</g>`}</svg><span class="tier t-Holiday">Holiday</span>${got?`<b>${h.name}</b>`:`<small>${note}</small>`}</div>`; }
+function openLog(){
+  const w=W[S.world];
+  let cards=wDucks(w).map(d=>duckCard(d,S.found.has(d.id))).join("");
+  HOL.filter(h=>h.world===w.id&&(holOn(h)||S.found.has(h.id))).forEach(h=>cards+=holCard(h));
+  openSheet(`<div class="cards">${cards}</div>`, `${w.name} Duck Log: ${wFound(w)} of ${wTotal(w)}`);
+}
+function openMap(){
+  const w=W[S.world]; const {cols,rows}=gridOf(w); const cells=[];
+  for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
+    const k=Object.keys(w.areas).find(k=>w.areas[k].pos[0]===c&&w.areas[k].pos[1]===r);
+    if(k){ const left=wDucks(w).filter(d=>d.area===k&&!S.found.has(d.id)).length;
+      cells.push(`<button type="button" class="mtile ${k===S.area?"here":""}" data-map="${k}">${w.areas[k].name}<small>${k===S.area?"You are here":left?`${left} duck${left>1?"s":""} left`:"All found"}</small></button>`); }
+    else cells.push(`<div class="mtile mempty"></div>`);
+  }
+  openSheet(`<div class="mapgrid" style="grid-template-columns:repeat(${cols},minmax(0,1fr))">${cells.join("")}</div>`,`${w.name} map`);
+  $("sheet").querySelectorAll("[data-map]").forEach(b=>b.addEventListener("click",()=>{ const k=b.dataset.map; if(k===S.area){closeSheet();return;} show(k,dirTo(k)); }));
+}
+function hint(){
+  closeSheet(); const w=W[S.world], h=holHere();
+  const left=wDucks(w).filter(d=>!S.found.has(d.id));
+  let area=null;
+  if(left.length){
+    const here=left.find(d=>d.area===S.area);
+    if(here){ toast(`A duck is right here. ${here.hint}...`,2600); return; }
+    area=left[0].area; toast(`Psst... try the ${w.areas[area].name}.`,2600);
+  } else if(holLive(h)){
+    const miss=Object.entries(h.tokens).find(([id])=>!S.tokens.includes(id)); area=miss?miss[1]:h.area;
+    if(area===S.area){ toast(miss?"An acorn is somewhere right here!":`The ${h.name} is right here somewhere!`,2600); return; }
+    toast(miss?`Psst... an acorn is in the ${w.areas[area].name}.`:`The ${h.name} is hiding in the ${w.areas[area].name}.`,2600);
+  } else { toast("Every duck here is found!"); return; }
+  const dir=dirTo(area); const arr=stage.querySelector(`.e-${dir}`)||stage.querySelector(".edge");
+  if(arr){ arr.classList.add("lookhere"); setTimeout(()=>arr.classList.remove("lookhere"),2600); }
+}
+$("tabHint").addEventListener("click",hint);
+$("countPill").addEventListener("click",openLog);
+$("exitBtn").addEventListener("click",goHome);
+$("homeBtn").addEventListener("click",goHome);
+const IC={
+ log:`<svg viewBox="-36 -44 78 70" aria-hidden="true">${toyDuck(YEL)}</svg>`,
+ map:`<svg viewBox="0 0 26 26" aria-hidden="true"><path d="M3 6 L9 4 L17 7 L23 5 V20 L17 22 L9 19 L3 21 Z" fill="#C9F2D6" stroke="#173A5E" stroke-width="2.2" stroke-linejoin="round"/><path d="M9 4 V19 M17 7 V22" stroke="#173A5E" stroke-width="2"/></svg>`,
+ shop:`<svg viewBox="0 0 26 26" aria-hidden="true"><path d="M5 9 H21 L20 22 H6 Z" fill="#3FB86A" stroke="#173A5E" stroke-width="2.4" stroke-linejoin="round"/><path d="M9 11 V8 A4 4 0 0 1 17 8 V11" fill="none" stroke="#173A5E" stroke-width="2.4"/></svg>`,
+ games:`<svg viewBox="0 0 26 26" aria-hidden="true"><rect x="3" y="8" width="20" height="12" rx="6" fill="#B48CFF" stroke="#173A5E" stroke-width="2.4"/><path d="M8 12 V16 M6 14 H10" stroke="#173A5E" stroke-width="2.2" stroke-linecap="round"/></svg>`};
+function openMenu(){ const w=W[S.world];
+  openSheet(`<div class="menu"><button type="button" class="mbtn" id="mLog">${IC.log}Duck Log<span class="count">${wFound(w)}/${wTotal(w)}</span></button>
+   <button type="button" class="mbtn" id="mMap">${IC.map}Map</button>
+   <button type="button" class="mbtn games" id="mGames">${IC.games}Mini games</button>
+   <button type="button" class="mbtn" id="mSound">${S.sound?SND_ON:SND_OFF}Sound: ${S.sound?"on":"off"}</button>
+   <button type="button" class="mbtn leave" id="mLeave">Leave ${w.name}</button></div>`,"Paused");
+  $("mLog").addEventListener("click",openLog); $("mMap").addEventListener("click",openMap);
+  $("mGames").addEventListener("click",openGames); $("mLeave").addEventListener("click",goHome);
+  $("mSound").addEventListener("click",()=>{ toggleSound(); openMenu(); });
+}
+$("tabMenu").addEventListener("click",openMenu);
+
+function openHoliday(){
+  openSheet(`<p class="note">Holiday ducks only visit in their month, after a special task.</p><div class="hgrid">${HOL.map(h=>`<div class="hcard${holOn(h)?" now":""}"><svg viewBox="-48 -56 96 84" aria-hidden="true">${h.art()}</svg>
+    <span class="mon">${S.found.has(h.id)?"Found!":holOn(h)?"Here this month":h.month}</span><b>${h.name}</b><small>${h.holiday}: ${h.task}${holLive(h)?` You have ${tokGot(h)} of ${tokAll(h)} acorns.`:""}</small></div>`).join("")}
+    <div class="hcard more"><b>More on the way</b><small>More holiday ducks are coming soon.</small></div></div>`,"Holiday ducks");
+}
+function openShop(){
+  openSheet(`<div class="soonbox">${IC.shop}<p><b>The Pond Points shop is coming soon.</b> You'll earn Pond Points in mini games and spend them on special ducks, things for your duck and hints.</p></div>`,"Pond Points shop");
+}
+
+const MINI=[
+ {id:"egg",n:"Egg Guard",star:"The Chicken",d:"Tap the foxes before they reach the nest.",a:()=>toyChicken(),live:true},
+ {id:"scrap",n:"Scrap Hunt",star:"Mr. Crow",d:"Tap the scrap parts as they fall and skip the junk.",a:()=>toyCrow()},
+ {id:"sand",n:"Sandwich Snatch",star:"Mr. Seagull",d:"Swoop in when the picnic folks look away.",a:()=>toyGull()}
+];
+function openGames(){
+  openSheet(`<div class="mgrid">${MINI.map(m=>`<div class="mg"><svg viewBox="-44 -40 88 70" aria-hidden="true"><g class="bob">${m.a()}</g></svg><div><b>${m.n}</b><small>${m.live?`${m.d}${S.best?` Best: ${"★".repeat(S.best)}${"☆".repeat(3-S.best)}`:""}`:"Coming soon."}</small></div>
+    <button type="button" class="play" data-mini="${m.id}"${m.live?"":" disabled"}>${m.live?"Play":"Soon"}</button></div>`).join("")}</div>`,"Mini games");
+  $("sheet").querySelector('[data-mini="egg"]').addEventListener("click",openEgg);
+}
+
+/* ---------- Egg Guard ---------- */
+const E={run:false,eggs:3,scared:0,left:25,spawn:.4,foxes:[],last:0,raf:0,back:"home"};
+const field=$("field");
+function fieldArt(){
+  return `${sky("#9fdcff","#e6f7ff")}${sun(60,46)}${cloud(250,58,.9)}
+  <path d="M-10 150 Q200 120 410 150 V310 H-10 Z" fill="${LG("#b0e586","#5fb244")}" ${O}/>
+  <g ${N}>${[0,1,2,3,4,5,6,7,8].map(i=>`<rect x="${6+i*46}" y="128" width="12" height="40" rx="4" fill="${G("#f3dcb4")}" ${O2}/>`).join("")}<rect x="0" y="138" width="400" height="8" rx="4" fill="${G("#f3dcb4")}" ${O2}/></g>
+  <g ${N} transform="translate(320 120)"><rect x="-30" y="-30" width="60" height="44" rx="6" fill="${LG("#ff8f7f","#e0503f")}" ${O}/><path d="M-38 -26 L0 -54 L38 -26 Z" fill="${LG("#9a7ae0","#5a3a8a")}" ${O}/><rect x="-10" y="-14" width="20" height="28" rx="8" fill="${G("#7a4523")}" ${O2}/></g>
+  <g transform="translate(200 236)" ${N}><ellipse cx="0" cy="16" rx="60" ry="16" fill="${G("#c89260")}" ${O}/><path d="M-54 10 Q0 32 54 10" stroke="${INK}" stroke-width="2" fill="none"/>
+  ${[[-22,4],[0,0],[22,4]].slice(0,E.eggs).map(([x,y])=>`<g transform="translate(${x} ${y})">${eggIcon(1)}</g>`).join("")}
+  <g transform="translate(0 -22) scale(.85)"><g class="bob">${toyChicken()}</g></g></g>`;
+}
+function eHud(){ $("eEggs").innerHTML=`<svg width="18" height="22" viewBox="-11 -14 22 28" aria-hidden="true">${eggIcon(1)}</svg>${E.eggs}`; const t=Math.max(0,Math.ceil(E.left)); $("eTime").textContent=`0:${String(t).padStart(2,"0")}`; $("eScared").textContent=`Scared ${E.scared}`; flush(); }
+function drawField(){ $("fieldArt").innerHTML=fieldArt(); flush(); }
+function openEgg(){
+  E.back=S.screen==="world"?"world":"home";
+  setScreen("egg"); $("title").textContent="Egg Guard";
+  Object.assign(E,{eggs:3,scared:0,left:25}); drawField(); eHud();
+  $("eCover").hidden=false;
+  $("eCover").innerHTML=`<div><div class="big">Egg Guard</div><p>Foxes are sneaking up on the chicken's eggs. Tap each fox to scare it away before time runs out.</p><button class="go" id="ePlay" type="button">Play</button></div>`;
+  $("ePlay").addEventListener("click",startEgg);
+}
+function startEgg(){
+  field.querySelectorAll(".fox").forEach(f=>f.remove());
+  Object.assign(E,{run:true,eggs:3,scared:0,left:25,spawn:.4,foxes:[],last:performance.now()});
+  $("eCover").hidden=true; drawField(); eHud(); blip(); E.raf=requestAnimationFrame(eLoop);
+}
+function spawnFox(){
+  const fromLeft=Math.random()<.5, b=document.createElement("button");
+  b.type="button"; b.className="fox"; b.setAttribute("aria-label","Fox, tap to scare it"); b.innerHTML=sv("-40 -30 80 54",toyFox()); flush();
+  const f={b,x:fromLeft?-8:108,y:52+Math.random()*24,dir:fromLeft?1:-1,sp:7+(25-E.left)*.35};
+  b.querySelector("svg").style.transform=fromLeft?"":"scaleX(-1)";
+  b.addEventListener("pointerdown",e=>{ e.preventDefault(); scare(f); });
+  b.addEventListener("click",()=>scare(f));
+  field.appendChild(b); E.foxes.push(f); posFox(f);
+}
+function posFox(f){ f.b.style.left=f.x+"%"; f.b.style.top=f.y+"%"; }
+function scare(f){
+  if(!E.run||f.gone) return; f.gone=true; E.scared++; eHud(); pop();
+  f.b.querySelector("svg").style.transform=f.dir>0?"scaleX(-1)":"";
+  f.b.classList.add("run"); f.b.style.left=(f.dir>0?-20:120)+"%"; setTimeout(()=>f.b.remove(),500);
+}
+function eLoop(now){
+  if(!E.run) return;
+  const dt=Math.min(.05,(now-E.last)/1000); E.last=now; E.left-=dt; E.spawn-=dt;
+  if(E.spawn<=0){ spawnFox(); E.spawn=Math.max(.9,1.8-(25-E.left)*.03); }
+  for(const f of E.foxes){ if(f.gone) continue;
+    const dx=50-f.x, dy=78-f.y, d=Math.hypot(dx,dy);
+    if(d<7){ f.gone=true; f.b.remove(); E.eggs--; blip("door"); drawField(); if(E.eggs<=0) break; continue; }
+    f.x+=dx/d*f.sp*dt; f.y+=dy/d*f.sp*dt; posFox(f);
+  }
+  E.foxes=E.foxes.filter(f=>!f.gone); eHud();
+  if(E.eggs<=0||E.left<=0){ endEgg(); return; }
+  E.raf=requestAnimationFrame(eLoop);
+}
+function leaveEgg(){ if(E.back==="world"&&S.world) enterWorld(S.world); else goHome(); }
+$("eExit").addEventListener("click",leaveEgg);
+function stopEgg(){ E.run=false; cancelAnimationFrame(E.raf); field.querySelectorAll(".fox").forEach(f=>f.remove()); E.foxes=[]; }
+function endEgg(){
+  stopEgg();
+  const stars=E.eggs, rec=stars>S.best; if(rec){ S.best=stars; save(); }
+  if(stars) fanfare();
+  $("eCover").innerHTML=`<div><div class="big">${stars?"Eggs saved!":"The foxes got the eggs!"}</div>
+    <div class="stars" aria-label="${stars} of 3 stars">${"★".repeat(stars)}${"☆".repeat(3-stars)}</div>
+    <p>${stars?`You saved ${stars} egg${stars>1?"s":""}${rec?", a new best":""}.`:"Try again to earn stars."} You scared off ${E.scared} fox${E.scared===1?"":"es"}. Pond Points for stars are coming soon.</p>
+    <span style="display:flex;gap:8px"><button class="go" id="eAgain" type="button">Play again</button><button class="go ghost" id="eBack" type="button">Done</button></span></div>`;
+  $("eCover").hidden=false;
+  $("eAgain").addEventListener("click",startEgg);
+  $("eBack").addEventListener("click",leaveEgg);
+}
+
+renderSound(); goHome();
+window.QUACKERS={WORLDS,HOL,DUCK,S,month:NOW_MONTH,enterWorld,show,goHome,doAct};

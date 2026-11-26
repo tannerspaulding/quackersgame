@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Quackers</title>
+<meta name="description" content="Quackers: explore the worlds, find the hidden ducks and fill your Duck Log. A game by Mitchell.">
+<meta name="theme-color" content="#BFE6FF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14314F" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="brand/quackers-icon.svg" type="image/svg+xml">
+<link rel="icon" href="icons/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="icons/favicon-16.png" type="image/png" sizes="16x16">
+<link rel="apple-touch-icon" href="apple-touch-icon.png" sizes="180x180">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-title" content="Quackers">
+<meta name="application-name" content="Quackers">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Grandstander:wght@700;800;900&family=Patrick+Hand&display=swap">
+<style>
+/*CSS*/
+</style>
+</head>
+<body>
+<svg id="defs" width="0" height="0" style="position:absolute" aria-hidden="true"></svg>
+<main class="page">
+    <div class="app" id="app">
+      <div class="topbar">
+        <button class="round" type="button" id="homeBtn" aria-label="Home"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M3 11 L11 4 L19 11 V19 H13 V14 H9 V19 H3 Z" fill="#fff" stroke="#173A5E" stroke-width="2.4" stroke-linejoin="round"/></svg></button>
+        <h1 id="title">Quackers</h1>
+        <button class="round snd" type="button" id="sndBtn" aria-label="Sound"></button>
+      </div>
+      <div id="scrHome" class="home"></div>
+      <div id="scrWorld" hidden>
+        <div class="stage" id="stage">
+          <div class="hud">
+            <button class="hbtn" type="button" id="exitBtn" aria-label="Back to the worlds"><svg viewBox="0 0 22 22" aria-hidden="true"><path d="M3 11 L11 4 L19 11 V19 H13 V14 H9 V19 H3 Z" fill="#FFCB2F" stroke="#173A5E" stroke-width="2.4" stroke-linejoin="round"/></svg></button>
+            <span class="chip" id="areaPill"></span>
+            <button class="badge" type="button" id="countPill"></button>
+          </div>
+          <button class="hbtn corner bl hint" type="button" id="tabHint" aria-label="Hint"><svg viewBox="0 0 26 26" aria-hidden="true"><path d="M13 3 A7 7 0 0 1 17 16 V18 H9 V16 A7 7 0 0 1 13 3 Z" fill="#FFE066" stroke="#173A5E" stroke-width="2.4" stroke-linejoin="round"/><rect x="9" y="19" width="8" height="4" rx="2" fill="#9DB7D2" stroke="#173A5E" stroke-width="2"/></svg></button>
+          <button class="hbtn corner br" type="button" id="tabMenu" aria-label="Menu"><svg viewBox="0 0 22 22" aria-hidden="true"><path d="M5 7 H17 M5 11 H17 M5 15 H17" stroke="#173A5E" stroke-width="2.8" stroke-linecap="round"/></svg></button>
+          <div class="toast" id="toast" role="status" aria-live="polite"></div>
+          <div class="intro off" id="intro" aria-hidden="true"></div>
+          <div class="done" id="done" hidden></div>
+        </div>
+      </div>
+      <div id="scrEgg" hidden>
+        <div class="field" id="field">
+          <svg viewBox="0 0 400 300" id="fieldArt" aria-hidden="true"></svg>
+          <div class="ehud"><button class="hbtn" type="button" id="eExit" aria-label="Leave Egg Guard"><svg viewBox="0 0 22 22" aria-hidden="true"><path d="M3 11 L11 4 L19 11 V19 H13 V14 H9 V19 H3 Z" fill="#FFCB2F" stroke="#173A5E" stroke-width="2.4" stroke-linejoin="round"/></svg></button><span class="pill" id="eEggs"></span><span class="pill" id="eTime"></span><span class="pill" id="eScared"></span></div>
+          <div class="cover" id="eCover"></div>
+        </div>
+      </div>
+      <div class="scrim" id="scrim" hidden></div>
+      <div class="sheet" id="sheet" hidden role="dialog" aria-modal="true"></div>
+    </div>
+    <p class="foot">A game by Mitchell. Every character is drawn just for Quackers.</p>
+</main>
+<script>
+/*JS*/
+</script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+/* quackersgame.com additions */
+.page{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.topbar h1{font-size:1.2rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
+.round.snd{background:#C7E6FF}
+.home .total{margin:-6px 0 0;text-align:center;font-family:var(--display);font-weight:900;font-size:1rem;color:var(--dim)}
+.wcard.locked .thumb svg{filter:grayscale(.75) brightness(.9)}
+.wcard.locked{opacity:.82}
+.wcard .tag{display:inline-flex;align-items:center;gap:3px}
+.wcard .tag.lock{background:var(--cloud);color:var(--ink)}
+.wcard .tag.done{background:var(--lily)}
+.bigbtn{position:relative;text-align:left}
+.bigbtn .soonlbl{margin-left:auto;font-family:var(--note);font-weight:400;font-size:.95rem;color:var(--dim)}
+.homefoot{display:flex;justify-content:center}
+.linkbtn{background:none;border:0;padding:6px 10px;font-family:var(--note);font-size:1.05rem;color:var(--dim);text-decoration:underline}
+.linkbtn.armed{color:#c0392b;font-weight:700}
+.soonbox{display:flex;gap:12px;align-items:flex-start;padding:4px 2px}
+.soonbox svg{width:44px;height:44px;flex:none}
+.soonbox p{margin:0;font-family:var(--body)}
+.hcard.more{justify-content:center;opacity:.8}
+.card.hol svg{max-height:84px}
+.foot{text-align:center;margin:4px 0 0}
