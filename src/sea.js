@@ -23,7 +23,7 @@
   <g ${N}><path d="M150 236 L188 236 L182 276 L156 276 Z" fill="${G("#4fb3ff")}" ${O}/><path d="M152 236 Q169 214 186 236" fill="none" stroke="${INK}" stroke-opacity=".4" stroke-width="2"/><rect x="186" y="246" width="30" height="6" rx="3" fill="${G("#ffcb2f")}" ${O2} transform="rotate(-24 186 246)"/>
   <path d="M352 236 l6 -10 l6 10 l10 2 l-8 7 l2 10 l-10 -5 l-10 5 l2 -10 l-8 -7 z" fill="${G("#ff9f43")}" ${O2}/>
   <ellipse cx="40" cy="262" rx="30" ry="10" fill="${LG("#ff6f91","#e0477a")}" ${O2}/><path d="M14 262 H66" stroke="#fff" stroke-width="3" opacity=".7"/></g>`},
- shallows:{name:"Shallow Water",pos:[1,1],bg:["#62c6f1","#dab675"],exits:{up:"beach",left:"reef",right:"wreck",down:"trench"},draw:F=>`
+ shallows:{name:"Shallow Water",pos:[1,1],bg:["#5cc4f0","#dab675"],exits:{up:"beach",left:"reef",right:"wreck",down:"trench"},draw:F=>`
   <rect width="400" height="300" fill="${LG("#5cc4f0","#1f8ac4")}"/>
   <g ${N} opacity=".35">${[[60,0],[170,0],[300,0]].map(([x])=>`<path d="M${x} 0 L${x+40} 0 L${x+90} 300 L${x+30} 300 Z" fill="#ffffff" opacity=".35"/>`).join("")}</g>
   <path d="M-10 250 Q100 232 200 244 Q300 230 410 248 V310 H-10 Z" fill="${LG("#f3dca0","#d6b06e")}" ${O} ${N}/>
@@ -52,7 +52,7 @@
   ${door("cabin","Hatch down into the cabin",`<rect x="180" y="176" width="56" height="34" rx="6" fill="${LG("#3a2414","#1a0f06")}" ${O}/><path d="M184 186 H232 M184 198 H232" stroke="#6a4024" stroke-width="3"/>`)}
   ${tagAt(208,168,"HATCH")}
   ${fish(330,80,-.8,"#ffcb2f")}${bubbles(90,110)}${seaweed(30,252,60)}${seaweed(376,254,46)}`},
- cabin:{name:"Captain's Cabin",pos:[2,2],bg:["#6b4531","#412917"],exits:{up:"wreck"},doors:{wreck:"up"},draw:F=>`
+ cabin:{stretchTop:false,name:"Captain's Cabin",pos:[2,2],bg:["#6a4430","#412917"],exits:{up:"wreck"},doors:{wreck:"up"},draw:F=>`
   <rect width="400" height="300" fill="${LG("#6a4430","#3e2618")}"/>
   <g ${N}>${Array.from({length:9},(_,i)=>`<path d="M0 ${i*34+10} H400" stroke="#2a190c" stroke-width="2" opacity=".5"/>`).join("")}
   <circle cx="84" cy="96" r="30" fill="${G("#c8963a")}" ${O}/><circle cx="84" cy="96" r="22" fill="${LG("#5cc4f0","#1f8ac4")}" ${O2}/>${fish(84,98,.5,"#ffcb2f")}</g>
@@ -64,7 +64,7 @@
   ${F.chest?`<g ${N}><rect x="290" y="208" width="84" height="40" rx="6" fill="${LG("#a06a40","#6a4024")}" ${O}/><path d="M290 208 Q332 168 374 208" fill="${G("#8a5a3a")}" ${O} transform="rotate(-24 290 208)"/><circle cx="332" cy="214" r="18" fill="#ffe066" opacity=".35"/></g>${place("golden",332,206,.5,{noShadow:true})}`
    :act("chest",F.key?"Treasure chest, you have the key":"Treasure chest",`<rect x="290" y="208" width="84" height="40" rx="6" fill="${LG("#a06a40","#6a4024")}" ${O}/><path d="M290 210 Q332 176 374 210 Z" fill="${G("#8a5a3a")}" ${O}/><rect x="324" y="204" width="16" height="18" rx="4" fill="${G("#ffcb2f")}" ${O2}/><circle cx="332" cy="212" r="2.4" fill="${INK}"/>`)}
   <g ${N}><rect x="150" y="196" width="70" height="44" rx="6" fill="${G("#8a5a3a")}" ${O}/><rect x="160" y="182" width="12" height="16" rx="4" fill="${G("#e8e0c8")}" ${O2}/><path d="M166 182 q-4 -8 0 -12 q4 4 0 12" fill="${G("#ffcb2f")}"/></g>`},
- trench:{name:"Deep Trench",pos:[1,2],bg:["#0a2544","#0c121b"],exits:{up:"shallows"},draw:F=>`
+ trench:{name:"Deep Trench",pos:[1,2],bg:["#0a2a4d","#0c121a"],exits:{up:"shallows"},draw:F=>`
   <rect width="400" height="300" fill="${LG(F.lamp?"#0e3a66":"#0a2a4d","#030c1a")}"/>
   ${F.lamp?`<circle cx="230" cy="150" r="150" fill="#9bffea" opacity=".08" ${N}/><circle cx="230" cy="150" r="90" fill="#9bffea" opacity=".08" ${N}/>`:""}
   <path d="M-10 262 Q100 248 200 256 Q300 246 410 262 V310 H-10 Z" fill="${LG(F.lamp?"#3a4a5a":"#141c26","#0a1018")}" ${O} ${N}/>

@@ -205,10 +205,12 @@ function fit(){
   CAM.minX=CAM.maxX=(w-CAM.W)/2; CAM.minY=CAM.maxY=(h-CAM.H)/2;
 }
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
-function paint(el=layer(),anim){ if(!el) return; const svg=el.querySelector("svg"); if(!svg) return;
-  svg.style.width=CAM.W+"px"; svg.style.height=CAM.H+"px";
-  svg.style.transition=anim?"transform .28s ease-out":"none";
-  svg.style.transform=`translate(${CAM.x.toFixed(1)}px,${CAM.y.toFixed(1)}px)`; }
+/* The svg fills the stage. Its viewBox shows the whole 400 x 300 scene and simply opens up past the edges,
+   so trees and sky that run off the picture keep going instead of stopping at a hard line. */
+function paint(el=layer()){ if(!el) return; const svg=el.querySelector("svg"); if(!svg) return;
+  const {w,h}=vp(), s=CAM.s||Math.min(w/400,h/300), vw=w/s, vh=h/s;
+  svg.setAttribute("viewBox",`${((400-vw)/2).toFixed(2)} ${((300-vh)/2).toFixed(2)} ${vw.toFixed(2)} ${vh.toFixed(2)}`);
+  svg.style.width=w+"px"; svg.style.height=h+"px"; svg.style.transform="none"; }
 function aim(){ fit(); CAM.x=CAM.minX; CAM.y=CAM.minY; }
 addEventListener("resize",()=>{ if(S.screen!=="world") return; aim(); paint(); });
 function show(id,dir){
@@ -241,8 +243,19 @@ document.addEventListener("keydown",e=>{
   const k={ArrowLeft:"left",ArrowRight:"right",ArrowUp:"up",ArrowDown:"down"}[e.key];
   if(k&&!(e.target.closest&&e.target.closest("input,textarea"))){ e.preventDefault(); go(k); }
 });
-/* Fill a layer with the scene at its fitted size. The space above and below uses the scene's own edge colors. */
-function fillLayer(el,id){ el.innerHTML=sceneSVG(id); paint(el); }
+/* Fill a layer with the scene. Past the picture's edges, a row of pixels just inside each edge is stretched
+   out to the screen's edges, so sky, walls, water and ground simply carry on with no seam. */
+function fillLayer(el,id){ el.innerHTML=sceneSVG(id);
+  const a=W[S.world].areas[id], svg=el.querySelector("svg");
+  if(svg){ const k=S.world+"-"+id, inner=svg.innerHTML;
+    const strip=(cid,x,y,w,h,tf)=>`<use href="#sc-${k}" clip-path="url(#${cid}-${k})" transform="${tf}"/>`;
+    const clips=`<clipPath id="cT-${k}"><rect x="-1" y="3" width="402" height="1"/></clipPath><clipPath id="cB-${k}"><rect x="-1" y="296" width="402" height="1"/></clipPath><clipPath id="cL-${k}"><rect x="3" y="-1" width="1" height="302"/></clipPath><clipPath id="cR-${k}"><rect x="396" y="-1" width="1" height="302"/></clipPath>`;
+    const ext=(a.stretchTop===false?"":strip("cT",0,0,0,0,"translate(0 4) scale(1 800) translate(0 -4)"))
+      +(a.stretchBottom===false?"":strip("cB",0,0,0,0,"translate(0 296) scale(1 800) translate(0 -296)"))
+      +strip("cL",0,0,0,0,"translate(4 0) scale(800 1) translate(-4 0)")
+      +strip("cR",0,0,0,0,"translate(396 0) scale(800 1) translate(-396 0)");
+    svg.innerHTML=`<defs>${clips}</defs><g id="sc-${k}">${inner}</g><g pointer-events="none" aria-hidden="true">${ext}</g>`; }
+  paint(el); }
 function rerender(){ const l=layer(); if(l) fillLayer(l,S.area); }
 function catchDuck(g){
   const id=g.dataset.duck, d=DUCK[id], w=W[S.world]; if(S.found.has(id)) return;
