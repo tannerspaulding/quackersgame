@@ -26,11 +26,11 @@
    <path d="M248 172 Q274 154 300 172" fill="none" stroke="#c89260" stroke-width="5" stroke-linecap="round"/><ellipse cx="274" cy="214" rx="20" ry="4" fill="${G("#efe8da")}" ${O2}/></g>`)}
   ${place("normal",218,244,.95)}${T("a1",72,236)}${T("a2",360,268)}
   <rect x="320" y="196" width="11" height="58" rx="4" fill="${LG("#b5835a","#8a5a33")}" ${O} ${N}/>
-  ${F.mail ? place("mail",300,184,.58,{flip:true,noShadow:true}) : ""}
   ${act("mail","Mailbox",`<path d="M300 198 V178 Q300 162 316 162 H334 Q350 162 350 178 V198 Z" fill="${LG("#7cc0ff","#2387d9")}" ${O}/>
    <ellipse cx="312" cy="170" rx="6" ry="3" fill="#fff" opacity=".6"/>
    ${F.mail ? `<path d="M300 198 L282 206 L282 186 L300 178 Z" fill="${LG("#7cc0ff","#2387d9")}" ${O}/>` : `<path d="M300 198 V178 Q300 166 308 163" fill="none" ${O2}/>`}
-   <path d="M350 186 h8 v-18 h14 v9 h-14" fill="${G("#ff5c5c")}" ${O2}/>`)}`},
+   <path d="M350 186 h8 v-18 h14 v9 h-14" fill="${G("#ff5c5c")}" ${O2}/>`)}
+  ${F.mail ? place("mail",296,188,.5,{flip:true,noShadow:true}) : ""}`},
  garden:{name:"Garden",pos:[0,1],bg:["#8fd3ff","#58ae40"],exits:{right:"yard"},draw:F=>`
   ${sky("#8fd3ff","#e6f7ff")}${cloud(250,60,.9)}
   <path d="M-10 170 Q200 140 410 168 V300 H-10Z" fill="${LG("#a5de7c","#5fb244")}" ${O}/>

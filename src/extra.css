@@ -40,3 +40,23 @@
 #navPick{position:fixed;z-index:9;left:max(10px,env(safe-area-inset-left));top:calc(max(10px,env(safe-area-inset-top)) + 58px);display:flex;align-items:center;gap:4px;background:var(--ink);color:#fff;border-radius:999px;padding:4px 6px 4px 12px;font-family:var(--display);font-size:.75rem}
 #navPick button{width:32px;height:32px;border-radius:50%;border:2px solid #fff;background:transparent;color:#fff;font-family:var(--display);font-weight:900;font-size:.85rem}
 #navPick button[aria-pressed="true"]{background:var(--duck);color:var(--ink)}
+
+/* Side quests */
+.badge.quest{margin-left:auto;background:#FFF3C4;padding:1px 9px 1px 7px}
+.badge.quest+.badge{margin-left:6px}
+.badge.quest .qlab{font-size:.68rem;letter-spacing:.02em;text-transform:uppercase;margin-right:2px}
+.badge.quest.ready{background:#9FF0C8;animation:qglow 1.4s ease-in-out infinite}
+@keyframes qglow{50%{box-shadow:0 3px 0 var(--ink),0 0 0 5px rgba(76,210,160,.45)}}
+.badge.quest.pop{animation:pop .45s ease-out}
+.qintro{text-align:center;font-size:1.1rem}
+.qlist{display:grid;gap:10px;max-width:460px;margin:0 auto}
+.qcard{display:flex;gap:10px;align-items:center;border:3px solid var(--ink);border-radius:18px;background:#fff;padding:8px 10px}
+.qcard.ready{background:#E3FBEF}
+.qart{width:74px;height:74px;flex:none}
+.qtxt{display:flex;flex-direction:column;gap:4px;min-width:0}
+.qtxt b{font-family:var(--display);font-size:1.02rem}
+.qtxt small{font-family:var(--note);font-size:1rem;line-height:1.2;color:var(--dim)}
+.qbar{display:block;height:10px;border:2px solid var(--ink);border-radius:9px;background:var(--mist);overflow:hidden}
+.qbar i{display:block;height:100%;background:#4cd2a0}
+.qnow{font-family:var(--display);font-weight:800;font-size:.9rem}
+@media (max-width:370px){.badge.quest .qlab{display:none}}

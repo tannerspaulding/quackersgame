@@ -172,6 +172,7 @@ function enterWorld(id){
   const start=(S.last[id]&&w.areas[S.last[id]])?S.last[id]:w.start;
   show(start);
   if(!S.seen.has(id)){ S.seen.add(id); intro(w); }
+  questIntro(w);
   const h=holHere();
   if(holLive(h)&&tokGot(h)===0) setTimeout(()=>{ if(S.world===id&&S.screen==="world") toast(`A ${h.holiday} visitor is in ${w.name}! Find ${tokAll(h)} hidden acorns.`,3400); },2700);
 }
@@ -186,15 +187,41 @@ function miniMap(){
   const w=W[S.world]; const {cols,rows}=gridOf(w);
   return `<svg width="${cols*11+2}" height="${rows*11+2}" viewBox="0 0 ${cols*11+2} ${rows*11+2}" aria-hidden="true">${Object.entries(w.areas).map(([k,a])=>`<rect x="${a.pos[0]*11+1}" y="${a.pos[1]*11+1}" width="10" height="10" rx="3" fill="${k===S.area?"#FFCB2F":"#C9F2D6"}" stroke="#173A5E" stroke-width="1.8"/>`).join("")}</svg>`;
 }
+/* ---------- Side quests ---------- */
+/* A world's side quests: its helper (every duck you find gives you a token to bring to it) and this month's holiday duck task. */
+function quests(w){ const out=[], hd=helperDuck(w);
+  if(w.helper&&hd&&!S.found.has(hd.id)){ const h=w.helper, got=tokensFor(w), need=regDucks(w).length;
+    out.push({kind:"helper",title:`Help the ${h.name}`,art:h.art(false),icon:`<g transform="scale(.62)">${ICONS[h.icon](1)}</g>`,got,need,plural:h.plural,ready:got>=need,
+      how:`Every duck you find gives you a ${h.token}. Bring all ${need} ${h.plural} to the ${h.name} in the ${w.areas[hd.area].name} and tap it. Then the ${h.name} joins your Duck Log as the last duck!`,
+      now:got>=need?`You have all ${need}! Go to the ${w.areas[hd.area].name} and tap the ${h.name}.`:`You have ${got} of ${need} ${h.plural}. Keep finding ducks!`}); }
+  const hol=HOL.find(x=>x.world===w.id);
+  if(holLive(hol)){ const got=tokGot(hol), need=tokAll(hol);
+    out.push({kind:"holiday",title:`${hol.holiday}: find the ${hol.name}`,art:hol.art(),icon:`<g transform="translate(0 -1) scale(.72)">${acornIcon(1)}</g>`,got,need,plural:"acorns",ready:got>=need,
+      how:`For ${hol.holiday}, ${need} acorns are hidden around ${w.name}. Tap each one to pick it up. Once you have them all, the ${hol.name} comes out to play somewhere in this world.`,
+      now:got>=need?`You have all ${need} acorns! Now search for the ${hol.name}.`:`You have ${got} of ${need} acorns.`}); }
+  return out; }
+function openQuests(first){ const w=W[S.world], qs=quests(w);
+  if(!qs.length){ openSheet(`<p class="note">No side quests left in ${w.name}. Nice work!</p>`,"Side quests"); return; }
+  openSheet(`${first?`<p class="note qintro">New side quest! These are extra jobs you can do while you hunt for ducks.</p>`:""}<div class="qlist">${qs.map(q=>`<div class="qcard${q.ready?" ready":""}">
+    <svg class="qart" viewBox="-46 -60 92 92" aria-hidden="true">${q.art}</svg>
+    <div class="qtxt"><b>${q.title}</b><small>${q.how}</small>
+    <span class="qbar"><i style="width:${q.need?q.got/q.need*100:0}%"></i></span><span class="qnow">${q.now}</span></div></div>`).join("")}</div>
+    <div class="menu" style="margin-top:12px"><button type="button" class="mbtn leave" id="qGo">${first?"Let's go!":"Back to the hunt"}</button></div>`,"Side quests");
+  $("qGo").addEventListener("click",closeSheet); }
+function questPulse(){ const q=$("questPill"); if(q.hidden) return; q.classList.remove("pop"); void q.offsetWidth; q.classList.add("pop"); }
+function questIntro(w){ const f=S.flags[w.id]=S.flags[w.id]||{}; if(f._quest||!quests(w).length) return;
+  setTimeout(()=>{ if(S.screen!=="world"||S.world!==w.id||!$("sheet").hidden||!$("done").hidden) return; f._quest=true; save(); openQuests(true); },2900); }
 function renderHud(pop){
   const w=W[S.world];
   const p=$("areaPill"); p.innerHTML=miniMap()+w.areas[S.area].name;
   if(pop){p.classList.remove("pop");void p.offsetWidth;p.classList.add("pop");}
   const n=wFound(w), t=wTotal(w), b=$("countPill"), h=holHere();
-  let tok="", lab=`Duck Log: ${n} of ${t} found`;
-  if(holLive(h)){ tok=`<i class="sep"></i><svg width="18" height="20" viewBox="-11 -14 22 30" aria-hidden="true">${acornIcon(1)}</svg>${tokGot(h)}/${tokAll(h)}`; lab+=`, ${tokGot(h)} of ${tokAll(h)} acorns`; }
-  b.setAttribute("aria-label",lab);
-  b.innerHTML=`<svg width="26" height="22" viewBox="-36 -44 78 70" aria-hidden="true">${toyDuck(YEL)}</svg>${n}/${t}${tok}`;
+  b.setAttribute("aria-label",`Duck Log: ${n} of ${t} found`);
+  b.innerHTML=`<svg width="26" height="22" viewBox="-36 -44 78 70" aria-hidden="true">${toyDuck(YEL)}</svg>${n}/${t}`;
+  const q=$("questPill"), qs=quests(w);
+  q.hidden=!qs.length; q.classList.toggle("ready",qs.some(x=>x.ready));
+  q.innerHTML=`<span class="qlab">Quest</span>`+qs.map(x=>`<svg width="18" height="18" viewBox="-12 -12 24 24" aria-hidden="true">${x.icon}</svg>${x.got}/${x.need}`).join(`<i class="sep"></i>`);
+  q.setAttribute("aria-label","Side quests: "+qs.map(x=>`${x.got} of ${x.need} ${x.plural}`).join(", "));
   flush();
 }
 function bumpBadge(){ const b=$("countPill"); b.classList.remove("pop"); void b.offsetWidth; b.classList.add("pop"); }
@@ -297,7 +324,7 @@ function catchDuck(g){
   const every=wDucks(w).every(x=>S.found.has(x.id));
   let msg=`${d.name} found!`;
   if(w.helper&&!d.helper){ const n=tokensFor(w), need=regDucks(w).length, h=w.helper;
-    msg=n<need?`${d.name} found! You got a ${h.token}: ${n} of ${need}.`:`${d.name} found! That's all ${need} ${h.plural}. Bring them to the ${h.name}!`; }
+    msg=n<need?`${d.name} found! Side quest: +1 ${h.token} for the ${h.name} (${n} of ${need}).`:`${d.name} found! Side quest: that's all ${need} ${h.plural}. Bring them to the ${h.name}!`; setTimeout(questPulse,60); }
   if(d.tier==="Holiday") msg=`You found the ${d.name}! Happy ${d.holiday}!`;
   else if(every) msg=`Every ${w.name} duck found!`;
   toast(msg,every||d.tier==="Holiday"||w.helper?2800:1900);
@@ -421,21 +448,23 @@ function useSparkle(d){
   pop(); toast(botReady?"Beep boop! The Crow Bot found a duck.":`Sparkle! ${S.spark} Duck Sparkle${S.spark===1?"":"s"} left.`,2200);
 }
 $("tabHint").addEventListener("click",hint);
-$("countPill").addEventListener("click",openLog);
+$("countPill").addEventListener("click",openLog); $("questPill").addEventListener("click",()=>openQuests(false));
 $("exitBtn").addEventListener("click",goHome);
 $("homeBtn").addEventListener("click",goHome);
 const IC={
  log:`<svg viewBox="-36 -44 78 70" aria-hidden="true">${toyDuck(YEL)}</svg>`,
+ quest:`<svg viewBox="0 0 26 26" aria-hidden="true"><path d="M6 4 H19 Q22 4 22 7 V21 Q22 23 20 23 H7 Q4 23 4 20 V6 Q4 4 6 4 Z" fill="#FFF3C4" stroke="#173A5E" stroke-width="2.2" stroke-linejoin="round"/><path d="M8 10 L10 12 L13 8 M8 17 L10 19 L13 15 M15 11 H19 M15 18 H19" fill="none" stroke="#173A5E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
  map:`<svg viewBox="0 0 26 26" aria-hidden="true"><path d="M3 6 L9 4 L17 7 L23 5 V20 L17 22 L9 19 L3 21 Z" fill="#C9F2D6" stroke="#173A5E" stroke-width="2.2" stroke-linejoin="round"/><path d="M9 4 V19 M17 7 V22" stroke="#173A5E" stroke-width="2"/></svg>`,
  shop:`<svg viewBox="0 0 26 26" aria-hidden="true"><path d="M5 9 H21 L20 22 H6 Z" fill="#3FB86A" stroke="#173A5E" stroke-width="2.4" stroke-linejoin="round"/><path d="M9 11 V8 A4 4 0 0 1 17 8 V11" fill="none" stroke="#173A5E" stroke-width="2.4"/></svg>`,
  games:`<svg viewBox="0 0 26 26" aria-hidden="true"><rect x="3" y="8" width="20" height="12" rx="6" fill="#B48CFF" stroke="#173A5E" stroke-width="2.4"/><path d="M8 12 V16 M6 14 H10" stroke="#173A5E" stroke-width="2.2" stroke-linecap="round"/></svg>`};
 function openMenu(){ const w=W[S.world];
   openSheet(`<div class="menu"><button type="button" class="mbtn" id="mLog">${IC.log}Duck Log<span class="count">${wFound(w)}/${wTotal(w)}</span></button>
    <button type="button" class="mbtn" id="mMap">${IC.map}Map</button>
+   ${quests(w).length?`<button type="button" class="mbtn" id="mQuest">${IC.quest}Side quests</button>`:""}
    <button type="button" class="mbtn games" id="mGames">${IC.games}Mini games</button>
    <button type="button" class="mbtn" id="mSound">${S.sound?SND_ON:SND_OFF}Sound: ${S.sound?"on":"off"}</button>
    <button type="button" class="mbtn leave" id="mLeave">Leave ${w.name}</button></div>`,"Paused");
-  $("mLog").addEventListener("click",openLog); $("mMap").addEventListener("click",openMap);
+  $("mLog").addEventListener("click",openLog); $("mMap").addEventListener("click",openMap); if($("mQuest")) $("mQuest").addEventListener("click",()=>openQuests(false));
   $("mGames").addEventListener("click",openGames); $("mLeave").addEventListener("click",goHome);
   $("mSound").addEventListener("click",()=>{ toggleSound(); openMenu(); });
 }

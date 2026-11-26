@@ -39,7 +39,7 @@
   ${bushBall(110,236,20,"#ff6f91")}${bushBall(270,240,16,"#ffb35c")}</g>
   ${place("coral",196,206,.6)}
   ${fish(120,90,.9,"#4fb3ff")}${fish(310,120,-.9,"#ffcb2f")}${bubbles(60,140)}
-  ${F.clam?`<g ${N}><g transform="translate(314 214) scale(1 -.55)">${scallop("#ffc9d6","#ff9fb6")}</g><path d="M284 254 Q314 270 344 254 Q314 246 284 254 Z" fill="${G("#ffb3c6")}" ${O}/><circle cx="326" cy="250" r="5.5" fill="${G("#ffffff")}" ${O2}/></g>${place("clam",312,236,.42,{noShadow:true})}`
+  ${F.clam?`<g ${N}><g transform="translate(314 250) scale(1 .9)">${scallop("#ffc9d6","#ff9fb6")}</g></g>${place("clam",312,246,.5,{noShadow:true})}<g ${N}><path d="M278 252 Q314 274 350 252 Q314 262 278 252 Z" fill="${G("#ffb3c6")}" ${O}/><circle cx="332" cy="254" r="5" fill="${G("#ffffff")}" ${O2}/></g>`
    :act("clam","Big shell",`<g transform="translate(314 256)">${scallop("#ffc9d6","#ff9fb6")}</g>`)}`},
  wreck:{name:"Shipwreck",pos:[2,1],bg:["#2f8fc8","#b69861"],exits:{left:"shallows",down:"cabin"},doors:{cabin:"down"},draw:F=>`
   <rect width="400" height="300" fill="${LG("#2f8fc8","#155d8a")}"/>
