@@ -560,7 +560,6 @@ body.onhome .home{padding:76px 0 112px;padding:calc(76px + env(safe-area-inset-t
 .mbtn.forget:disabled{opacity:.7}
 @media (prefers-reduced-motion:reduce){.ibform textarea.shake{animation:none}}
 .ibyou{font-style:normal;font-size:.85rem;color:var(--dim)}
-.ibvote.mine{opacity:.7}
 .ibwait{margin:0;font-family:var(--note);font-size:1.08rem;text-align:center;color:var(--dim)}
 .ibwin{display:flex;flex-wrap:wrap;align-items:center;gap:6px;background:#FFF7D6;border:3px solid var(--ink);border-radius:16px;padding:10px;color:var(--ink)}
 .ibwin>b{flex-basis:100%;font-family:var(--display);font-weight:900}
@@ -758,7 +757,7 @@ button.chip:active{transform:translateY(2px);box-shadow:none}
    Idea box:
      QStats.ideas().then(r => ...)            // {ok, month, ends, rows:[{id,kind,text,votes,voted,mine}], mine:[{id,kind,text,status,votes}], winner}
      QStats.suggestIdea("duck"|"world", text) // {ok,id,status:"waiting",msg} or {ok:false,msg,why}; checked here first, then on the server
-     QStats.vote(id, true|false)              // {ok, votes, voted} or {ok:false,msg,why:"own"}
+     QStats.vote(id, true|false)              // {ok, votes, voted} or {ok:false,msg}
    Friend link (load this file before the game reads the URL; it keeps ?f=<code> on a new device, tidies the
    address bar, and claims the friend credit by itself after the first duck is found):
      QStats.friend().then(r => ...)           // {ok, code, friends, link}; unlock the bonus duck when friends >= 1
@@ -2887,16 +2886,17 @@ async function loadIdeas(){
   const rows=(r.rows||[]).slice().sort((a,b)=>b.votes-a.votes);
   el.className="";
   el.innerHTML=rows.length?`<ol class="iblist">${rows.map((x,i)=>`<li class="ibrow${i===0&&x.votes>0?" top":""}">${i===0&&x.votes>0?`<span class="ibcrown" aria-label="Most votes">${sv("-14 -18 28 22",ACC.crown().replace('translate(12 -31)','translate(0 0)'))}</span>`:""}${kindTag(x.kind)}<span class="ibt">${ibEsc(x.text)}${x.mine?` <i class="ibyou">(yours)</i>`:""}</span>
-     ${x.mine?`<span class="ibvote mine" aria-label="${x.votes} votes">${HEART}<b>${x.votes}</b></span>`:`<button type="button" class="ibvote${x.voted?" on":""}" data-id="${ibEsc(x.id)}" aria-pressed="${x.voted?"true":"false"}" aria-label="${x.voted?"Take back your vote":"Vote for this idea"}, ${x.votes} votes">${HEART}<b>${x.votes}</b></button>`}</li>`).join("")}</ol>`
+     <button type="button" class="ibvote${x.voted?" on":""}" data-id="${ibEsc(x.id)}" aria-pressed="${x.voted?"true":"false"}" aria-label="${x.voted?"Take back your vote":"Vote for this idea"}, ${x.votes} votes">${HEART}<b>${x.votes}</b></button></li>`).join("")}</ol>`
     :`<p class="lbload">No ideas on the board yet this month. Be the first!</p>`;
   el.querySelectorAll("button.ibvote").forEach(b=>b.addEventListener("click",async()=>{
     const on=b.getAttribute("aria-pressed")!=="true"; b.disabled=true;
     const v=await QStats.vote(b.dataset.id,on); if(!b.isConnected) return; b.disabled=false;
     if(!v||!v.ok){ blip(); return; }
     b.classList.toggle("on",!!v.voted); b.setAttribute("aria-pressed",String(!!v.voted)); b.querySelector("b").textContent=v.votes;
-    b.setAttribute("aria-label",`${v.voted?"Take back your vote":"Vote for this idea"}, ${v.votes} votes`); if(v.voted) pop(); }));
+    b.setAttribute("aria-label",`${v.voted?"Take back your vote":"Vote for this idea"}, ${v.votes} votes`); if(v.voted) pop();
+    const mv=$("ibMine")&&$("ibMine").querySelector(`[data-votes="${b.dataset.id}"]`); if(mv) mv.textContent=v.votes; }));
   const mine=r.mine||[], win=r.winner, st={waiting:"Waiting for a grown-up",approved:"On the board",declined:"Not this time"};
-  $("ibMine").innerHTML=(mine.length?`<h4 class="ibh">Your ideas this month</h4><ul class="ibmine">${mine.map(x=>`<li>${kindTag(x.kind)}<span class="ibt">${x.text?ibEsc(x.text):"(idea removed)"}</span><em class="ibst ${ibEsc(x.status)}">${st[x.status]||""}${x.status==="approved"?` · ${x.votes} votes`:""}</em></li>`).join("")}</ul><small class="ibnote">You can send 3 ideas a month.</small>`:"")
+  $("ibMine").innerHTML=(mine.length?`<h4 class="ibh">Your ideas this month</h4><ul class="ibmine">${mine.map(x=>`<li>${kindTag(x.kind)}<span class="ibt">${x.text?ibEsc(x.text):"(idea removed)"}</span><em class="ibst ${ibEsc(x.status)}">${st[x.status]||""}${x.status==="approved"?` · <span data-votes="${ibEsc(x.id)}">${x.votes}</span> votes`:""}</em></li>`).join("")}</ul><small class="ibnote">You can send 3 ideas a month.</small>`:"")
     +(win?`<div class="ibwin"><b>Last month's winner</b>${kindTag(win.kind)}<span class="ibt">${ibEsc(win.text)}</span><small>${win.made?"Mitchell made it! Look for it in the game.":`${win.votes} votes. Mitchell is looking at it!`}</small></div>`:"");
 }
 

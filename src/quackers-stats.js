@@ -24,7 +24,7 @@
    Idea box:
      QStats.ideas().then(r => ...)            // {ok, month, ends, rows:[{id,kind,text,votes,voted,mine}], mine:[{id,kind,text,status,votes}], winner}
      QStats.suggestIdea("duck"|"world", text) // {ok,id,status:"waiting",msg} or {ok:false,msg,why}; checked here first, then on the server
-     QStats.vote(id, true|false)              // {ok, votes, voted} or {ok:false,msg,why:"own"}
+     QStats.vote(id, true|false)              // {ok, votes, voted} or {ok:false,msg}
    Friend link (load this file before the game reads the URL; it keeps ?f=<code> on a new device, tidies the
    address bar, and claims the friend credit by itself after the first duck is found):
      QStats.friend().then(r => ...)           // {ok, code, friends, link}; unlock the bonus duck when friends >= 1

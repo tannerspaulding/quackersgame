@@ -56,16 +56,17 @@ async function loadIdeas(){
   const rows=(r.rows||[]).slice().sort((a,b)=>b.votes-a.votes);
   el.className="";
   el.innerHTML=rows.length?`<ol class="iblist">${rows.map((x,i)=>`<li class="ibrow${i===0&&x.votes>0?" top":""}">${i===0&&x.votes>0?`<span class="ibcrown" aria-label="Most votes">${sv("-14 -18 28 22",ACC.crown().replace('translate(12 -31)','translate(0 0)'))}</span>`:""}${kindTag(x.kind)}<span class="ibt">${ibEsc(x.text)}${x.mine?` <i class="ibyou">(yours)</i>`:""}</span>
-     ${x.mine?`<span class="ibvote mine" aria-label="${x.votes} votes">${HEART}<b>${x.votes}</b></span>`:`<button type="button" class="ibvote${x.voted?" on":""}" data-id="${ibEsc(x.id)}" aria-pressed="${x.voted?"true":"false"}" aria-label="${x.voted?"Take back your vote":"Vote for this idea"}, ${x.votes} votes">${HEART}<b>${x.votes}</b></button>`}</li>`).join("")}</ol>`
+     <button type="button" class="ibvote${x.voted?" on":""}" data-id="${ibEsc(x.id)}" aria-pressed="${x.voted?"true":"false"}" aria-label="${x.voted?"Take back your vote":"Vote for this idea"}, ${x.votes} votes">${HEART}<b>${x.votes}</b></button></li>`).join("")}</ol>`
     :`<p class="lbload">No ideas on the board yet this month. Be the first!</p>`;
   el.querySelectorAll("button.ibvote").forEach(b=>b.addEventListener("click",async()=>{
     const on=b.getAttribute("aria-pressed")!=="true"; b.disabled=true;
     const v=await QStats.vote(b.dataset.id,on); if(!b.isConnected) return; b.disabled=false;
     if(!v||!v.ok){ blip(); return; }
     b.classList.toggle("on",!!v.voted); b.setAttribute("aria-pressed",String(!!v.voted)); b.querySelector("b").textContent=v.votes;
-    b.setAttribute("aria-label",`${v.voted?"Take back your vote":"Vote for this idea"}, ${v.votes} votes`); if(v.voted) pop(); }));
+    b.setAttribute("aria-label",`${v.voted?"Take back your vote":"Vote for this idea"}, ${v.votes} votes`); if(v.voted) pop();
+    const mv=$("ibMine")&&$("ibMine").querySelector(`[data-votes="${b.dataset.id}"]`); if(mv) mv.textContent=v.votes; }));
   const mine=r.mine||[], win=r.winner, st={waiting:"Waiting for a grown-up",approved:"On the board",declined:"Not this time"};
-  $("ibMine").innerHTML=(mine.length?`<h4 class="ibh">Your ideas this month</h4><ul class="ibmine">${mine.map(x=>`<li>${kindTag(x.kind)}<span class="ibt">${x.text?ibEsc(x.text):"(idea removed)"}</span><em class="ibst ${ibEsc(x.status)}">${st[x.status]||""}${x.status==="approved"?` · ${x.votes} votes`:""}</em></li>`).join("")}</ul><small class="ibnote">You can send 3 ideas a month.</small>`:"")
+  $("ibMine").innerHTML=(mine.length?`<h4 class="ibh">Your ideas this month</h4><ul class="ibmine">${mine.map(x=>`<li>${kindTag(x.kind)}<span class="ibt">${x.text?ibEsc(x.text):"(idea removed)"}</span><em class="ibst ${ibEsc(x.status)}">${st[x.status]||""}${x.status==="approved"?` · <span data-votes="${ibEsc(x.id)}">${x.votes}</span> votes`:""}</em></li>`).join("")}</ul><small class="ibnote">You can send 3 ideas a month.</small>`:"")
     +(win?`<div class="ibwin"><b>Last month's winner</b>${kindTag(win.kind)}<span class="ibt">${ibEsc(win.text)}</span><small>${win.made?"Mitchell made it! Look for it in the game.":`${win.votes} votes. Mitchell is looking at it!`}</small></div>`:"");
 }
 

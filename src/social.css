@@ -46,7 +46,6 @@
 .mbtn.forget:disabled{opacity:.7}
 @media (prefers-reduced-motion:reduce){.ibform textarea.shake{animation:none}}
 .ibyou{font-style:normal;font-size:.85rem;color:var(--dim)}
-.ibvote.mine{opacity:.7}
 .ibwait{margin:0;font-family:var(--note);font-size:1.08rem;text-align:center;color:var(--dim)}
 .ibwin{display:flex;flex-wrap:wrap;align-items:center;gap:6px;background:#FFF7D6;border:3px solid var(--ink);border-radius:16px;padding:10px;color:var(--ink)}
 .ibwin>b{flex-basis:100%;font-family:var(--display);font-weight:900}
