@@ -1,0 +1,9 @@
+.monpill{position:absolute;z-index:6;left:50%;bottom:calc(max(14px,env(safe-area-inset-bottom)) + 88px);transform:translateX(-50%);display:flex;align-items:center;gap:8px;max-width:calc(100% - 24px);padding:6px 8px 6px 10px;border:3px solid #173A5E;border-radius:999px;background:#FF5A5A;color:#fff;font-family:var(--display);font-weight:900;font-size:1rem;line-height:1.1;box-shadow:0 4px 0 #173A5E;pointer-events:none;animation:monpulse 1s ease-in-out infinite}
+.monpill span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.monpill b{flex:none;min-width:34px;height:34px;display:grid;place-items:center;border-radius:50%;background:#fff;color:#173A5E;font-size:1.05rem}
+.monpill.here{background:#8E44AD}
+.monpill.hurry b{background:#FFE066}
+@keyframes monpulse{50%{transform:translateX(-50%) scale(1.05)}}
+.monwig{animation:monwig .7s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:50% 100%}
+@keyframes monwig{from{transform:rotate(-6deg) translateY(0)}to{transform:rotate(6deg) translateY(-4px)}}
+@media (prefers-reduced-motion:reduce){.monpill,.monwig{animation:none}}

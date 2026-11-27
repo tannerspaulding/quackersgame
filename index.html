@@ -581,6 +581,16 @@ body.onhome .home{padding:76px 0 112px;padding:calc(76px + env(safe-area-inset-t
 @media (max-width:440px){.hud{gap:4px}.badge.quest .qlab{display:none}.badge{padding:1px 6px 1px 3px;gap:2px;font-size:.95rem}.badge.quest+.badge,.badge.spec,.badge.hol{margin-left:0}.badge svg{max-width:20px;max-height:20px}#areaPill{padding-right:8px}}
 @media (max-width:440px){#areaPill{font-size:0;gap:0;padding-right:5px;flex:0 0 auto}}
 
+.monpill{position:absolute;z-index:6;left:50%;bottom:calc(max(14px,env(safe-area-inset-bottom)) + 88px);transform:translateX(-50%);display:flex;align-items:center;gap:8px;max-width:calc(100% - 24px);padding:6px 8px 6px 10px;border:3px solid #173A5E;border-radius:999px;background:#FF5A5A;color:#fff;font-family:var(--display);font-weight:900;font-size:1rem;line-height:1.1;box-shadow:0 4px 0 #173A5E;pointer-events:none;animation:monpulse 1s ease-in-out infinite}
+.monpill span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.monpill b{flex:none;min-width:34px;height:34px;display:grid;place-items:center;border-radius:50%;background:#fff;color:#173A5E;font-size:1.05rem}
+.monpill.here{background:#8E44AD}
+.monpill.hurry b{background:#FFE066}
+@keyframes monpulse{50%{transform:translateX(-50%) scale(1.05)}}
+.monwig{animation:monwig .7s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:50% 100%}
+@keyframes monwig{from{transform:rotate(-6deg) translateY(0)}to{transform:rotate(6deg) translateY(-4px)}}
+@media (prefers-reduced-motion:reduce){.monpill,.monwig{animation:none}}
+
 </style>
 </head>
 <body>
@@ -1134,6 +1144,35 @@ function toyCrab(){
   <path d="M-4 6 Q0 9 4 6" stroke="${INK}" stroke-width="1.6" fill="none" stroke-linecap="round"/>`;
 }
 toyEagle=soften(toyEagle); toyPlatypus=soften(toyPlatypus); toyCrab=soften(toyCrab);
+
+/* ---------- Space world: things ducks wear, the Alien helper, its moon rocks and the space monster ---------- */
+Object.assign(ACC,{
+  helmet:()=>`<circle cx="15" cy="-17" r="23" fill="#dff4ff" fill-opacity=".38" stroke="${INK}" stroke-opacity=".45" stroke-width="2.2"/><path d="M2 -32 Q10 -39 20 -37" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".85"/><rect x="-6" y="2" width="38" height="6" rx="3" fill="${G("#dfe5ec")}" ${O2}/>`,
+  eye3:()=>`<ellipse cx="8" cy="-27" rx="4.6" ry="5" fill="#fff" stroke="${INK}" stroke-opacity=".5" stroke-width="1.3"/><ellipse cx="9" cy="-26.5" rx="2.6" ry="3.2" fill="#1a1a1a"/><circle cx="9.8" cy="-28" r=".9" fill="#fff"/><path d="M4 -34 Q12 -38 16 -33" fill="none" stroke="${INK}" stroke-opacity=".5" stroke-width="1.6" stroke-linecap="round"/>`,
+  slime:()=>`<path d="M-8 -30 Q2 -40 20 -34 Q24 -28 20 -22 Q18 -16 14 -20 Q12 -26 8 -22 Q4 -14 0 -22 Q-6 -28 -8 -30 Z" fill="${G("#7cf06a")}" fill-opacity=".9" ${O2}/><path d="M-20 6 Q-22 16 -18 18 Q-14 16 -16 8" fill="${G("#7cf06a")}" ${O2}/>`,
+  sparks:()=>`${spark(-30,-24,1,"#9fe7ff")}${spark(34,-34,.8,"#ffe066")}${spark(-34,10,.7,"#9fe7ff")}<path d="M28 -6 l6 -4 l-2 6 l6 -2" fill="none" stroke="#ffe066" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>`,
+  comet:()=>`<path d="M-24 -2 Q-52 -16 -64 -6 Q-48 -6 -40 2 Q-52 6 -60 16 Q-42 14 -24 10 Z" fill="${G("#ffe066")}" fill-opacity=".75" ${O2}/>`,
+});
+function rockIcon(s=1){ return `<g transform="scale(${s})"><path d="M-12 4 Q-14 -8 -4 -12 Q8 -14 12 -4 Q15 8 4 12 Q-8 14 -12 4 Z" fill="${G("#b9a8e0")}" ${O2}/><circle cx="-4" cy="-3" r="3" fill="#8f7cc4"/><circle cx="5" cy="4" r="2.2" fill="#8f7cc4"/>${spark(9,-11,.45,"#fff6c9")}</g>`; }
+function toyAlien(done){
+  return `<path d="M-10 20 l-4 8 M10 20 l4 8" stroke="${INK}" stroke-opacity=".5" stroke-width="4" stroke-linecap="round"/>
+  <path d="M-14 -2 Q-30 4 -32 16 M14 -2 Q30 4 32 16" fill="none" stroke="${G("#7fd04e")}" stroke-width="6" stroke-linecap="round"/>
+  <path d="M-15 -4 Q-18 22 0 24 Q18 22 15 -4 Z" fill="${G("#7fd04e")}" ${O}/>
+  <path d="M-6 -36 L-12 -50 M6 -36 L12 -50" stroke="#5aa832" stroke-width="2.6" stroke-linecap="round"/><circle cx="-12" cy="-51" r="4" fill="${G("#ff6fa6")}" ${O2}/><circle cx="12" cy="-51" r="4" fill="${G("#ff6fa6")}" ${O2}/>
+  <ellipse cx="0" cy="-20" rx="22" ry="18" fill="${G("#8fe05a")}" ${O}/>
+  <ellipse cx="-9" cy="-22" rx="7" ry="9" fill="#1a1a1a"/><ellipse cx="9" cy="-22" rx="7" ry="9" fill="#1a1a1a"/><circle cx="-7" cy="-26" r="2.6" fill="#fff"/><circle cx="11" cy="-26" r="2.6" fill="#fff"/>
+  <path d="M-6 -9 Q0 -5 6 -9" fill="none" stroke="#2f6a1c" stroke-width="2.2" stroke-linecap="round"/>
+  ${done?crownAt(0,-36):`<g transform="translate(18 12)">${rockIcon(.62)}</g>`}`;
+}
+/* The space monster: a silly one-eyed blob, more goofy than scary. */
+function monsterArt(){
+  return `<path d="M-30 18 Q-34 -30 0 -32 Q34 -30 30 18 Q24 12 18 20 Q12 12 6 20 Q0 12 -6 20 Q-12 12 -18 20 Q-24 12 -30 18 Z" fill="${G("#a066e0")}" ${O}/>
+  <path d="M-30 14 Q-46 6 -44 -8 M30 14 Q46 6 44 -8" fill="none" stroke="${G("#a066e0")}" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="0" cy="-10" r="13" fill="#fff" stroke="${INK}" stroke-opacity=".4" stroke-width="1.6"/><circle cx="3" cy="-8" r="6.5" fill="#1a1a1a"/><circle cx="5" cy="-10" r="2.2" fill="#fff"/>
+  <path d="M-12 6 Q0 14 12 6" fill="#5a1f7a" stroke="${INK}" stroke-opacity=".4" stroke-width="1.4"/><path d="M-2 9 Q2 18 6 9" fill="#ff6fa6"/>
+  <circle cx="-18" cy="-20" r="3" fill="#c79bff"/><circle cx="20" cy="-18" r="2.4" fill="#c79bff"/>`;
+}
+toyAlien=soften(toyAlien); monsterArt=soften(monsterArt);
 
 /* ---------- Scene helpers ---------- */
 const tagAt=(x,y,t,c="#ffffff")=>`<text x="${x}" y="${y}" text-anchor="middle" font-family="Grandstander,sans-serif" font-weight="900" font-size="${t.length>12?14:12}" letter-spacing=".5" fill="${c}"${c==="#ffffff"?` stroke="${INK}" stroke-width="3" paint-order="stroke"`:""} ${N}>${t}</text>`;
@@ -1732,7 +1771,86 @@ const WORLDS=[{id:"yard",n:1,name:"The Backyard",start:"yard",
   ${F.gumball?place("m_gumball",206,190,.42,{noShadow:true}):""}
   ${F.jar?place("m_lolly",326,196,.44,{noShadow:true}):""}
   ${act("jar","Candy jar",`<g transform="translate(326 214)">${F.jar?`<path d="M-30 -36 Q-34 20 -26 26 H26 Q34 20 30 -36" fill="${LG("#f6fcff","#cfeaff")}" fill-opacity=".35" ${O}/><ellipse cx="-38" cy="24" rx="20" ry="6" fill="${G("#ff6fa6")}" ${O2}/>`:`<path d="M-30 -36 Q-34 20 -26 26 H26 Q34 20 30 -36 Z" fill="${LG("#f6fcff","#cfeaff")}" fill-opacity=".9" ${O}/>${[[-14,10,"#ff6fa6"],[0,16,"#ffe066"],[14,8,"#4fb3ff"],[-8,-6,"#7fd04e"],[10,-10,"#ff9f43"],[-18,-18,"#ff6fa6"],[2,-22,"#4fb3ff"]].map(([x,y,c])=>`<circle cx="${x}" cy="${y}" r="7" fill="${c}" stroke="${INK}" stroke-opacity=".25" stroke-width="1"/>`).join("")}<rect x="-34" y="-46" width="68" height="12" rx="5" fill="${G("#ff6fa6")}" ${O2}/>`}</g>`)}`}},
- msg:{fountain:"Splish splash! The fountain sprays up high.",display:"Click! The glass case slides open.",boxes:"The phone boxes tumble over!",drawer:"The repair drawer slides open.",oven:"Whoosh! The oven door swings open.",box:"The top pizza box flips open.",soda:"Fizz! The soda machine door pops open.",toybox:"The toy box lid flips up.",gumball:"Crank crank! The gumballs roll out.",jar:"The candy jar lid pops off."}}];
+ msg:{fountain:"Splish splash! The fountain sprays up high.",display:"Click! The glass case slides open.",boxes:"The phone boxes tumble over!",drawer:"The repair drawer slides open.",oven:"Whoosh! The oven door swings open.",box:"The top pizza box flips open.",soda:"Fizz! The soda machine door pops open.",toybox:"The toy box lid flips up.",gumball:"Crank crank! The gumballs roll out.",jar:"The candy jar lid pops off."}},
+{id:"space",n:8,name:"The Spaceship",start:"bridge",
+ idea:"Colton's idea for Mitchell's game: ten mutant and astronaut ducks hiding all over a spaceship. The Alien lost its moon rocks, and every duck you find gives one back. Watch out: sometimes a space monster sneaks into a room. Find it and tap it before it gobbles up one of your ducks!",
+ helper:{name:"Alien",token:"moon rock",plural:"moon rocks",icon:"rock",art:toyAlien,reward:"It beams you a big alien thumbs-up!"},
+ monster:{bridge:[146,262,.6],engine:[214,198,.6],lab:[304,80,.52],outside:[204,200,.6]},
+ hide:{sp_astro:"chair",sp_pilot:"panel",sp_spark:"reactor",sp_grav:"crate",sp_eye3:"tube",sp_slime:"vat",sp_glow:"locker",sp_moon:"asteroid",sp_comet:"satellite"},
+ ducks:[
+  {id:"sp_plain",name:"Yellow Duck",tier:"Easy",area:"bridge",c:YEL,hint:"Floating by the controls"},
+  {id:"sp_astro",name:"Astronaut Duck",tier:"Sneaky",area:"bridge",c:{body:"#f4f7fb",wing:"#d6dee8",beak:"#ff8a3d"},acc:"helmet",hint:"The captain's seat"},
+  {id:"sp_pilot",name:"Pilot Duck",tier:"Tricky",area:"bridge",c:YEL,acc:"shades",hint:"Under the buttons"},
+  {id:"sp_spark",name:"Spark Duck",tier:"Sneaky",area:"engine",c:{body:"#9fe7ff",wing:"#4fb3ff",beak:"#ff8a3d"},acc:"sparks",hint:"Powering the ship"},
+  {id:"sp_grav",name:"Gravity Duck",tier:"Tricky",area:"engine",c:{body:"#ff9ec7",wing:"#ff6fa6",beak:"#ff8a3d"},hint:"Which way is up?"},
+  {id:"sp_eye3",name:"Three-Eyed Duck",tier:"Sneaky",area:"lab",c:{body:"#b6f07a",wing:"#7fd04e",beak:"#ff8a3d"},acc:"eye3",hint:"Sees everything"},
+  {id:"sp_slime",name:"Slime Duck",tier:"Tricky",area:"lab",c:{body:"#c8b6ff",wing:"#a48cf0",beak:"#ff8a3d"},acc:"slime",hint:"Gooey"},
+  {id:"sp_glow",name:"Glow Duck",tier:"Rare",area:"lab",c:{body:"#9bffea",wing:"#5fd6c8",beak:"#ff8a3d"},acc:"glow",hint:"Locked away for testing"},
+  {id:"sp_moon",name:"Moon Duck",tier:"Rare",area:"outside",c:{body:"#d3d8e2",wing:"#a3abbb",beak:"#ffb066"},hint:"Riding a space rock"},
+  {id:"sp_comet",name:"Comet Duck",tier:"Rare",area:"outside",c:{body:"#ffe066",wing:"#ff9f43",beak:"#ff8a3d"},acc:"comet",hint:"Zooming past the dish"},
+  {id:"sp_alien",name:"Alien",tier:"Legendary",area:"bridge",helper:true,art:()=>toyAlien(true),hint:"Bring the moon rocks back to the Alien"}],
+ areas:{
+ bridge:{name:"Bridge",pos:[1,1],bg:["#26325c","#5d6880"],exits:{left:"engine",right:"lab",up:"outside"},doors:{outside:"up"},draw:F=>`
+  <rect width="400" height="300" fill="${LG("#2f3d6e","#1f2a52")}"/>
+  <g ${N}><rect x="84" y="18" width="232" height="118" rx="26" fill="${G("#8597b8")}" ${O}/><rect x="96" y="28" width="208" height="98" rx="18" fill="${LG("#0c1230","#1d1050")}"/>
+  ${[[112,44],[150,96],[178,52],[236,40],[284,70],[262,110],[130,72],[210,88],[296,44]].map(([x,y],i)=>`<circle cx="${x}" cy="${y}" r="${i%3?1.4:2.2}" fill="#fff" opacity=".9"/>`).join("")}
+  <circle cx="246" cy="92" r="22" fill="${G("#ff9f43")}"/><ellipse cx="246" cy="92" rx="36" ry="7" fill="none" stroke="#ffe066" stroke-width="3" opacity=".85"/><circle cx="148" cy="54" r="8" fill="#9fe7ff" opacity=".9"/>
+  <path d="M200 28 V126 M96 77 H304" stroke="${INK}" stroke-opacity=".25" stroke-width="3"/>
+  ${[24,376].map(x=>`<g>${[160,176,192].map(y=>`<circle cx="${x}" cy="${y-120}" r="4" fill="${y===176?"#ff6fa6":"#7fd04e"}" opacity=".85"/>`).join("")}</g>`).join("")}</g>
+  ${door("outside","Go out the airlock for a space walk",`<g transform="translate(352 158)"><circle r="36" fill="${G("#b7c3d4")}" ${O}/><circle r="26" fill="${G("#5b6b80")}" ${O2}/><path d="M-26 0 H26 M0 -26 V26" stroke="#ffe066" stroke-width="4"/><circle r="7" fill="${G("#ffcb2f")}" ${O2}/></g><rect x="312" y="118" width="80" height="80" fill="transparent"/>`)}
+  <rect y="222" width="400" height="90" fill="${LG("#8a96ab","#5d6880")}" ${O} ${N}/>
+  <g ${N}>${[0,1,2,3,4,5,6].map(i=>`<path d="M${i*66-6} 222 V310" stroke="#4a556b" stroke-width="2" opacity=".6"/>`).join("")}<path d="M0 260 H400" stroke="#4a556b" stroke-width="2" opacity=".6"/></g>
+  <g ${N}><path d="M14 222 V174 Q14 154 34 150 L130 136 Q150 136 150 156 V222 Z" fill="${G("#5b6b80")}" ${O}/><path d="M22 168 L140 150" stroke="${INK}" stroke-opacity=".3" stroke-width="2"/>
+  ${[[34,166,"#ff6fa6"],[56,163,"#ffe066"],[78,160,"#7fd04e"],[100,157,"#4fb3ff"],[122,154,"#ff9f43"]].map(([x,y,c])=>`<circle cx="${x}" cy="${y}" r="6" fill="${c}" stroke="${INK}" stroke-opacity=".35" stroke-width="1.4"/>`).join("")}
+  <rect x="40" y="176" width="70" height="20" rx="4" fill="#0c1230"/><path d="M46 186 h10 l4 -6 l6 12 l4 -6 h30" fill="none" stroke="#7fd04e" stroke-width="2"/></g>
+  ${F.panel?place("sp_pilot",80,220,.42,{noShadow:true}):""}
+  ${act("panel","Hatch under the control panel",`<g transform="translate(80 212)">${F.panel?`<rect x="-34" y="-12" width="68" height="20" rx="3" fill="#232c40"/><rect x="-36" y="8" width="72" height="8" rx="3" fill="${G("#8597b8")}" ${O2}/>`:`<rect x="-36" y="-12" width="72" height="24" rx="3" fill="${G("#8597b8")}" ${O2}/>${[-24,-8,8,24].map(x=>`<path d="M${x} -6 v12" stroke="${INK}" stroke-opacity=".35" stroke-width="2"/>`).join("")}`}</g>`)}
+  ${F.chair?place("sp_astro",200,186,.46,{noShadow:true}):""}
+  ${act("chair","Captain's chair",`<g transform="translate(200 226)"><path d="M-6 8 V30 M-24 34 H24" stroke="${INK}" stroke-opacity=".5" stroke-width="5" stroke-linecap="round"/>${F.chair?`<rect x="-34" y="-18" width="68" height="22" rx="8" fill="${G("#e8423a")}" ${O}/><rect x="-38" y="-4" width="10" height="20" rx="4" fill="${G("#b7c3d4")}" ${O2}/><rect x="28" y="-4" width="10" height="20" rx="4" fill="${G("#b7c3d4")}" ${O2}/>`:`<rect x="-34" y="-70" width="68" height="78" rx="14" fill="${G("#e8423a")}" ${O}/><rect x="-24" y="-60" width="48" height="10" rx="5" fill="#ff7a6e"/><rect x="-38" y="-20" width="10" height="34" rx="4" fill="${G("#b7c3d4")}" ${O2}/><rect x="28" y="-20" width="10" height="34" rx="4" fill="${G("#b7c3d4")}" ${O2}/>`}</g>`)}
+  ${place("sp_plain",44,268,.42)}
+  ${HELP("space",286,254,.74)}`},
+ engine:{name:"Engine Room",pos:[0,1],bg:["#2a2140","#4a4a5e"],stretchTop:false,exits:{right:"bridge"},draw:F=>`
+  <rect width="400" height="300" fill="${LG("#352a52","#221a38")}"/>
+  <g ${N}>${[30,70].map(y=>`<path d="M0 ${y} H400" stroke="${G("#8597b8")}" stroke-width="12"/><path d="M0 ${y} H400" stroke="${INK}" stroke-opacity=".25" stroke-width="2"/>`).join("")}
+  ${[60,180,300].map(x=>`<rect x="${x}" y="22" width="20" height="56" rx="4" fill="${G("#5b6b80")}" ${O2}/>`).join("")}
+  <text x="300" y="120" text-anchor="middle" font-family="Grandstander,sans-serif" font-weight="900" font-size="14" fill="#ffe066">ENGINE</text>
+  <path d="M276 128 h48" stroke="#ffe066" stroke-width="3"/></g>
+  <rect y="230" width="400" height="80" fill="${LG("#5a5a70","#3c3c50")}" ${O} ${N}/>
+  <g ${N}>${[0,1,2,3,4,5,6,7].map(i=>`<path d="M${i*56} 230 l28 80" stroke="#ffcb2f" stroke-width="7" opacity=".35"/>`).join("")}</g>
+  ${act("reactor","Glowing reactor",`<g transform="translate(118 160)"><rect x="-56" y="66" width="112" height="16" rx="5" fill="${G("#5b6b80")}" ${O2}/><rect x="-46" y="-86" width="92" height="16" rx="5" fill="${G("#5b6b80")}" ${O2}/>
+   <rect x="-38" y="-72" width="76" height="140" rx="30" fill="${LG("#bff6ff","#4fb3ff")}" fill-opacity=".85" ${O}/>${F.reactor?`<path d="M-38 -40 V40" stroke="#5b6b80" stroke-width="0"/>`:`<path d="M-30 -60 Q0 -50 30 -60 M-30 0 Q0 10 30 0 M-30 50 Q0 60 30 50" fill="none" stroke="#fff" stroke-width="3" opacity=".6"/>`}
+   ${F.reactor?"":`<rect x="-40" y="-36" width="80" height="72" rx="10" fill="${G("#8597b8")}" ${O2}/><circle r="12" fill="${G("#ffe066")}" ${O2}/><path d="M-4 -6 l8 0 l-6 8 l8 0 l-12 12 l3 -9 l-7 0 Z" fill="#ff9f43"/>`}</g>`)}
+  ${F.reactor?place("sp_spark",118,170,.46,{noShadow:true}):""}
+  ${F.crate?place("sp_grav",302,150,.44,{noShadow:true,upside:true}):""}
+  ${act("crate","Floating crate",`<g transform="translate(302 ${F.crate?186:160}) rotate(${F.crate?-24:-8})">${F.crate?`<rect x="-36" y="0" width="72" height="34" rx="4" fill="${G("#c89260")}" ${O}/><path d="M-36 16 H36" stroke="#a0703f" stroke-width="3"/><rect x="-44" y="-30" width="56" height="10" rx="3" fill="${G("#c89260")}" ${O2} transform="rotate(-30 -16 -25)"/>`:`<rect x="-36" y="-34" width="72" height="68" rx="4" fill="${G("#c89260")}" ${O}/><path d="M-36 -34 L36 34 M36 -34 L-36 34" stroke="#a0703f" stroke-width="4"/><rect x="-36" y="-34" width="72" height="68" rx="4" fill="none" stroke="#a0703f" stroke-width="4"/>`}</g>
+   <g ${N}><path d="M${F.crate?264:262} 222 q4 -6 0 -12 M${F.crate?340:344} 222 q4 -6 0 -12" fill="none" stroke="#9fe7ff" stroke-width="2.4" stroke-linecap="round" opacity=".7"/></g>`)}
+  <g ${N}><g transform="translate(220 250) rotate(14)"><rect x="-16" y="-12" width="32" height="24" rx="3" fill="${G("#c89260")}" ${O2}/><path d="M-16 0 H16" stroke="#a0703f" stroke-width="2"/></g></g>`},
+ lab:{name:"Space Lab",pos:[2,1],bg:["#e9f8ff","#b9c2ce"],stretchTop:false,exits:{left:"bridge"},draw:F=>`
+  <rect width="400" height="300" fill="${LG("#f2fbff","#d6e6f2")}"/>
+  <g ${N}><rect x="0" y="0" width="400" height="22" fill="${G("#5b6b80")}"/><text x="200" y="16" text-anchor="middle" font-family="Grandstander,sans-serif" font-weight="900" font-size="12" fill="#b6f07a">SPACE LAB</text>
+  <rect x="150" y="44" width="110" height="66" rx="8" fill="#0c1230" stroke="${G("#8597b8")}" stroke-width="5"/>
+  <path d="M162 92 q10 -24 20 0 t20 0 t20 0 t20 0" fill="none" stroke="#7cf06a" stroke-width="2.6"/><text x="205" y="62" text-anchor="middle" font-family="Grandstander,sans-serif" font-weight="900" font-size="9" fill="#9fe7ff">DUCK SCAN</text>
+  <rect x="20" y="138" width="130" height="8" rx="3" fill="${G("#8597b8")}" ${O2}/>
+  ${[[34,"#ff6fa6"],[56,"#ffe066"],[78,"#9fe7ff"],[100,"#c8b6ff"]].map(([x,c])=>`<rect x="${x-6}" y="112" width="12" height="26" rx="6" fill="${c}" fill-opacity=".85" stroke="${INK}" stroke-opacity=".35" stroke-width="1.4"/>`).join("")}</g>
+  <rect y="230" width="400" height="80" fill="${LG("#cfd8e3","#aab6c4")}" ${O} ${N}/>
+  ${act("tube","Giant test tube",`<g transform="translate(70 196)"><rect x="-30" y="34" width="60" height="12" rx="4" fill="${G("#8597b8")}" ${O2}/><rect x="-24" y="-56" width="48" height="94" rx="24" fill="${LG("#f6fcff","#cfeaff")}" fill-opacity=".55" ${O}/>${F.tube?"":`<rect x="-20" y="-30" width="40" height="64" rx="20" fill="${G("#b6f07a")}" fill-opacity=".9"/><circle cx="-6" cy="-18" r="4" fill="#e8ffd6"/><circle cx="7" cy="-4" r="3" fill="#e8ffd6"/>`}<rect x="-28" y="-62" width="56" height="12" rx="4" fill="${G("#5b6b80")}" ${O2}${F.tube?` transform="translate(34 -18) rotate(28)"`:""}/></g>`)}
+  ${F.tube?place("sp_eye3",70,214,.42,{noShadow:true}):""}
+  ${act("vat","Bubbling slime vat",`<g transform="translate(206 236)"><path d="M-56 -40 L-48 22 Q-46 30 -38 30 H38 Q46 30 48 22 L56 -40 Z" fill="${G("#8597b8")}" ${O}/>${F.vat?`<ellipse cx="0" cy="-40" rx="56" ry="9" fill="#3c4a60"/>`:`<ellipse cx="0" cy="-40" rx="56" ry="9" fill="${G("#7cf06a")}" ${O2}/><circle cx="-18" cy="-44" r="6" fill="#a6ff8e" stroke="${INK}" stroke-opacity=".3" stroke-width="1"/><circle cx="16" cy="-46" r="4.5" fill="#a6ff8e"/><path d="M-40 -34 q4 14 0 18 M30 -34 q4 10 0 14" fill="none" stroke="#7cf06a" stroke-width="5" stroke-linecap="round"/>`}</g>`)}
+  ${F.vat?place("sp_slime",206,186,.44,{noShadow:true}):""}
+  ${F.locker?place("sp_glow",336,180,.44,{noShadow:true}):""}
+  ${act("locker","Test locker",`<g transform="translate(336 180)">${F.locker?`<rect x="-42" y="-58" width="84" height="116" rx="6" fill="#232c40" ${O}/><rect x="40" y="-58" width="18" height="116" rx="4" fill="${G("#b7c3d4")}" ${O2} transform="skewY(14)"/>`:`<rect x="-42" y="-58" width="84" height="116" rx="6" fill="${G("#b7c3d4")}" ${O}/><path d="M0 -58 V58" stroke="${INK}" stroke-opacity=".35" stroke-width="2"/>${[-40,-30,-20].map(y=>`<path d="M-30 ${y} h20 M10 ${y} h20" stroke="${INK}" stroke-opacity=".35" stroke-width="2.4"/>`).join("")}<rect x="-8" y="-4" width="16" height="12" rx="3" fill="${G("#ffcb2f")}" ${O2}/><text x="0" y="36" text-anchor="middle" font-family="Grandstander,sans-serif" font-weight="900" font-size="10" fill="#e8423a">TEST</text>`}</g>`)}`},
+ outside:{name:"Space Walk",pos:[1,0],bg:["#0c1230","#5b6b80"],exits:{down:"bridge"},draw:F=>`
+  <rect width="400" height="300" fill="${LG("#0c1230","#241452")}"/>
+  <g ${N}>${[[30,40],[80,120],[120,30],[160,90],[220,24],[260,140],[300,60],[350,110],[370,30],[40,180],[190,170],[330,190],[110,200],[60,90],[240,90]].map(([x,y],i)=>`<circle cx="${x}" cy="${y}" r="${i%4?1.3:2.3}" fill="#fff" opacity="${i%3?.7:1}"/>`).join("")}
+  ${spark(96,64,.6,"#fff6c9")}${spark(282,32,.5,"#fff6c9")}
+  <circle cx="200" cy="420" r="210" fill="${G("#4fb3ff")}" ${O}/><path d="M40 300 Q90 240 140 270 Q200 230 260 262 Q310 236 360 300" fill="#7fd04e" opacity=".8"/>
+  <path d="M0 254 Q200 236 400 254 V300 H0 Z" fill="${G("#b7c3d4")}" ${O}/>${[60,140,220,300,370].map(x=>`<circle cx="${x}" cy="${266+(x%3)}" r="3" fill="#8597b8"/>`).join("")}</g>
+  ${F.asteroid?place("sp_moon",96,134,.46,{noShadow:true}):""}
+  ${act("asteroid","Floating space rock",`<g transform="translate(96 ${F.asteroid?176:150}) rotate(${F.asteroid?40:0})"><path d="M-46 4 Q-50 -26 -20 -38 Q14 -46 38 -24 Q54 0 40 24 Q18 44 -12 40 Q-42 34 -46 4 Z" fill="${G("#9aa3b2")}" ${O}/><circle cx="-14" cy="-10" r="9" fill="#7d8697"/><circle cx="18" cy="12" r="6" fill="#7d8697"/><circle cx="20" cy="-18" r="4" fill="#7d8697"/></g>`)}
+  ${F.satellite?place("sp_comet",318,104,.44,{noShadow:true}):""}
+  ${act("satellite","Satellite dish",`<g transform="translate(306 150)"><rect x="-56" y="-8" width="36" height="22" fill="${G("#4fb3ff")}" ${O2}/><rect x="20" y="-8" width="36" height="22" fill="${G("#4fb3ff")}" ${O2}/><path d="M-56 3 H56" stroke="${INK}" stroke-opacity=".35" stroke-width="2"/>
+   <rect x="-14" y="-16" width="28" height="38" rx="6" fill="${G("#dfe5ec")}" ${O}/><g transform="rotate(${F.satellite?50:0} 0 -16)"><path d="M-26 -30 Q0 -6 26 -30 Z" fill="${G("#dfe5ec")}" ${O}/><path d="M0 -22 V-40" stroke="${INK}" stroke-opacity=".5" stroke-width="2.4"/><circle cy="-42" r="3.4" fill="#ff6fa6"/></g></g>`)}`}},
+ msg:{chair:"Whee! The captain's chair spins around.",panel:"The hatch under the controls pops open.",reactor:"The reactor's cover slides away. Bzzt!",crate:"The floating crate's lid drifts open.",tube:"Pop! The test tube's cap flies off.",vat:"Glug glug. The slime drains out of the vat.",locker:"Beep! The test locker unlocks.",asteroid:"The space rock tumbles around.",satellite:"The satellite dish swings around."}}];
 const SOON=[];
 function WORLDS_REF(id){ return WORLDS.concat(SOON).find(w=>w.id===id); }
 const W=Object.fromEntries(WORLDS.map(w=>[w.id,w]));
@@ -2755,6 +2873,57 @@ function shareLabel(){ return `${SHIELD}<span>Share game stats: ${window.QStats&
 function toggleSharing(){ if(!window.QStats) return; const b=$("hShare");
   if(navigator.doNotTrack==="1"||window.doNotTrack==="1"){ const m=$("setMsg"); m.hidden=false; m.className="lbmsg no"; m.textContent="Do Not Track is on in this browser, so stats stay off."; return; }
   QStats.setSharing(!QStats.sharing()); b.innerHTML=shareLabel(); blip(); }
+
+/* ---------- Space monster (Colton's idea, only in worlds with a monster map, like The Spaceship) ----------
+   Every so often a silly monster sneaks into another room. Find it and tap it before the timer runs out,
+   or it gobbles up the last duck you found there, which goes back to its hiding spot. Guesses for Mitchell to check:
+   MON_SECS (time to find it), MON_GAP (how long between monsters), one duck eaten, +5 Pond Points for a zap. */
+const MON_SECS=30, MON_GAP=[60,90], MON_PTS=5;
+const MON={room:null,left:0,next:0,warned:false};
+const monW=()=>{ const w=S.screen==="world"&&W[S.world]; return w&&w.monster?w:null; };
+const monArmed=w=>{ const r=regDucks(w), n=r.filter(d=>S.found.has(d.id)).length; return n>=2&&n<r.length; };
+const monPaused=()=>document.visibilityState==="hidden"||!$("sheet").hidden||!$("done").hidden;
+const monGap=()=>MON_GAP[0]+Math.floor(Math.random()*(MON_GAP[1]-MON_GAP[0]+1));
+function monPill(){ const w=W[S.world]; let p=$("monPill");
+  if(!MON.room||!w||!w.monster){ if(p) p.remove(); return; }
+  if(!p){ p=document.createElement("div"); p.id="monPill"; p.className="monpill"; p.setAttribute("role","status"); stage.insertBefore(p,$("toast")); }
+  p.classList.toggle("here",MON.room===S.area); p.classList.toggle("hurry",MON.left<=10);
+  p.innerHTML=`<svg width="26" height="22" viewBox="-48 -36 96 60" aria-hidden="true">${monsterArt()}</svg><span>${MON.room===S.area?"It's in here! Tap it!":`Monster in the ${w.areas[MON.room].name}!`}</span><b>${MON.left}</b>`; }
+function monClear(){ const was=MON.room; MON.room=null; monPill(); if(was&&S.screen==="world"&&S.area===was) rerender(); }
+function monSpawn(w){ const rooms=Object.keys(w.monster).filter(k=>k!==S.area&&w.areas[k]); if(!rooms.length) return;
+  MON.room=rooms[Math.floor(Math.random()*rooms.length)]; MON.left=MON_SECS; monPill();
+  tone(880,660,.16,"square",.06); tone(880,660,.16,"square",.06,.22);
+  toast(`Uh oh! A space monster sneaked into the ${w.areas[MON.room].name}. Find it and tap it before it eats a duck!`,3600); }
+function monEat(w){ const got=[...S.found].filter(id=>regDucks(w).some(d=>d.id===id)), id=got[got.length-1];
+  MON.room=null; MON.next=monGap(); monPill();
+  if(!id){ rerender(); return; }
+  const d=DUCK[id]; S.found.delete(id); const f=(w.hide||{})[id]; if(f) delete S.F[f]; save();
+  tone(300,120,.35,"sawtooth",.12);
+  toast(`Oh no! The monster gobbled up the ${d.name}! It's back in its hiding spot in the ${w.areas[d.area].name}. Find it again!`,4200);
+  renderHud(false); bumpBadge(); rerender(); }
+function monZap(a){ const w=W[S.world]; if(!MON.room) return;
+  const b=a.getBoundingClientRect(); burst(stage,b.left+b.width/2,b.top+b.height/2);
+  S.pts+=MON_PTS; save(); try{ QStats.event("earn",{src:"monster",n:MON_PTS}); }catch(e){}
+  MON.next=monGap(); pop(); toast(`Zapped! The monster zoomed back to its spaceship. +${MON_PTS} Pond Points`,2600); monClear(); }
+function monTick(){ const w=monW();
+  if(!w){ if(MON.room) monClear(); MON.next=0; return; }
+  if(monPaused()) return;
+  if(!MON.warned&&!(S.flags[w.id]||{})._mon&&monArmed(w)){ MON.warned=true; (S.flags[w.id]=S.flags[w.id]||{})._mon=1; save();
+    toast("Watch out! Space monsters sneak around this ship. If one shows up, find it and tap it fast!",3600); return; }
+  if(MON.room){ MON.left--; if(MON.left<=0) monEat(w); else monPill(); return; }
+  if(!monArmed(w)){ MON.next=0; return; }
+  if(!MON.next) MON.next=monGap();
+  if(--MON.next<=0) monSpawn(w); }
+setInterval(()=>{ if(!window.QNOMON) monTick(); },1000); /* tests set QNOMON and call monTick themselves */
+/* Draw the monster in its room, and send a tap on it to monZap. */
+const monScene0=sceneSVG;
+sceneSVG=function(id){ const s=monScene0(id), w=W[S.world];
+  if(THUMB||!w||!w.monster||MON.room!==id) return s; const [x,y,k]=w.monster[id];
+  return s.replace(/<\/svg>$/,act("monster","Space monster! Tap it!",`<g transform="translate(${x} ${y}) scale(${k})"><circle r="52" fill="transparent"/><g class="monwig">${monsterArt()}</g></g>`)+"</svg>"); };
+const monAct0=doAct;
+doAct=function(k,a){ if(k==="monster"){ monZap(a); return; } return monAct0(k,a); };
+const monShow0=show;
+show=function(id,dir){ monShow0(id,dir); monPill(); };
 
 
 renderSound(); goHome();
