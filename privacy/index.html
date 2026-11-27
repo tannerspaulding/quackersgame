@@ -74,6 +74,8 @@ footer{text-align:center;font-family:var(--note);font-size:1.05rem;color:var(--m
 <li>Country and state.</li>
 <li>Whether it's a phone, tablet or computer, and whether it's the home-screen app or a browser. The browser's details stay on the device; only that one word is sent.</li>
 <li>Game progress: which ducks were found, worlds reached and finished, Pond Points, best level in each mini game, and the last world and screen.</li>
+<li>Whether the device really played or looks like an automated program (a "bot"). The game counts how many times the screen was tapped or a key was pressed, as a number only, never which keys or where. If a visit is a bot that comes from a data center, we keep the name of the hosting company, like Amazon or Hetzner, so we can see how much bot traffic there is. For real players we keep no network name.</li>
+<li>How the device first found Quackers, as a category only: a friend link, a search engine, a social site, Mitchell's website, another website, or a typed or texted link. The web address it came from is never kept.</li>
 <li>Which days the device played, kept for 90 days for a players-per-day chart.</li>
 <li>A leaderboard nickname. After the first duck, the game picks a random duck name like Zippy Beak 27, made from a list of fun words and never from anything about your child. Your child can change it, and a new name goes through a name filter. No two players can have the same name, and Tanner can hide any name.</li>
 <li>Idea Box ideas and votes (see below).</li>
@@ -85,7 +87,7 @@ footer{text-align:center;font-family:var(--note);font-size:1.05rem;color:var(--m
 <h2>Totals that aren't linked to anyone</h2>
 <p>Some numbers are only counted as totals, so they can't be traced back to a player:</p>
 <ul>
-<li>How many players were in each city each day. The city is worked out roughly by Cloudflare from the visit and is never saved with a player's data.</li>
+<li>How many players, and how many bots, were in each city each day. The city is worked out roughly by Cloudflare from the visit and is never saved with a player's data.</li>
 <li>How long each play session lasted, and the hour and weekday it started, under a separate random ID that isn't linked to the player.</li>
 <li>How often each duck is found, mini game tries and wins, shop items bought and Pond Points earned.</li>
 </ul>

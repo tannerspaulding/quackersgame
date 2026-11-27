@@ -749,6 +749,9 @@ button.chip:active{transform:translateY(2px);box-shadow:none}
    best level per mini game), the last world and screen, mini game tries, shop buys and points earned,
    play time for this visit (under its own random id), phone/tablet/computer, and app or browser.
    No names unless the player types one for the leaderboard. Respects Do Not Track.
+   To tell real players from bots (Nov 27): how many real taps or key presses this visit (a number only, never which keys),
+   whether the browser says it is remote-controlled, and how this visit arrived: "friend" for a friend link, or just the
+   name of the website that sent it (like www.google.com), never the full web address. The server keeps only a category.
    Fails quietly when offline or the API is down: the game never waits on it.
    Free-plan safeguards: every call gives up after 6 seconds; after a failure the client waits (1, 2, 4... up to 60 minutes,
    or until the daily limit resets when the server says it's over its limit) before trying again, keeping its events in the
@@ -788,10 +791,20 @@ button.chip:active{transform:translateY(2px);box-shadow:none}
   const set = (k, v) => { try{ v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); }catch(e){} };
   const off = () => navigator.doNotTrack === "1" || window.doNotTrack === "1" || get(OFFK) === "1";
   const OFF_MSG = { ok:false, off:true, msg:"Stats sharing is turned off. Turn it on in settings to use this." };
+  // How this visit arrived, worked out once at load: a friend link, another website's name, or "" (typed, texted, a bookmark).
+  let ref = "";
+  try{ const u = new URL(location.href), f = (u.searchParams.get("f") || "").toLowerCase();
+    if(/^[a-z2-9]{8}$/.test(f)) ref = "friend";
+    else if(document.referrer){ const h = new URL(document.referrer).hostname.toLowerCase(); if(h && h !== location.hostname) ref = h.slice(0, 100); } }catch(e){}
   // Friend link: keep the code from ?f=<code> until the server says it counted (or can't), and take it out of the address bar.
   try{ const u = new URL(location.href), f = (u.searchParams.get("f") || "").toLowerCase();
     if(/^[a-z2-9]{8}$/.test(f) && !get(IDK)) set(RK, f);
     if(u.searchParams.has("f")){ u.searchParams.delete("f"); history.replaceState(history.state, "", u.pathname + (u.search || "") + u.hash); } }catch(e){}
+  // Real taps and key presses (made by a person, not by a script). Only the count goes out.
+  let inputs = 0;
+  const tap = e => { if(e && e.isTrusted && inputs < 999) inputs++; };
+  try{ addEventListener("pointerdown", tap, { capture:true, passive:true }); addEventListener("keydown", tap, { capture:true, passive:true }); }catch(e){}
+  const human = () => ({ in:inputs, wd:navigator.webdriver ? 1 : 0, ref });
   const rid = n => { const a = new Uint8Array(n); crypto.getRandomValues(a); return Array.from(a, b => b.toString(36).padStart(2,"0")).join("").slice(0, n * 2); };
   let t = null, busy = false, where = {}, active = 0, last = Date.now();
   const sess = { id: rid(8), hour: new Date().getHours(), dow: new Date().getDay() };
@@ -838,12 +851,12 @@ button.chip:active{transform:translateY(2px);box-shadow:none}
       const id = pid(); if(!id || off() || busy || resting()) return;
       tick(); let s = {}; try{ s = Q.snap() || {}; }catch(e){}
       const ev = queue().slice(0, 60);
-      const sig = JSON.stringify([s.ducks, s.worlds, s.world_max, s.points, s.games, ev.length, get(RK) ? 1 : 0]), secs = Math.round(active / 1000);
+      const sig = JSON.stringify([s.ducks, s.worlds, s.world_max, s.points, s.games, ev.length, get(RK) ? 1 : 0, inputs >= 5 ? 1 : 0]), secs = Math.round(active / 1000);
       if(sig === lastSig && secs - lastAt < 60) return;      // nothing new worth a request
       count();
       busy = true;
       post("/v1/ping", Object.assign({ pid:id, device:device(), mode:mode(), where,
-        sess:Object.assign({ secs:Math.round(active / 1000) }, sess), ev }, s))
+        sess:Object.assign({ secs:Math.round(active / 1000) }, sess), ev }, human(), s))
         .then(r => { if(r && r.ok){ lastSig = sig; lastAt = secs; } if(r && r.ok && !r.slow) keep(queue().slice(ev.length));
           const code = get(RK); if(code && r && r.ok && (s.ducks || (s.found || []).length))
             return post("/v1/friend/claim", { pid:id, code }).then(c => { if(c && !c.retry) set(RK, null); }); })
@@ -870,7 +883,7 @@ button.chip:active{transform:translateY(2px);box-shadow:none}
     async ready(){ let snap = {}; try{ snap = Q.snap() || {}; }catch(e){}
       const sig = "r" + JSON.stringify([snap.ducks, snap.worlds, snap.points]);   // the server already has this progress: skip the extra request
       if(sig === readySig && Date.now() - readyAt < 300000) return;
-      try{ const r = await post("/v1/ping", Object.assign({ pid:pid(), device:device(), mode:mode(), where }, snap)); if(r && r.ok){ readySig = sig; readyAt = Date.now(); } }catch(e){} },
+      try{ const r = await post("/v1/ping", Object.assign({ pid:pid(), device:device(), mode:mode(), where }, human(), snap)); if(r && r.ok){ readySig = sig; readyAt = Date.now(); } }catch(e){} },
     async ideas(){ const id = off() ? "" : (pid() || "");
       try{ return await getj("/v1/ideas?pid=" + encodeURIComponent(id)); }catch(e){ return { ok:false, ideas:[], offline:true }; } },
     async suggestIdea(kind, text){ if(off()) return OFF_MSG;
