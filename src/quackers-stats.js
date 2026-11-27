@@ -6,7 +6,7 @@
    Fails quietly when offline or the API is down: the game never waits on it.
    Free-plan safeguards: every call gives up after 6 seconds; after a failure the client waits (1, 2, 4... up to 60 minutes,
    or until the daily limit resets when the server says it's over its limit) before trying again, keeping its events in the
-   queue meanwhile; pings are batched and only sent when something changed, with a daily cap per device.
+   queue meanwhile; pings are batched and only sent when something changed. No daily cap: every stat goes out (Tanner, Nov 27).
 
    Wiring in game.js (for the thread that owns quackersgame):
      QStats.snap = () => ({ ducks:S.found.size, worlds:<worlds finished>, world_max:S.unlocked,
@@ -36,7 +36,7 @@
 (function(){
   const API = "https://quackers-api.tannerspaulding81.workers.dev";
   const IDK = "quackers-pid", QK = "quackers-stats-q", RK = "quackers-ref", OFFK = "quackers-stats-off", BK = "quackers-stats-wait", DK = "quackers-stats-day";
-  const TIMEOUT = 6000, DAY_CAP = 40, EVERY = 300000;   // give up after 6s; at most 40 pings a day per device; a background ping at most every 5 minutes
+  const TIMEOUT = 6000, EVERY = 300000;   // give up after 6s; a background ping at most every 5 minutes
   const GAME = "https://quackersgame.com/";
   const get = k => { try{ return localStorage.getItem(k); }catch(e){ return null; } };
   const set = (k, v) => { try{ v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); }catch(e){} };
@@ -82,9 +82,9 @@
   }
   const post = (path, data) => req(path, data || {});
   const getj = path => req(path);
-  /* Daily cap on background pings per device (things the player asks for, like the board, don't count). */
-  function spend(){ const today = new Date().toISOString().slice(0,10); let d; try{ d = JSON.parse(get(DK) || "null"); }catch(e){}
-    if(!d || d.day !== today) d = { day:today, n:0 }; if(d.n >= DAY_CAP) return false; d.n++; set(DK, JSON.stringify(d)); return true; }
+  /* Counts background pings per device per day, for health() only. There is no cap. */
+  function count(){ const today = new Date().toISOString().slice(0,10); let d; try{ d = JSON.parse(get(DK) || "null"); }catch(e){}
+    if(!d || d.day !== today) d = { day:today, n:0 }; d.n++; set(DK, JSON.stringify(d)); }
   let lastSig = "", lastAt = 0, readySig = "", readyAt = 0;
   const Q = {
     snap: () => ({}),
@@ -94,7 +94,7 @@
       const ev = queue().slice(0, 60);
       const sig = JSON.stringify([s.ducks, s.worlds, s.world_max, s.points, s.games, ev.length, get(RK) ? 1 : 0]), secs = Math.round(active / 1000);
       if(sig === lastSig && secs - lastAt < 60) return;      // nothing new worth a request
-      if(!spend()) return;                                   // daily cap reached: keep events for tomorrow
+      count();
       busy = true;
       post("/v1/ping", Object.assign({ pid:id, device:device(), mode:mode(), where,
         sess:Object.assign({ secs:Math.round(active / 1000) }, sess), ev }, s))
@@ -151,7 +151,7 @@
       return r && r.ok ? { ok:true } : { ok:false, msg:(r && r.msg) || "That didn't work. Try again soon." }; },
     sharing(){ return !off(); },
     setSharing(on){ set(OFFK, on ? null : "1"); if(on) Q.send(); },
-    health(){ const w = waitInfo(); let d = null; try{ d = JSON.parse(get(DK) || "null"); }catch(e){} return { resting:resting(), until:w.until || 0, fails:w.n || 0, pingsToday:d && d.day === new Date().toISOString().slice(0,10) ? d.n : 0, cap:DAY_CAP, queued:queue().length }; },
+    health(){ const w = waitInfo(); let d = null; try{ d = JSON.parse(get(DK) || "null"); }catch(e){} return { resting:resting(), until:w.until || 0, fails:w.n || 0, pingsToday:d && d.day === new Date().toISOString().slice(0,10) ? d.n : 0, queued:queue().length }; },
   };
   window.QStats = Q;
 })();
