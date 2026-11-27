@@ -1,5 +1,5 @@
 /* Home: world grid + tab bar */
-.home{gap:10px;padding-bottom:0}
+.home{gap:10px;padding-bottom:calc(108px + env(safe-area-inset-bottom,0px))}
 .home .logo svg.qmark{width:54px;height:48px}
 .home .logo b{font-size:2rem}
 .wtitle{font-size:1.05rem;margin:2px 2px -4px;color:var(--ink)}
@@ -23,8 +23,8 @@
 .wtile.locked .thumb>svg{filter:grayscale(.85) brightness(.88)}
 .wtile.locked .meta{background:#EEF3F8}
 .wtile.locked .meta small{color:var(--dim)}
-.tabs{position:sticky;bottom:0;z-index:3;margin:4px -12px 0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));background:var(--cloud);border-top:3px solid var(--ink)}
-.tab{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:3px;min-height:72px;border:0;border-radius:16px;background:none;padding:6px 2px 4px;font-family:var(--display);font-weight:900;font-size:.8rem;line-height:1.05;text-align:center;color:var(--ink)}
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;width:min(520px,100%);box-sizing:border-box;margin:0 auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));background:var(--cloud);border-top:3px solid var(--ink);box-shadow:0 -4px 14px rgba(23,58,94,.12)}
+.tab{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:3px;min-height:64px;border:0;border-radius:16px;background:none;padding:6px 2px 4px;font-family:var(--display);font-weight:900;font-size:.8rem;line-height:1.05;text-align:center;color:var(--ink)}
 .tab:active{background:var(--mist)}
 .tab>svg{width:36px;height:36px;flex:none}
 .tab em{position:absolute;top:0;right:4px;display:flex;align-items:center;gap:2px;font-style:normal;font-size:.68rem;background:#FFF3C4;border:2px solid var(--ink);border-radius:999px;padding:0 6px 0 2px;line-height:1.45}
@@ -37,7 +37,6 @@
 .mbtn.reset.armed{background:#FFD9D2;color:#a3271a}
 .setfoot{margin:4px 0 0;text-align:center;font-family:var(--note);font-size:1.05rem;color:var(--dim)}
 @media (prefers-reduced-motion:reduce){.wtile.next{animation:none}}
-.app:not(.playing){overflow:clip}
 .moretile{border:3px dashed var(--ink);border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:12px;text-align:center;background:transparent;border-style:dashed;box-shadow:none;color:var(--dim)}
 .moretile svg{width:56px;height:50px;opacity:.75}
 .moretile b{font-size:.95rem;color:var(--ink)}
