@@ -407,6 +407,19 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adju
 @keyframes vdance{0%,100%{transform:none}12%{transform:translateY(-14%) rotate(-12deg)}24%{transform:rotate(10deg)}36%{transform:translateY(-14%) rotate(-12deg)}48%{transform:rotate(10deg)}62%{transform:translateY(-18%) scaleX(-1)}76%{transform:translateY(-18%) scaleX(1)}88%{transform:scale(1.06,.92)}}
 @media (prefers-reduced-motion:reduce){.dance{animation:none}}
 .prizeart{overflow:visible}
+.cover .pace{display:flex;flex-direction:column;align-items:center;gap:5px;margin:2px 0 0}
+.cover .pace .bars{display:flex;gap:3px;align-items:flex-end}
+.cover .pace .bars i{display:block;width:9px;border-radius:3px;background:rgba(31,42,68,.14)}
+.cover .pace .bars i:nth-child(1){height:8px}.cover .pace .bars i:nth-child(2){height:9px}.cover .pace .bars i:nth-child(3){height:10px}.cover .pace .bars i:nth-child(4){height:11px}.cover .pace .bars i:nth-child(5){height:12px}.cover .pace .bars i:nth-child(6){height:13px}.cover .pace .bars i:nth-child(7){height:14px}.cover .pace .bars i:nth-child(8){height:15px}.cover .pace .bars i:nth-child(9){height:16px}.cover .pace .bars i:nth-child(10){height:18px}
+.cover .pace .bars i.on{background:linear-gradient(#ffb23f,#f06a2b)}
+.cover .pace small{font-family:var(--note);font-size:.95rem;color:var(--dim)}
+.cover .howto{max-width:340px;gap:10px}
+.cover .howto .howgoal{margin:0;font-weight:700}
+.cover .howto ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;width:100%}
+.cover .howto li{display:flex;align-items:center;gap:12px;text-align:left;background:rgba(255,255,255,.85);border-radius:16px;padding:8px 12px;box-shadow:0 2px 0 rgba(31,42,68,.12)}
+.cover .howto .hic{width:48px;height:48px;flex:none}
+.cover .howto li span{font-size:1rem;line-height:1.3}
+.cover .howto .howstar{margin:0;font-family:var(--note);color:var(--dim)}
 
 /* Leaderboard sheet (design from the leaderboard preview) */
 .bigbtn.board{grid-column:1/-1;background:#FFE7A3}
@@ -2504,11 +2517,15 @@ function hud(a,b){ $("eEggs").innerHTML=a; const t=Math.max(0,Math.ceil(R.left))
 const starsFor=(n,T)=>n>=T?3:n>=Math.ceil(T*.7)?2:n>=Math.ceil(T*.4)?1:0;
 const starRow=(n,cls="")=>`<span class="lstars ${cls}" aria-label="${n} of 3 stars">${"★".repeat(n)}${"☆".repeat(3-n)}</span>`;
 
+const STARI=`<g><path d="M0 -14 L4 -4.5 L14 -4.3 L6.2 2.2 L8.8 12 L0 6.4 L-8.8 12 L-6.2 2.2 L-14 -4.3 L-4 -4.5 Z" fill="#F0A500" stroke="#1f2a44" stroke-width="2" stroke-linejoin="round"/></g>`;
+const starRule=g=>`Get 1 star to open the next level. Beat level ${LV} to win ${g.star}!`;
 const MINI=[
 /* Egg Guard: tap the foxes before they reach the chicken's nest. Stars are the eggs you keep. */
 {id:"egg",n:"Egg Guard",star:"The Chicken",d:"Tap the foxes before they reach the nest.",a:()=>toyChicken(),
  how:"Foxes are sneaking up on the chicken's eggs. Tap each fox to scare it away before time runs out.",
  goal:L=>"Keep all 3 eggs safe",
+ faster:"The foxes run",
+ rules:L=>[["-40 -30 80 54",toyFox(),"Tap a fox to scare it away."],["-14 -16 28 30",eggIcon(1),"Keep the 3 eggs safe. If a fox reaches the nest, it takes an egg."],["-16 -16 32 32",STARI,"Every egg you save is a star."]],
  art(){ return `${sky("#9fdcff","#e6f7ff")}${sun(60,46)}${cloud(250,58,.9)}
   <path d="M-10 150 Q200 120 410 150 V310 H-10 Z" fill="${LG("#b0e586","#5fb244")}" ${O}/>
   <g ${N}>${[0,1,2,3,4,5,6,7,8].map(i=>`<rect x="${6+i*46}" y="128" width="12" height="40" rx="4" fill="${G("#f3dcb4")}" ${O2}/>`).join("")}<rect x="0" y="138" width="400" height="8" rx="4" fill="${G("#f3dcb4")}" ${O2}/></g>
@@ -2525,7 +2542,7 @@ const MINI=[
     if(d<7){ f.gone=true; f.b.remove(); R.eggs--; blip("door"); drawField(); if(R.eggs<=0){ R.over=true; break; } continue; }
     f.x+=dx/d*f.sp*dt; f.y+=dy/d*f.sp*dt; place2(f.b,f.x,f.y); }
   R.foxes=R.foxes.filter(f=>!f.gone); },
- spawn(){ const fromLeft=Math.random()<.5, f={x:fromLeft?-8:108,y:52+Math.random()*24,dir:fromLeft?1:-1,sp:6.5+(R.L-1)*.95+(25-R.left)*.3};
+ spawn(){ const fromLeft=Math.random()<.5, f={x:fromLeft?-8:108,y:52+Math.random()*24,dir:fromLeft?1:-1,sp:7.6+(R.L-1)*1.15+(25-R.left)*.3};
   f.b=mob("fox","-40 -30 80 54",toyFox(),"Fox, tap to scare it",()=>{ if(!R.run||f.gone) return; f.gone=true; R.score++; pop();
     f.b.querySelector("svg").style.transform=f.dir>0?"scaleX(-1)":""; f.b.classList.add("run"); f.b.style.left=(f.dir>0?-20:120)+"%"; setTimeout(()=>f.b.remove(),500); });
   f.b.querySelector("svg").style.transform=fromLeft?"":"scaleX(-1)"; place2(f.b,f.x,f.y); R.foxes.push(f); },
@@ -2536,6 +2553,8 @@ const MINI=[
 {id:"scrap",n:"Scrap Hunt",star:"Mr. Crow",d:"Catch scrap so Mr. Crow can build his duck-finding robot.",a:()=>toyCrow(),
  how:"Mr. Crow is building a huge robot that finds ducks! Tap the gears, bolts, springs and caps as they fall. Skip the junk: tapping it costs a part.",
  goal:L=>`Catch ${scrapGoal(L)} parts`,
+ faster:"The scrap falls",
+ rules:L=>[["-18 -18 36 36",SCRAP[0].art(),"Tap the gears, bolts, springs and caps as they fall."],["-18 -18 36 36",JUNK[0].art(),"Don't tap junk, like banana peels. Junk takes away a part."],["-16 -16 32 32",STARI,`Catch ${scrapGoal(L)} parts for 3 stars.`]],
  art(){   return `${sky("#a9c4dc","#e6eef5")}${cloud(70,50,.8)}${cloud(260,36,.7)}
   <path d="M-10 230 Q120 200 250 222 Q330 236 410 214 V310 H-10 Z" fill="${LG("#a6957c","#7c6c56")}" ${O}/>
   <g ${N}><circle cx="40" cy="236" r="18" fill="none" stroke="#2b2b2b" stroke-width="10"/><rect x="110" y="222" width="40" height="24" rx="4" fill="${G("#d8344f")}" ${O2}/></g>
@@ -2550,7 +2569,7 @@ const MINI=[
     if(it.y>104){ it.gone=true; it.b.remove(); } }
   R.items=R.items.filter(i=>!i.gone); },
  spawn(){ const junk=Math.random()<.25+(R.L-1)*.025, k=junk?JUNK[Math.floor(Math.random()*JUNK.length)]:SCRAP[Math.floor(Math.random()*SCRAP.length)];
-  const it={x:8+Math.random()*68,y:-8,sp:(21+(R.L-1)*1.6)*(0.85+Math.random()*.3),r:0,spin:(Math.random()-.5)*120,junk};
+  const it={x:8+Math.random()*68,y:-8,sp:(21+(R.L-1)*2.1)*(0.85+Math.random()*.3),r:0,spin:(Math.random()-.5)*120,junk};
   it.b=mob("fall"+(junk?" junk":""),"-18 -18 36 36",k.art(),junk?`${k.n}, junk`:`${k.n}, scrap`,()=>{ if(!R.run||it.gone) return; it.gone=true;
     if(junk){ R.score=Math.max(0,R.score-1); blip("door"); it.b.classList.add("yuck"); setTimeout(()=>it.b.remove(),450); floatText(it.x,it.y,"Yuck!"); }
     else { R.score++; pop(); it.b.classList.add("got"); place2(it.b,80,76); setTimeout(()=>it.b.remove(),420); drawField(); } });
@@ -2563,6 +2582,8 @@ const MINI=[
 {id:"sand",n:"Sandwich Snatch",star:"Mr. Seagull",d:"Swoop in when the picnic bears doze off. Watch out for flying baskets!",a:()=>toyGull(),
  how:"Mr. Seagull wants sandwiches! Tap a sandwich when its bear dozes off. The bears wake up and throw things at him, so wait for them to doze again. If you grab while a bear is watching, it hides the sandwich for a bit.",
  goal:L=>`Snatch ${sandGoal(L)} sandwiches`,
+ faster:"The bears wake up",
+ rules:L=>[["-34 -56 68 76",bear("doze","#ff6f91"),"When a bear closes its eyes and dozes off, tap its sandwich."],["-34 -56 68 76",bear("watch","#4fb3ff"),"When a bear has its eyes open, wait. If you grab now, it hides the sandwich."],["-16 -16 32 32",STARI,`Snatch ${sandGoal(L)} sandwiches for 3 stars.`]],
  art(){ return `${sky("#8fd0ff","#dff3ff")}${sun(340,44)}${cloud(90,46,.8)}
   <path d="M-10 92 H410 V130 H-10 Z" fill="${LG("#4fb3ff","#2387d9")}" ${O}/><path d="M0 104 Q20 98 40 104 T80 104 T120 104 T160 104 T200 104 T240 104 T280 104 T320 104 T360 104 T400 104" fill="none" stroke="#fff" stroke-width="3" opacity=".6"/>
   <path d="M-10 124 Q200 114 410 124 V310 H-10 Z" fill="${LG("#ffe6a8","#f3cf7e")}" ${O}/>
@@ -2576,8 +2597,8 @@ const MINI=[
     if(s.hey>0){ s.hey-=dt; if(s.hey<=0) ch=true; }
     if(!s.has){ s.re-=dt; if(s.re<=0){ s.has=true; ch=true; } }
     if(s.t<=0){ ch=true;
-      if(s.mode==="watch"){ s.mode="doze"; s.t=Math.max(1.1,2.9-(L-1)*.17)*(0.8+Math.random()*.4); }
-      else if(s.mode==="doze"){ s.mode="stir"; s.t=.55; }
+      if(s.mode==="watch"){ s.mode="doze"; s.t=Math.max(1,2.9-(L-1)*.19)*(0.8+Math.random()*.4); }
+      else if(s.mode==="doze"){ s.mode="stir"; s.t=Math.max(.32,.55-(L-1)*.025); }
       else { s.mode="watch"; s.t=(1.3+Math.random()*2.2)*(1+(L-1)*.035); } }
     if(ch) drawSpot(s); } },
  stars(){ return starsFor(R.score,sandGoal(R.L)); },
@@ -2587,6 +2608,8 @@ const MINI=[
 {id:"jump",n:"Platypus Jump",star:"Mr. Platypus",d:"Tap to jump over the crabs running at you on the beach.",a:()=>toyPlatypus(),
  how:"Crabs are running at Mr. Platypus! Tap anywhere to jump over them. They get faster, more of them show up, and sometimes they come in a line. Three bonks and the round ends.",
  goal:L=>`Jump over ${jumpGoal(L)} crabs`,
+ faster:"The crabs run",
+ rules:L=>[["-40 -40 80 70",toyPlatypus(),"Tap anywhere on the screen to jump."],["-32 -28 64 52",toyCrab(),"Jump over the crabs. Three bonks and the round ends."],["-16 -16 32 32",STARI,`Jump over ${jumpGoal(L)} crabs for 3 stars.`]],
  art(){ return `${sky("#8fd0ff","#e6f7ff")}${sun(276,40)}${cloud(80,44,.8)}${cloud(170,70,.6)}
   <path d="M-10 150 H410 V196 H-10 Z" fill="${LG("#4fb3ff","#2387d9")}" ${O}/><path d="M0 162 Q20 156 40 162 T80 162 T120 162 T160 162 T200 162 T240 162 T280 162 T320 162 T360 162 T400 162" fill="none" stroke="#fff" stroke-width="3" opacity=".6"/>
   <path d="M-10 190 Q200 180 410 190 V310 H-10 Z" fill="${LG("#ffe6a8","#f3cf7e")}" ${O}/>
@@ -2688,21 +2711,28 @@ function openEgg(){ openMini("egg"); }
 function openMini(id){ const g=MG_BY[id]; if(!g) return;
   if(S.screen!=="egg") R.back=S.screen==="world"?"world":"home";
   setScreen("egg"); $("title").textContent=g.n; R.g=g; R.score=0; R.over=false; R.L=Math.min(mgOf(id).lvl,LV); g.setup(R.L); drawField(); g.hud();
-  $("eExit").setAttribute("aria-label",`Leave ${g.n}`); levelPick(); }
+  $("eExit").setAttribute("aria-label",`Leave ${g.n}`);
+  if(!S.flags["how_"+id]){ S.flags["how_"+id]=1; save(); howTo(); } else levelPick(); }
+/* How to play: a short card with a picture for each rule. Shows the first time a game opens, and from the How to play button after that. */
+function howTo(){ const g=R.g, L=Math.min(mgOf(g.id).lvl,LV), c=$("eCover");
+  c.innerHTML=`<div class="howto"><div class="big">How to play</div><p class="howgoal">${g.n}: ${g.d}</p><ol>${g.rules(L).map(([vb,art,t])=>`<li>${sv(vb,art,'class="hic"')}<span>${t}</span></li>`).join("")}</ol><p class="howstar">${starRule(g)}</p><span class="row"><button class="go" id="eGot" type="button">Got it!</button></span></div>`;
+  c.hidden=false; $("eGot").addEventListener("click",levelPick); }
 function levelPick(){ const g=R.g, st=mgOf(g.id), c=$("eCover");
   c.innerHTML=`<div><div class="big">${g.n}</div><p>${g.how}</p>
    <div class="lvls">${Array.from({length:LV},(_,i)=>{ const L=i+1, open=L<=st.lvl, s=st.stars[L]|0;
      return `<button type="button" class="lvl${open?"":" lock"}${L===LV?" fin":""}" data-lvl="${L}"${open?"":" disabled"} aria-label="Level ${L}${open?`, ${s} stars`:", locked"}"><b>${L}</b>${open?starRow(s):lockSvg}</button>`;}).join("")}</div>
    <small class="prize">${starWon(g)?`You won ${g.star}!`:`Beat level ${LV} to win ${g.star}.`}</small>
-   <span class="row"><button class="go" id="ePlay" type="button">Play level ${Math.min(st.lvl,LV)}</button><button class="go ghost" id="eLeave" type="button">Back</button></span></div>`;
+   <span class="row"><button class="go" id="ePlay" type="button">Play level ${Math.min(st.lvl,LV)}</button><button class="go ghost" id="eHow" type="button">How to play</button><button class="go ghost" id="eLeave" type="button">Back</button></span></div>`;
   c.hidden=false;
   $("ePlay").addEventListener("click",()=>startMini(Math.min(st.lvl,LV)));
-  $("eLeave").addEventListener("click",leaveEgg);
+  $("eLeave").addEventListener("click",leaveEgg); $("eHow").addEventListener("click",howTo);
   c.querySelectorAll("[data-lvl]").forEach(b=>b.addEventListener("click",()=>startMini(+b.dataset.lvl))); }
+/* Shows how fast this level is: a meter that fills one bar per level, and a line saying it is faster than the last. */
+function paceRow(g,L){ return `<p class="pace" aria-label="Speed ${L} of ${LV}"><span class="bars" aria-hidden="true">${Array.from({length:LV},(_,i)=>`<i${i<L?' class="on"':""}></i>`).join("")}</span><small>${L>1?`${g.faster} a little faster than level ${L-1}!`:"Nice and easy to start."}</small></p>`; }
 function startMini(L){ const g=R.g; stopMini();
   Object.assign(R,{L,score:0,over:false,run:true,last:performance.now()}); g.setup(L); drawField(); g.hud();
-  $("eCover").innerHTML=`<div><div class="big">Level ${L}</div><p>${g.goal(L)}</p></div>`; $("eCover").classList.add("brief");
-  blip(); setTimeout(()=>{ if(R.run&&R.g===g&&R.L===L){ $("eCover").hidden=true; $("eCover").classList.remove("brief"); R.last=performance.now(); R.raf=requestAnimationFrame(mLoop); } },900); }
+  $("eCover").innerHTML=`<div><div class="big">Level ${L}</div><p>${g.goal(L)}</p>${paceRow(g,L)}</div>`; $("eCover").classList.add("brief");
+  blip(); setTimeout(()=>{ if(R.run&&R.g===g&&R.L===L){ $("eCover").hidden=true; $("eCover").classList.remove("brief"); R.last=performance.now(); R.raf=requestAnimationFrame(mLoop); } },1300); }
 function mLoop(now){ if(!R.run) return;
   const dt=Math.min(.05,(now-R.last)/1000); R.last=now; R.left-=dt; R.g.tick(dt); R.g.hud();
   if(R.over||R.left<=0){ endMini(); return; }

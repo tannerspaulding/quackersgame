@@ -78,3 +78,16 @@
 @keyframes vdance{0%,100%{transform:none}12%{transform:translateY(-14%) rotate(-12deg)}24%{transform:rotate(10deg)}36%{transform:translateY(-14%) rotate(-12deg)}48%{transform:rotate(10deg)}62%{transform:translateY(-18%) scaleX(-1)}76%{transform:translateY(-18%) scaleX(1)}88%{transform:scale(1.06,.92)}}
 @media (prefers-reduced-motion:reduce){.dance{animation:none}}
 .prizeart{overflow:visible}
+.cover .pace{display:flex;flex-direction:column;align-items:center;gap:5px;margin:2px 0 0}
+.cover .pace .bars{display:flex;gap:3px;align-items:flex-end}
+.cover .pace .bars i{display:block;width:9px;border-radius:3px;background:rgba(31,42,68,.14)}
+.cover .pace .bars i:nth-child(1){height:8px}.cover .pace .bars i:nth-child(2){height:9px}.cover .pace .bars i:nth-child(3){height:10px}.cover .pace .bars i:nth-child(4){height:11px}.cover .pace .bars i:nth-child(5){height:12px}.cover .pace .bars i:nth-child(6){height:13px}.cover .pace .bars i:nth-child(7){height:14px}.cover .pace .bars i:nth-child(8){height:15px}.cover .pace .bars i:nth-child(9){height:16px}.cover .pace .bars i:nth-child(10){height:18px}
+.cover .pace .bars i.on{background:linear-gradient(#ffb23f,#f06a2b)}
+.cover .pace small{font-family:var(--note);font-size:.95rem;color:var(--dim)}
+.cover .howto{max-width:340px;gap:10px}
+.cover .howto .howgoal{margin:0;font-weight:700}
+.cover .howto ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;width:100%}
+.cover .howto li{display:flex;align-items:center;gap:12px;text-align:left;background:rgba(255,255,255,.85);border-radius:16px;padding:8px 12px;box-shadow:0 2px 0 rgba(31,42,68,.12)}
+.cover .howto .hic{width:48px;height:48px;flex:none}
+.cover .howto li span{font-size:1rem;line-height:1.3}
+.cover .howto .howstar{margin:0;font-family:var(--note);color:var(--dim)}
