@@ -70,3 +70,26 @@
 /* Phones: the quest, duck, special and holiday counters all fit across the top. */
 @media (max-width:440px){.hud{gap:4px}.badge.quest .qlab{display:none}.badge{padding:1px 6px 1px 3px;gap:2px;font-size:.95rem}.badge.quest+.badge,.badge.spec,.badge.hol{margin-left:0}.badge svg{max-width:20px;max-height:20px}#areaPill{padding-right:8px}}
 @media (max-width:440px){#areaPill{font-size:0;gap:0;padding-right:5px;flex:0 0 auto}}
+/* Compact home header: one slim row of chips under the logo */
+.home .total.chips{display:flex;flex-wrap:nowrap;justify-content:center;gap:6px;margin:-8px 0 2px}
+.chip{position:relative;display:inline-flex;align-items:center;gap:3px;min-height:34px;padding:0 9px 0 5px;border:2px solid var(--ink);border-radius:999px;background:#fff;color:var(--ink);font:900 .9rem var(--display);white-space:nowrap;box-shadow:0 2px 0 var(--ink)}
+.chip svg{width:20px;height:20px;flex:none}
+.chip small{font:800 .72rem var(--display);color:var(--dim)}
+button.chip:active{transform:translateY(2px);box-shadow:none}
+.chip.ducks{background:#FFF6D6;box-shadow:none}
+.chip.spec{background:#FFE9F4}
+.chip.hol{background:#DFF6E4}
+.chip .dot{position:absolute;top:-4px;right:-3px;width:12px;height:12px;border-radius:50%;background:#F2542D;border:2px solid #fff;animation:chipdot 1.4s ease-in-out infinite}
+@keyframes chipdot{50%{transform:scale(1.25)}}
+@media (prefers-reduced-motion:reduce){.chip .dot{animation:none}}
+@media (max-width:360px){.chip small{display:none}}
+/* Holiday pop-up on the home screen: sits just above the tab bar, fades away by itself, tap to open */
+.homepop{position:fixed;z-index:7;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 92px);transform:translate(-50%,12px);width:min(460px,calc(100% - 24px));
+  display:flex;align-items:center;gap:10px;text-align:left;border:3px solid var(--ink);border-radius:20px;background:linear-gradient(#FFE3C2,#FFC98F);color:var(--ink);
+  padding:6px 12px;box-shadow:0 4px 0 var(--ink),0 10px 24px rgba(23,58,94,.25);opacity:0;transition:opacity .35s,transform .35s;pointer-events:none}
+.homepop.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.homepop svg{width:52px;height:44px;flex:none}
+.homepop svg.mitch{width:40px;height:56px}
+.homepop b{display:block;font:900 1rem/1.15 var(--display)}
+.homepop small{font-family:var(--note);font-size:.98rem;color:#7a3c10}
+@media (prefers-reduced-motion:reduce){.homepop{transition:opacity .2s}}

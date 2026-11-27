@@ -61,9 +61,14 @@
     if(all.some(w=>IINFO.includes(w))) return {ok:false,why:"info",msg:"Keep it secret! No usernames or apps. Just your idea."};
     return {ok:true,text};
   }
-  const A=["Speedy","Sneaky","Golden","Puddle","Captain","Sir","Lucky","Fluffy","Turbo","Sunny","Mighty","Tiny","Bubbly","Cosmic","Splashy","Royal"];
-  const B=["Quacker","Mallard","Duckling","Waddler","Feather","Paddler","Beak","Puddle","Pond Pal","Duckster","Wing","Egg"];
-  function suggest(rnd=Math.random){ for(let i=0;i<20;i++){ const n=A[Math.floor(rnd()*A.length)]+" "+B[Math.floor(rnd()*B.length)]; if(n.length<=MAX&&n.split(" ")[0]!==n.split(" ")[1]) return n; } return "Lucky Duck"; }
+  /* Random duck names: a fun word, a duck word and a number, like "Zippy Beak 27". Short words keep every name within 14 letters,
+     and the number makes repeats rare. The server still turns away a name someone already has, and the game then rolls again. */
+  const A=["Zippy","Sunny","Lucky","Tiny","Turbo","Royal","Jolly","Fuzzy","Happy","Brave","Swift","Bold","Cool","Witty","Peppy","Perky","Dizzy","Silly",
+    "Goofy","Snowy","Misty","Mossy","Sandy","Minty","Comet","Pixel","Disco","Ninja","Neon","Cozy","Spicy","Sparky","Bubbly","Lemon","Mango","Cocoa","Star","Moon","Noble","Rusty"];
+  const B=["Quack","Beak","Wing","Egg","Pond","Drake","Ducky","Diver","Fluff","Flap","Honk","Tail","Bean","Feet","Paddle","Ripple","Splash","Puddle","Webs","Plume"];
+  function suggest(rnd=Math.random){ const pick=l=>l[Math.floor(rnd()*l.length)];
+    for(let i=0;i<40;i++){ const num=10+Math.floor(rnd()*90); if(num===69) continue; const n=`${pick(A)} ${pick(B)} ${num}`; if(n.length<=MAX&&check(n).ok) return n; }
+    return "Lucky Duck "+(10+Math.floor(rnd()*89)); }
   const api={check,checkIdea,checkText:checkIdea,suggest,MAX,IMAX,TMAX:IMAX};
   if(typeof module!=="undefined"&&module.exports) module.exports=api; else root.QName=api;
 })(typeof globalThis!=="undefined"?globalThis:this);

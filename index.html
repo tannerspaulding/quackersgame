@@ -453,6 +453,10 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adju
 .lbfield input.shake{animation:lbshake .35s}
 @keyframes lbshake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 @media (prefers-reduced-motion:reduce){.lb .p1 svg,.lbfield input.shake{animation:none}}
+/* Top 25: ranks 4 to 25 scroll inside the card; your own row stays pinned under it when you're further down */
+.lbscroll{max-height:min(46vh,330px);overflow-y:auto;overscroll-behavior:contain;padding:2px 4px 6px 0;margin-top:6px;border-radius:16px;
+  mask-image:linear-gradient(#000 92%,transparent);-webkit-mask-image:linear-gradient(#000 92%,transparent)}
+.lbpin{margin-top:8px;padding-top:8px;border-top:2px dashed var(--soft)}
 
 /* Home: world grid + tab bar */
 .home{gap:10px;padding-bottom:112px;padding-bottom:calc(108px + env(safe-area-inset-bottom,0px))}
@@ -580,6 +584,29 @@ body.onhome .home{padding:76px 0 112px;padding:calc(76px + env(safe-area-inset-t
 /* Phones: the quest, duck, special and holiday counters all fit across the top. */
 @media (max-width:440px){.hud{gap:4px}.badge.quest .qlab{display:none}.badge{padding:1px 6px 1px 3px;gap:2px;font-size:.95rem}.badge.quest+.badge,.badge.spec,.badge.hol{margin-left:0}.badge svg{max-width:20px;max-height:20px}#areaPill{padding-right:8px}}
 @media (max-width:440px){#areaPill{font-size:0;gap:0;padding-right:5px;flex:0 0 auto}}
+/* Compact home header: one slim row of chips under the logo */
+.home .total.chips{display:flex;flex-wrap:nowrap;justify-content:center;gap:6px;margin:-8px 0 2px}
+.chip{position:relative;display:inline-flex;align-items:center;gap:3px;min-height:34px;padding:0 9px 0 5px;border:2px solid var(--ink);border-radius:999px;background:#fff;color:var(--ink);font:900 .9rem var(--display);white-space:nowrap;box-shadow:0 2px 0 var(--ink)}
+.chip svg{width:20px;height:20px;flex:none}
+.chip small{font:800 .72rem var(--display);color:var(--dim)}
+button.chip:active{transform:translateY(2px);box-shadow:none}
+.chip.ducks{background:#FFF6D6;box-shadow:none}
+.chip.spec{background:#FFE9F4}
+.chip.hol{background:#DFF6E4}
+.chip .dot{position:absolute;top:-4px;right:-3px;width:12px;height:12px;border-radius:50%;background:#F2542D;border:2px solid #fff;animation:chipdot 1.4s ease-in-out infinite}
+@keyframes chipdot{50%{transform:scale(1.25)}}
+@media (prefers-reduced-motion:reduce){.chip .dot{animation:none}}
+@media (max-width:360px){.chip small{display:none}}
+/* Holiday pop-up on the home screen: sits just above the tab bar, fades away by itself, tap to open */
+.homepop{position:fixed;z-index:7;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 92px);transform:translate(-50%,12px);width:min(460px,calc(100% - 24px));
+  display:flex;align-items:center;gap:10px;text-align:left;border:3px solid var(--ink);border-radius:20px;background:linear-gradient(#FFE3C2,#FFC98F);color:var(--ink);
+  padding:6px 12px;box-shadow:0 4px 0 var(--ink),0 10px 24px rgba(23,58,94,.25);opacity:0;transition:opacity .35s,transform .35s;pointer-events:none}
+.homepop.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.homepop svg{width:52px;height:44px;flex:none}
+.homepop svg.mitch{width:40px;height:56px}
+.homepop b{display:block;font:900 1rem/1.15 var(--display)}
+.homepop small{font-family:var(--note);font-size:.98rem;color:#7a3c10}
+@media (prefers-reduced-motion:reduce){.homepop{transition:opacity .2s}}
 
 .monpill{position:absolute;z-index:6;left:50%;bottom:calc(max(14px,env(safe-area-inset-bottom)) + 88px);transform:translateX(-50%);display:flex;align-items:center;gap:8px;max-width:calc(100% - 24px);padding:6px 8px 6px 10px;border:3px solid #173A5E;border-radius:999px;background:#FF5A5A;color:#fff;font-family:var(--display);font-weight:900;font-size:1rem;line-height:1.1;box-shadow:0 4px 0 #173A5E;pointer-events:none;animation:monpulse 1s ease-in-out infinite}
 .monpill span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -693,9 +720,14 @@ body.onhome .home{padding:76px 0 112px;padding:calc(76px + env(safe-area-inset-t
     if(all.some(w=>IINFO.includes(w))) return {ok:false,why:"info",msg:"Keep it secret! No usernames or apps. Just your idea."};
     return {ok:true,text};
   }
-  const A=["Speedy","Sneaky","Golden","Puddle","Captain","Sir","Lucky","Fluffy","Turbo","Sunny","Mighty","Tiny","Bubbly","Cosmic","Splashy","Royal"];
-  const B=["Quacker","Mallard","Duckling","Waddler","Feather","Paddler","Beak","Puddle","Pond Pal","Duckster","Wing","Egg"];
-  function suggest(rnd=Math.random){ for(let i=0;i<20;i++){ const n=A[Math.floor(rnd()*A.length)]+" "+B[Math.floor(rnd()*B.length)]; if(n.length<=MAX&&n.split(" ")[0]!==n.split(" ")[1]) return n; } return "Lucky Duck"; }
+  /* Random duck names: a fun word, a duck word and a number, like "Zippy Beak 27". Short words keep every name within 14 letters,
+     and the number makes repeats rare. The server still turns away a name someone already has, and the game then rolls again. */
+  const A=["Zippy","Sunny","Lucky","Tiny","Turbo","Royal","Jolly","Fuzzy","Happy","Brave","Swift","Bold","Cool","Witty","Peppy","Perky","Dizzy","Silly",
+    "Goofy","Snowy","Misty","Mossy","Sandy","Minty","Comet","Pixel","Disco","Ninja","Neon","Cozy","Spicy","Sparky","Bubbly","Lemon","Mango","Cocoa","Star","Moon","Noble","Rusty"];
+  const B=["Quack","Beak","Wing","Egg","Pond","Drake","Ducky","Diver","Fluff","Flap","Honk","Tail","Bean","Feet","Paddle","Ripple","Splash","Puddle","Webs","Plume"];
+  function suggest(rnd=Math.random){ const pick=l=>l[Math.floor(rnd()*l.length)];
+    for(let i=0;i<40;i++){ const num=10+Math.floor(rnd()*90); if(num===69) continue; const n=`${pick(A)} ${pick(B)} ${num}`; if(n.length<=MAX&&check(n).ok) return n; }
+    return "Lucky Duck "+(10+Math.floor(rnd()*89)); }
   const api={check,checkIdea,checkText:checkIdea,suggest,MAX,IMAX,TMAX:IMAX};
   if(typeof module!=="undefined"&&module.exports) module.exports=api; else root.QName=api;
 })(typeof globalThis!=="undefined"?globalThis:this);
@@ -706,6 +738,9 @@ body.onhome .home{padding:76px 0 112px;padding:calc(76px + env(safe-area-inset-t
    play time for this visit (under its own random id), phone/tablet/computer, and app or browser.
    No names unless the player types one for the leaderboard. Respects Do Not Track.
    Fails quietly when offline or the API is down: the game never waits on it.
+   Free-plan safeguards: every call gives up after 6 seconds; after a failure the client waits (1, 2, 4... up to 60 minutes,
+   or until the daily limit resets when the server says it's over its limit) before trying again, keeping its events in the
+   queue meanwhile; pings are batched and only sent when something changed, with a daily cap per device.
 
    Wiring in game.js (for the thread that owns quackersgame):
      QStats.snap = () => ({ ducks:S.found.size, worlds:<worlds finished>, world_max:S.unlocked,
@@ -734,7 +769,8 @@ body.onhome .home{padding:76px 0 112px;padding:calc(76px + env(safe-area-inset-t
 */
 (function(){
   const API = "https://quackers-api.tannerspaulding81.workers.dev";
-  const IDK = "quackers-pid", QK = "quackers-stats-q", RK = "quackers-ref", OFFK = "quackers-stats-off";
+  const IDK = "quackers-pid", QK = "quackers-stats-q", RK = "quackers-ref", OFFK = "quackers-stats-off", BK = "quackers-stats-wait", DK = "quackers-stats-day";
+  const TIMEOUT = 6000, DAY_CAP = 40, EVERY = 300000;   // give up after 6s; at most 40 pings a day per device; a background ping at most every 5 minutes
   const GAME = "https://quackersgame.com/";
   const get = k => { try{ return localStorage.getItem(k); }catch(e){ return null; } };
   const set = (k, v) => { try{ v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); }catch(e){} };
@@ -755,17 +791,48 @@ body.onhome .home{padding:76px 0 112px;padding:calc(76px + env(safe-area-inset-t
   function device(){ const w = Math.min(screen.width, screen.height); return /Mobi|Android|iPhone/i.test(navigator.userAgent) ? (w >= 600 ? "tablet" : "phone") : (navigator.maxTouchPoints > 1 && w >= 600 ? "tablet" : "computer"); }
   function mode(){ return (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone ? "app" : "browser"; }
   function tick(){ const n = Date.now(); if(document.visibilityState === "visible") active += Math.min(n - last, 5000); last = n; }
-  async function post(path, data){ const r = await fetch(API + path, { method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify(data), keepalive:true }); return r.json(); }
+  /* Back-off: after a failure, wait before trying again so a struggling or over-limit backend isn't hammered. */
+  const waitInfo = () => { try{ return JSON.parse(get(BK) || "null") || { until:0, n:0 }; }catch(e){ return { until:0, n:0 }; } };
+  const resting = () => Date.now() < waitInfo().until;
+  function failed(limit){ const w = waitInfo(), n = Math.min((w.n || 0) + 1, 7);
+    let ms = Math.min(60000 * Math.pow(2, n - 1), 3600000);                    // 1, 2, 4, 8, 16, 32, 60 minutes
+    if(limit){ const d = new Date(); ms = Math.max(ms, Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + 1) - d.getTime() + 60000 * (5 + Math.random() * 25)); }  // daily limits reset at midnight UTC
+    set(BK, JSON.stringify({ until:Date.now() + ms, n })); }
+  function worked(){ if(get(BK)) set(BK, null); }
+  /* One place for every request: a 6 second timeout, and any failure (offline, 5xx, over the limit, bad reply) is thrown. */
+  async function req(path, data){
+    if(resting()) throw new Error("resting");
+    const ctl = typeof AbortController !== "undefined" ? new AbortController() : null;
+    const tm = ctl ? setTimeout(() => ctl.abort(), TIMEOUT) : null;
+    try{
+      const r = await fetch(API + path, data === undefined ? (ctl ? { signal:ctl.signal } : undefined)
+        : Object.assign({ method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify(data), keepalive:true }, ctl ? { signal:ctl.signal } : {}));
+      if(r && r.status && (r.status === 429 || r.status >= 500)){ failed(r.status === 429 || r.status === 503); throw new Error("http " + r.status); }
+      const j = await r.json();
+      if(j && j.limit){ failed(true); throw new Error("limit"); }
+      worked(); return j;
+    }catch(e){ if(e && e.message !== "resting" && !/^http|^limit/.test(e.message || "")) failed(false); throw e; }
+    finally{ if(tm) clearTimeout(tm); }
+  }
+  const post = (path, data) => req(path, data || {});
+  const getj = path => req(path);
+  /* Daily cap on background pings per device (things the player asks for, like the board, don't count). */
+  function spend(){ const today = new Date().toISOString().slice(0,10); let d; try{ d = JSON.parse(get(DK) || "null"); }catch(e){}
+    if(!d || d.day !== today) d = { day:today, n:0 }; if(d.n >= DAY_CAP) return false; d.n++; set(DK, JSON.stringify(d)); return true; }
+  let lastSig = "", lastAt = 0, readySig = "", readyAt = 0;
   const Q = {
     snap: () => ({}),
     send(){
-      const id = pid(); if(!id || off() || busy) return;
+      const id = pid(); if(!id || off() || busy || resting()) return;
       tick(); let s = {}; try{ s = Q.snap() || {}; }catch(e){}
       const ev = queue().slice(0, 60);
+      const sig = JSON.stringify([s.ducks, s.worlds, s.world_max, s.points, s.games, ev.length, get(RK) ? 1 : 0]), secs = Math.round(active / 1000);
+      if(sig === lastSig && secs - lastAt < 60) return;      // nothing new worth a request
+      if(!spend()) return;                                   // daily cap reached: keep events for tomorrow
       busy = true;
       post("/v1/ping", Object.assign({ pid:id, device:device(), mode:mode(), where,
         sess:Object.assign({ secs:Math.round(active / 1000) }, sess), ev }, s))
-        .then(r => { if(r && r.ok && !r.slow) keep(queue().slice(ev.length));
+        .then(r => { if(r && r.ok){ lastSig = sig; lastAt = secs; } if(r && r.ok && !r.slow) keep(queue().slice(ev.length));
           const code = get(RK); if(code && r && r.ok && (s.ducks || (s.found || []).length))
             return post("/v1/friend/claim", { pid:id, code }).then(c => { if(c && !c.retry) set(RK, null); }); })
         .catch(()=>{}).finally(() => { busy = false; });
@@ -774,23 +841,26 @@ body.onhome .home{padding:76px 0 112px;padding:calc(76px + env(safe-area-inset-t
       if(off()) return;
       Q.send();
       setInterval(tick, 1000);
-      setInterval(() => { if(document.visibilityState === "visible") Q.send(); }, 120000);
+      setInterval(() => { if(document.visibilityState === "visible") Q.send(); }, EVERY);
       document.addEventListener("visibilitychange", () => { tick(); if(document.visibilityState === "hidden") Q.send(); });
     },
-    changed(){ clearTimeout(t); t = setTimeout(Q.send, 4000); },
+    wait:20000,
+    changed(){ clearTimeout(t); t = setTimeout(Q.send, Q.wait); },   // finds close together go out as one ping
     screen(world, screenName){ where = { world:String(world || "").toLowerCase().slice(0,30), screen:String(screenName || "").slice(0,30) }; },
     event(type, data){ if(off()) return; const q = queue(); q.push(Object.assign({ t:type }, data || {})); keep(q); if(q.length >= 40) Q.changed(); },
-    async board(){ try{ const r = await fetch(API + "/v1/board?pid=" + encodeURIComponent(pid() || "")); return await r.json(); }catch(e){ return { ok:false, rows:[], offline:true }; } },
+    async board(){ try{ return await getj("/v1/board?pid=" + encodeURIComponent(pid() || "")); }catch(e){ return { ok:false, rows:[], offline:true }; } },
     async setName(name){ const c = window.QName ? QName.check(name) : { ok:true, name };
       if(!c.ok) return c;
       const id = pid(); if(!id) return { ok:false, msg:"Can't reach the leaderboard right now. Try again soon." };
       let snap = {}; try{ snap = Q.snap() || {}; }catch(e){}
-      try{ await post("/v1/ping", Object.assign({ pid:id, device:device(), mode:mode(), where }, snap)); }catch(e){}
+      try{ await Q.ready(); }catch(e){}
       try{ return await post("/v1/board", { pid:pid(), name:c.name }); }catch(e){ return { ok:false, msg:"Can't reach the leaderboard right now. Try again soon." }; } },
     async ready(){ let snap = {}; try{ snap = Q.snap() || {}; }catch(e){}
-      try{ await post("/v1/ping", Object.assign({ pid:pid(), device:device(), mode:mode(), where }, snap)); }catch(e){} },
+      const sig = "r" + JSON.stringify([snap.ducks, snap.worlds, snap.points]);   // the server already has this progress: skip the extra request
+      if(sig === readySig && Date.now() - readyAt < 300000) return;
+      try{ const r = await post("/v1/ping", Object.assign({ pid:pid(), device:device(), mode:mode(), where }, snap)); if(r && r.ok){ readySig = sig; readyAt = Date.now(); } }catch(e){} },
     async ideas(){ const id = off() ? "" : (pid() || "");
-      try{ const r = await fetch(API + "/v1/ideas?pid=" + encodeURIComponent(id)); return await r.json(); }catch(e){ return { ok:false, ideas:[], offline:true }; } },
+      try{ return await getj("/v1/ideas?pid=" + encodeURIComponent(id)); }catch(e){ return { ok:false, ideas:[], offline:true }; } },
     async suggestIdea(kind, text){ if(off()) return OFF_MSG;
       const c = window.QName && QName.checkText ? QName.checkText(text) : { ok:true, text };
       if(!c.ok) return c;
@@ -801,10 +871,10 @@ body.onhome .home{padding:76px 0 112px;padding:calc(76px + env(safe-area-inset-t
     async friend(){ if(off()) return OFF_MSG;
       await Q.ready();
       try{ const c = await post("/v1/friend/code", { pid:pid() }); if(!c || !c.ok) return c || { ok:false };
-        const st = await (await fetch(API + "/v1/friend/status?pid=" + encodeURIComponent(pid() || ""))).json();
+        const st = await getj("/v1/friend/status?pid=" + encodeURIComponent(pid() || ""));
         return { ok:true, code:c.code, friends:(st && st.friends) || 0, link:GAME + "?f=" + c.code }; }catch(e){ return { ok:false, offline:true }; } },
     async friends(){ if(off()) return { ok:false, friends:0, off:true };
-      try{ return await (await fetch(API + "/v1/friend/status?pid=" + encodeURIComponent(pid() || ""))).json(); }catch(e){ return { ok:false, friends:0, offline:true }; } },
+      try{ return await getj("/v1/friend/status?pid=" + encodeURIComponent(pid() || "")); }catch(e){ return { ok:false, friends:0, offline:true }; } },
     async shareFriend(){ const r = await Q.friend(); if(!r.ok) return r;
       const data = { title:"Quackers", text:"Come find hidden ducks with me in Quackers!", url:r.link };
       try{ if(navigator.share){ await navigator.share(data); return { ok:true, shared:true }; } }catch(e){ if(e && e.name === "AbortError") return { ok:false, cancelled:true }; }
@@ -815,6 +885,7 @@ body.onhome .home{padding:76px 0 112px;padding:calc(76px + env(safe-area-inset-t
       return r && r.ok ? { ok:true } : { ok:false, msg:(r && r.msg) || "That didn't work. Try again soon." }; },
     sharing(){ return !off(); },
     setSharing(on){ set(OFFK, on ? null : "1"); if(on) Q.send(); },
+    health(){ const w = waitInfo(); let d = null; try{ d = JSON.parse(get(DK) || "null"); }catch(e){} return { resting:resting(), until:w.until || 0, fails:w.n || 0, pingsToday:d && d.day === new Date().toISOString().slice(0,10) ? d.n : 0, cap:DAY_CAP, queued:queue().length }; },
   };
   window.QStats = Q;
 })();
@@ -1893,7 +1964,7 @@ $("sndBtn").addEventListener("click",toggleSound);
 /* The swim-ring Q from the Quackers app icon: the duck sits in the ring and the handle makes the Q's tail. */
 const QMARK=`<g class="logo-duck"><g transform="translate(57.6 66) scale(.62)"><path d="M27 58 Q10 52 7 34 Q21 39 34 46 Z" fill="#FFCB2F" stroke="#173A5E" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><ellipse cx="55" cy="64" rx="37" ry="25" fill="#FFCB2F" stroke="#173A5E" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><path d="M36 63 Q51 47 70 60 Q60 77 40 71 Z" fill="#F0A500" stroke="#173A5E" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><circle cx="82" cy="39" r="21" fill="#FFCB2F" stroke="#173A5E" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><ellipse cx="73" cy="28" rx="5.5" ry="2.6" fill="#fff" opacity=".6" transform="rotate(-28 73 28)"/><ellipse cx="33" cy="54" rx="9" ry="3" fill="#fff" opacity=".45" transform="rotate(-18 33 54)"/><path d="M100 40 Q115 37 117 44 Q111 52 100 50 Z" fill="#FF8A3D" stroke="#173A5E" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><path d="M102 45.6 L113.5 45" fill="none" stroke="#173A5E" stroke-width="2" stroke-linecap="round"/><circle cx="91" cy="47.5" r="4.5" fill="#FF8FB1" opacity=".7"/><circle cx="89" cy="34" r="4.8" fill="#173A5E"/><circle cx="90.7" cy="32.3" r="1.7" fill="#fff"/><path d="M63 23 L81.5 2.5 L100 23 Z" fill="#fff" stroke="#173A5E" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><rect x="61" y="19" width="41.5" height="7" rx="3.5" fill="#2387D9" stroke="#173A5E" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/></g></g><circle cx="96" cy="100" r="58" fill="none" stroke="#173A5E" stroke-width="34"/><circle cx="96" cy="100" r="58" fill="none" stroke="#fff" stroke-width="26"/><circle cx="96" cy="100" r="58" fill="none" stroke="#FF8A3D" stroke-width="26" stroke-dasharray="36 55.1" stroke-dashoffset="18" transform="rotate(-45 96 100)"/><path d="M136 140 Q152 166 190 172" fill="none" stroke="#173A5E" stroke-width="24" stroke-linecap="round"/><path d="M136 140 Q152 166 190 172" fill="none" stroke="#2387D9" stroke-width="15" stroke-linecap="round"/>`;
 function setScreen(name){
-  S.screen=name; closeSheet();
+  S.screen=name; closeSheet(); if(name!=="home"&&$("homePop")) $("homePop").remove();
   $("scrHome").hidden=name!=="home"; $("scrWorld").hidden=name!=="world"; $("scrEgg").hidden=name!=="egg";
   $("homeBtn").hidden=name==="home"; $("gearBtn").hidden=name!=="home"; document.body.classList.toggle("onhome",name==="home");
   const play=name==="world"||name==="egg";
@@ -1910,15 +1981,24 @@ function homeNext(){ /* the newest open world that still has ducks to find */
 const PLAYTRI=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5 L19 12 L8 19 Z" fill="#fff" stroke="#173A5E" stroke-width="2.6" stroke-linejoin="round"/></svg>`;
 const QMARKMINI=`<svg viewBox="16 20 190 168" aria-hidden="true">${QMARK}</svg>`;
 const CHECK=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 L10 17 L19 7" fill="none" stroke="#fff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+let homeNoted=false;
+function homeNote(hol,quest){ /* a small holiday pop-up above the tab bar, once each time the game opens; it fades by itself and a tap opens the quest */
+  if(!hol||homeNoted) return; homeNoted=true;
+  setTimeout(()=>{ if(S.screen!=="home") return;
+    let el=$("homePop"); if(el) el.remove();
+    el=document.createElement("button"); el.type="button"; el.id="homePop"; el.className="homepop";
+    el.innerHTML=(quest?`<svg viewBox="-44 -100 92 164" aria-hidden="true" class="mitch">${toyMitchell(true)}</svg>`:`<svg viewBox="-46 -48 92 76" aria-hidden="true">${hol.art()}</svg>`)+
+      `<span><b>${quest?`Mitchell has a ${hol.holiday} quest!`:`You found the ${hol.name}!`}</b><small>${quest?`Find ${tokAll(hol)} ${hol.items} in ${W[hol.world].name}. Tap to start.`:`It's in your Duck Log for ${W[hol.world].name}.`}</small></span>`;
+    el.addEventListener("click",()=>{ el.remove(); if(quest) openHolidayQuest(hol); else openHoliday(); });
+    document.body.appendChild(el); requestAnimationFrame(()=>el.classList.add("on"));
+    setTimeout(()=>{ el.classList.remove("on"); setTimeout(()=>el.remove(),400); },6500);
+    const off=()=>{ if(S.screen!=="home") el.remove(); }; setTimeout(off,7000); },700); }
 function goHome(){
   setScreen("home"); $("title").innerHTML=`<span class="logo" role="img" aria-label="Quackers"><svg class="qmark" viewBox="16 20 190 168" aria-hidden="true">${QMARK}</svg><b aria-hidden="true">uackers</b></span>`;
   const hol=HOL.find(h=>holOn(h));
   const got=WORLDS.reduce((n,w)=>n+wFound(w),0);
-  let ev;
-  if(hol&&!S.found.has(hol.id)) ev=`<b>Mitchell has a ${hol.holiday} quest!</b><small>${hol.name}: ${tokGot(hol)<tokAll(hol)?`find ${tokAll(hol)} ${hol.items} in ${W[hol.world].name} (${tokGot(hol)} of ${tokAll(hol)}), then search for the duck.`:`all ${hol.items} found! Search ${W[hol.world].name} for the duck.`}</small>`;
-  else if(hol) ev=`<b>You found the ${hol.name}!</b><small>It's in your ${W[hol.world].name} Duck Log. More holiday ducks are on the way.</small>`;
-  else ev=`<b>Holiday ducks</b><small>Special ducks visit on holidays. Look out for them!</small>`;
-  const heroH=HOL[0], nxt=homeNext();
+  const quest=!!(hol&&!S.found.has(hol.id)); /* an open holiday quest shows as a dot on the holiday chip */
+  const nxt=homeNext();
   const [specGot,specAll]=specCount();
   const pic=w=>sv("0 0 400 300",thumbOf(w),'preserveAspectRatio="xMidYMid slice" style="pointer-events:none"');
   const tile=w=>{ const f=wFound(w), t=wTotal(w), open=w.n<=S.unlocked, prev=WORLDS[w.n-2], done=open&&f>=t, isNext=w===nxt;
@@ -1928,8 +2008,11 @@ function goHome(){
   const soonTile=w=>`<button type="button" class="wcard wtile off" data-soon="${w.id}" aria-label="${w.name}, coming soon"><span class="thumb">${pic(w)}<span class="tag">Soon</span></span><span class="meta"><b>${w.name}</b><small>Coming soon</small></span></button>`;
   $("scrHome").innerHTML=`
 
-   <p class="total">${got} of ${allDucks()} ducks found <button type="button" class="spectop" id="hSpecTop" aria-label="Special ducks: ${specGot} of ${specAll}">${SPECSTAR}${specGot}/${specAll} special</button> <button type="button" class="spectop hol" id="hHolTop" aria-label="Holiday ducks: ${holCount().join(" of ")}">${HOLGIFT}${holCount().join("/")} holiday</button></p>
-   <button type="button" class="event" id="evt">${hol&&!S.found.has(hol.id)?`<svg viewBox="-44 -100 92 164" aria-hidden="true" class="mitch"><g class="bob">${toyMitchell(true)}</g></svg>`:`<svg viewBox="-46 -48 92 76" aria-hidden="true"><g class="bob">${(hol||heroH).art()}</g></svg>`}<span>${ev}</span></button>
+   <div class="total chips" role="group" aria-label="Your ducks">
+    <span class="chip ducks" aria-label="${got} of ${allDucks()} ducks found"><svg viewBox="-36 -44 78 70" aria-hidden="true">${toyDuck(YEL)}</svg><span>${got}/${allDucks()}</span><small>ducks</small></span>
+    <button type="button" class="chip spec" id="hSpecTop" aria-label="Special ducks: ${specGot} of ${specAll}">${SPECSTAR}<span>${specGot}/${specAll}</span><small>special</small></button>
+    <button type="button" class="chip hol${quest?" quest":""}" id="hHolTop" aria-label="${quest?`Mitchell has a ${hol.holiday} quest! `:""}Holiday ducks: ${holCount().join(" of ")}">${HOLGIFT}<span>${holCount().join("/")}</span><small>holiday</small>${quest?'<i class="dot" aria-hidden="true"></i>':""}</button>
+   </div>
    <h2 class="wtitle">Worlds</h2>
    <div class="worlds wgrid">${WORLDS.map(tile).join("")}${SOON.map(soonTile).join("")}${(WORLDS.length+SOON.length)%2?`<div class="moretile" aria-hidden="true"><span>${QMARKMINI}</span><b>More worlds coming!</b><small>Mitchell is dreaming them up.</small></div>`:""}</div>
    <div class="extras">
@@ -1944,9 +2027,9 @@ function goHome(){
     <button type="button" class="tab board" id="hBoard">${TROPHY_SM}<span>Top ducks</span></button>
    </nav>`;
   flush();
-  $("evt").addEventListener("click",()=>{ if(hol&&!S.found.has(hol.id)) openHolidayQuest(hol); else openHoliday(); });
   $("hShop").addEventListener("click",()=>openShop());
-  $("hSpecial").addEventListener("click",openSpecial); $("hSpecTop").addEventListener("click",openSpecial); $("hHolTop").addEventListener("click",openHoliday);
+  $("hSpecial").addEventListener("click",openSpecial); $("hSpecTop").addEventListener("click",openSpecial); $("hHolTop").addEventListener("click",()=>{ if(quest) openHolidayQuest(hol); else openHoliday(); });
+  homeNote(hol,quest);
   $("hGames").addEventListener("click",openGames);
   $("hBoard").addEventListener("click",()=>{ if(typeof openBoard==="function") openBoard(); });
   $("hIdeas").addEventListener("click",openIdeas);
@@ -2650,7 +2733,7 @@ function endMini(){ const g=R.g, L=R.L, st=mgOf(g.id); stopMini();
 
 
 /* ---------- Leaderboard + anonymous play stats (QStats from quackers-stats.js, QName from name-check.js) ---------- */
-const LBK="quackers-lbname";
+const LBK="quackers-lbname", LBTOP=25;
 const gameDucks=()=>[...S.found].filter(id=>DUCK[id]);
 const worldsDone=()=>WORLDS.filter(w=>wFound(w)>=wTotal(w)).length;
 function bestLevels(){ const o={}; MINI.forEach(m=>{ const st=S.mg[m.id]; let b=0; if(st) for(const [l,s] of Object.entries(st.stars||{})) if(s>0) b=Math.max(b,+l); o[m.id]=b; }); return o; }
@@ -2688,13 +2771,13 @@ function openBoard(){
    <div class="lbhello">${TROPHY}<div><b>Top Duck Finders</b><small>Most ducks found wins. Ties go to whoever finished more worlds.</small></div></div>
    <div id="lbBoard" class="lbload">Loading the board...</div>
    <form class="lbcard" id="lbForm" autocomplete="off" novalidate>
-    <b id="lbTitle">${nm?"Change your name":"Put your name on the board"}</b>
-    <small>Pick a fun nickname. Don't use your real name, school or anything about where you live.</small>
+    <b id="lbTitle">${nm?"Your board name":"Put your name on the board"}</b>
+    <small>${nm?"We picked a duck name for you. Change it to any fun nickname you like.":"Pick a fun nickname."} Don't use your real name, school or anything about where you live.</small>
     <div class="lbfield"><input id="lbName" name="lbName" aria-label="Leaderboard name" maxlength="14" placeholder="Captain Quack" spellcheck="false" value="${lbEsc(nm)}" aria-describedby="lbMsg">
      <button class="lbdice" type="button" id="lbDice" aria-label="Make me a duck name">${DICE}</button></div>
     <div class="lbcount" id="lbCount">${nm.length} / 14</div>
     <div class="lbmsg" id="lbMsg" role="status" hidden></div>
-    <button class="go" type="submit" id="lbSave">Save my name</button>
+    <button class="go" type="submit" id="lbSave">${nm?"Change my name":"Save my name"}</button>
    </form></div>`,"Leaderboard");
   const say=(ok,t)=>{ const m=$("lbMsg"); if(!m) return; m.hidden=false; m.className="lbmsg "+(ok?"yes":"no"); m.textContent=t; };
   if(!mine) say(false,"Find a duck first, then add your name.");
@@ -2708,7 +2791,7 @@ function openBoard(){
     if(!$("lbForm")) return; btn.disabled=false;
     if(!r||!r.ok){ say(false,(r&&r.msg)||"That name didn't work. Try another!"); const i=$("lbName"); i.classList.remove("shake"); void i.offsetWidth; i.classList.add("shake"); blip(); return; }
     try{ localStorage.setItem(LBK,r.name); }catch(err){}
-    $("lbTitle").textContent="Change your name"; quack();
+    $("lbTitle").textContent="Your board name"; $("lbSave").textContent="Change my name"; quack();
     const b=await loadBoard(); const me=b&&b.mine;
     say(true,`You're on the board as ${r.name}!${me&&me.rank?` You're number ${me.rank}.`:""} Find more ducks to climb.`);
   });
@@ -2723,13 +2806,26 @@ async function loadBoard(){
   if(!rows.length){ el.className="lbload"; el.textContent="Nobody is on the board yet. Be the first!"; return {mine}; }
   const top=rows.slice(0,3), order=[[top[1],"p2",2],[top[0],"p1",1],[top[2],"p3",3]];
   const row=(p)=>`<li class="lbrow${p.me?" me":""}"><span class="n">${p.rank}</span>${lbDuck(false)}<b>${lbEsc(p.name)}${p.me?" <i>(you)</i>":""}</b><span class="ct">${p.ducks}<small>ducks</small></span></li>`;
-  let list=rows.slice(3,10).map(row);
-  if(mine&&mine.rank>10) list.push(`<li class="lbgap" aria-hidden="true">...</li>`,row(mine));
-  if(!mine) list.push(`<li class="lbgap" aria-hidden="true">...</li>`,`<li class="lbrow me"><span class="n">?</span>${lbDuck(false)}<b>Your spot</b><span class="ct">${gameDucks().length}<small>ducks</small></span></li>`);
+  const shown=rows.slice(0,LBTOP), inList=shown.some(r=>r.me);
+  const list=shown.slice(3).map(row).join("");
+  const pin=inList?"":mine?row(mine):`<li class="lbrow me"><span class="n">?</span>${lbDuck(false)}<b>Your spot</b><span class="ct">${gameDucks().length}<small>ducks</small></span></li>`;
   el.className="";
-  el.innerHTML=`<div class="podium">${order.map(([p,c,n])=>p?`<div class="step ${c}">${lbDuck(n===1)}<span class="who">${lbEsc(p.name)}${p.me?" (you)":""}</span><span class="dk">${p.ducks} ducks</span><div class="block">${n}</div></div>`:`<div class="step ${c}"></div>`).join("")}<div class="pbase"></div></div><ol class="lblist">${list.join("")}</ol>`;
+  el.innerHTML=`<div class="podium">${order.map(([p,c,n])=>p?`<div class="step ${c}">${lbDuck(n===1)}<span class="who">${lbEsc(p.name)}${p.me?" (you)":""}</span><span class="dk">${p.ducks} ducks</span><div class="block">${n}</div></div>`:`<div class="step ${c}"></div>`).join("")}<div class="pbase"></div></div>${list?`<ol class="lblist lbscroll" start="4" tabindex="0" aria-label="Top ${LBTOP}">${list}</ol>`:""}${pin?`<ol class="lblist lbpin" aria-label="Your place">${pin}</ol>`:""}`;
   return {mine};
 }
+/* Every player gets a random duck name on the board after their first duck, so nobody has to open Top Ducks to show up.
+   Only from the real site (or a preview's pretend server), only with stats sharing on, and the server keeps every name unique. */
+let anBusy=false, anAt=0;
+const lbLive=()=>!!window.QPREVIEW||/(^|\.)quackersgame\.com$/.test(location.hostname);
+async function autoName(){
+  if(!lbLive()||myName()||anBusy||!window.QStats||!window.QName||!gameDucks().length) return;
+  if(QStats.sharing&&!QStats.sharing()) return;
+  if(Date.now()-anAt<60000) return; anBusy=true; anAt=Date.now();
+  try{ for(let i=0;i<3;i++){ const r=await QStats.setName(QName.suggest());
+      if(r&&r.ok){ try{ localStorage.setItem(LBK,r.name); }catch(e){} break; }
+      if(!r||r.why!=="taken") break; } }catch(e){}
+  anBusy=false; }
+if(window.QStats){ const save1=save; save=function(){ save1(); if(!myName()) setTimeout(autoName,5000); }; setTimeout(autoName,6000); }
 /* Stats only go out from the real site, so previews and tests never send anything. */
 if(window.QStats&&/(^|\.)quackersgame\.com$/.test(location.hostname)) try{ QStats.start(); }catch(e){}
 

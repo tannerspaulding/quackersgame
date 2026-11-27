@@ -1,6 +1,6 @@
 
 /* ---------- Leaderboard + anonymous play stats (QStats from quackers-stats.js, QName from name-check.js) ---------- */
-const LBK="quackers-lbname";
+const LBK="quackers-lbname", LBTOP=25;
 const gameDucks=()=>[...S.found].filter(id=>DUCK[id]);
 const worldsDone=()=>WORLDS.filter(w=>wFound(w)>=wTotal(w)).length;
 function bestLevels(){ const o={}; MINI.forEach(m=>{ const st=S.mg[m.id]; let b=0; if(st) for(const [l,s] of Object.entries(st.stars||{})) if(s>0) b=Math.max(b,+l); o[m.id]=b; }); return o; }
@@ -38,13 +38,13 @@ function openBoard(){
    <div class="lbhello">${TROPHY}<div><b>Top Duck Finders</b><small>Most ducks found wins. Ties go to whoever finished more worlds.</small></div></div>
    <div id="lbBoard" class="lbload">Loading the board...</div>
    <form class="lbcard" id="lbForm" autocomplete="off" novalidate>
-    <b id="lbTitle">${nm?"Change your name":"Put your name on the board"}</b>
-    <small>Pick a fun nickname. Don't use your real name, school or anything about where you live.</small>
+    <b id="lbTitle">${nm?"Your board name":"Put your name on the board"}</b>
+    <small>${nm?"We picked a duck name for you. Change it to any fun nickname you like.":"Pick a fun nickname."} Don't use your real name, school or anything about where you live.</small>
     <div class="lbfield"><input id="lbName" name="lbName" aria-label="Leaderboard name" maxlength="14" placeholder="Captain Quack" spellcheck="false" value="${lbEsc(nm)}" aria-describedby="lbMsg">
      <button class="lbdice" type="button" id="lbDice" aria-label="Make me a duck name">${DICE}</button></div>
     <div class="lbcount" id="lbCount">${nm.length} / 14</div>
     <div class="lbmsg" id="lbMsg" role="status" hidden></div>
-    <button class="go" type="submit" id="lbSave">Save my name</button>
+    <button class="go" type="submit" id="lbSave">${nm?"Change my name":"Save my name"}</button>
    </form></div>`,"Leaderboard");
   const say=(ok,t)=>{ const m=$("lbMsg"); if(!m) return; m.hidden=false; m.className="lbmsg "+(ok?"yes":"no"); m.textContent=t; };
   if(!mine) say(false,"Find a duck first, then add your name.");
@@ -58,7 +58,7 @@ function openBoard(){
     if(!$("lbForm")) return; btn.disabled=false;
     if(!r||!r.ok){ say(false,(r&&r.msg)||"That name didn't work. Try another!"); const i=$("lbName"); i.classList.remove("shake"); void i.offsetWidth; i.classList.add("shake"); blip(); return; }
     try{ localStorage.setItem(LBK,r.name); }catch(err){}
-    $("lbTitle").textContent="Change your name"; quack();
+    $("lbTitle").textContent="Your board name"; $("lbSave").textContent="Change my name"; quack();
     const b=await loadBoard(); const me=b&&b.mine;
     say(true,`You're on the board as ${r.name}!${me&&me.rank?` You're number ${me.rank}.`:""} Find more ducks to climb.`);
   });
@@ -73,12 +73,25 @@ async function loadBoard(){
   if(!rows.length){ el.className="lbload"; el.textContent="Nobody is on the board yet. Be the first!"; return {mine}; }
   const top=rows.slice(0,3), order=[[top[1],"p2",2],[top[0],"p1",1],[top[2],"p3",3]];
   const row=(p)=>`<li class="lbrow${p.me?" me":""}"><span class="n">${p.rank}</span>${lbDuck(false)}<b>${lbEsc(p.name)}${p.me?" <i>(you)</i>":""}</b><span class="ct">${p.ducks}<small>ducks</small></span></li>`;
-  let list=rows.slice(3,10).map(row);
-  if(mine&&mine.rank>10) list.push(`<li class="lbgap" aria-hidden="true">...</li>`,row(mine));
-  if(!mine) list.push(`<li class="lbgap" aria-hidden="true">...</li>`,`<li class="lbrow me"><span class="n">?</span>${lbDuck(false)}<b>Your spot</b><span class="ct">${gameDucks().length}<small>ducks</small></span></li>`);
+  const shown=rows.slice(0,LBTOP), inList=shown.some(r=>r.me);
+  const list=shown.slice(3).map(row).join("");
+  const pin=inList?"":mine?row(mine):`<li class="lbrow me"><span class="n">?</span>${lbDuck(false)}<b>Your spot</b><span class="ct">${gameDucks().length}<small>ducks</small></span></li>`;
   el.className="";
-  el.innerHTML=`<div class="podium">${order.map(([p,c,n])=>p?`<div class="step ${c}">${lbDuck(n===1)}<span class="who">${lbEsc(p.name)}${p.me?" (you)":""}</span><span class="dk">${p.ducks} ducks</span><div class="block">${n}</div></div>`:`<div class="step ${c}"></div>`).join("")}<div class="pbase"></div></div><ol class="lblist">${list.join("")}</ol>`;
+  el.innerHTML=`<div class="podium">${order.map(([p,c,n])=>p?`<div class="step ${c}">${lbDuck(n===1)}<span class="who">${lbEsc(p.name)}${p.me?" (you)":""}</span><span class="dk">${p.ducks} ducks</span><div class="block">${n}</div></div>`:`<div class="step ${c}"></div>`).join("")}<div class="pbase"></div></div>${list?`<ol class="lblist lbscroll" start="4" tabindex="0" aria-label="Top ${LBTOP}">${list}</ol>`:""}${pin?`<ol class="lblist lbpin" aria-label="Your place">${pin}</ol>`:""}`;
   return {mine};
 }
+/* Every player gets a random duck name on the board after their first duck, so nobody has to open Top Ducks to show up.
+   Only from the real site (or a preview's pretend server), only with stats sharing on, and the server keeps every name unique. */
+let anBusy=false, anAt=0;
+const lbLive=()=>!!window.QPREVIEW||/(^|\.)quackersgame\.com$/.test(location.hostname);
+async function autoName(){
+  if(!lbLive()||myName()||anBusy||!window.QStats||!window.QName||!gameDucks().length) return;
+  if(QStats.sharing&&!QStats.sharing()) return;
+  if(Date.now()-anAt<60000) return; anBusy=true; anAt=Date.now();
+  try{ for(let i=0;i<3;i++){ const r=await QStats.setName(QName.suggest());
+      if(r&&r.ok){ try{ localStorage.setItem(LBK,r.name); }catch(e){} break; }
+      if(!r||r.why!=="taken") break; } }catch(e){}
+  anBusy=false; }
+if(window.QStats){ const save1=save; save=function(){ save1(); if(!myName()) setTimeout(autoName,5000); }; setTimeout(autoName,6000); }
 /* Stats only go out from the real site, so previews and tests never send anything. */
 if(window.QStats&&/(^|\.)quackersgame\.com$/.test(location.hostname)) try{ QStats.start(); }catch(e){}

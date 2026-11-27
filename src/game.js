@@ -117,7 +117,7 @@ $("sndBtn").addEventListener("click",toggleSound);
 /* The swim-ring Q from the Quackers app icon: the duck sits in the ring and the handle makes the Q's tail. */
 const QMARK=`<g class="logo-duck"><g transform="translate(57.6 66) scale(.62)"><path d="M27 58 Q10 52 7 34 Q21 39 34 46 Z" fill="#FFCB2F" stroke="#173A5E" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><ellipse cx="55" cy="64" rx="37" ry="25" fill="#FFCB2F" stroke="#173A5E" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><path d="M36 63 Q51 47 70 60 Q60 77 40 71 Z" fill="#F0A500" stroke="#173A5E" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><circle cx="82" cy="39" r="21" fill="#FFCB2F" stroke="#173A5E" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><ellipse cx="73" cy="28" rx="5.5" ry="2.6" fill="#fff" opacity=".6" transform="rotate(-28 73 28)"/><ellipse cx="33" cy="54" rx="9" ry="3" fill="#fff" opacity=".45" transform="rotate(-18 33 54)"/><path d="M100 40 Q115 37 117 44 Q111 52 100 50 Z" fill="#FF8A3D" stroke="#173A5E" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><path d="M102 45.6 L113.5 45" fill="none" stroke="#173A5E" stroke-width="2" stroke-linecap="round"/><circle cx="91" cy="47.5" r="4.5" fill="#FF8FB1" opacity=".7"/><circle cx="89" cy="34" r="4.8" fill="#173A5E"/><circle cx="90.7" cy="32.3" r="1.7" fill="#fff"/><path d="M63 23 L81.5 2.5 L100 23 Z" fill="#fff" stroke="#173A5E" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><rect x="61" y="19" width="41.5" height="7" rx="3.5" fill="#2387D9" stroke="#173A5E" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/></g></g><circle cx="96" cy="100" r="58" fill="none" stroke="#173A5E" stroke-width="34"/><circle cx="96" cy="100" r="58" fill="none" stroke="#fff" stroke-width="26"/><circle cx="96" cy="100" r="58" fill="none" stroke="#FF8A3D" stroke-width="26" stroke-dasharray="36 55.1" stroke-dashoffset="18" transform="rotate(-45 96 100)"/><path d="M136 140 Q152 166 190 172" fill="none" stroke="#173A5E" stroke-width="24" stroke-linecap="round"/><path d="M136 140 Q152 166 190 172" fill="none" stroke="#2387D9" stroke-width="15" stroke-linecap="round"/>`;
 function setScreen(name){
-  S.screen=name; closeSheet();
+  S.screen=name; closeSheet(); if(name!=="home"&&$("homePop")) $("homePop").remove();
   $("scrHome").hidden=name!=="home"; $("scrWorld").hidden=name!=="world"; $("scrEgg").hidden=name!=="egg";
   $("homeBtn").hidden=name==="home"; $("gearBtn").hidden=name!=="home"; document.body.classList.toggle("onhome",name==="home");
   const play=name==="world"||name==="egg";
@@ -134,15 +134,24 @@ function homeNext(){ /* the newest open world that still has ducks to find */
 const PLAYTRI=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5 L19 12 L8 19 Z" fill="#fff" stroke="#173A5E" stroke-width="2.6" stroke-linejoin="round"/></svg>`;
 const QMARKMINI=`<svg viewBox="16 20 190 168" aria-hidden="true">${QMARK}</svg>`;
 const CHECK=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 L10 17 L19 7" fill="none" stroke="#fff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+let homeNoted=false;
+function homeNote(hol,quest){ /* a small holiday pop-up above the tab bar, once each time the game opens; it fades by itself and a tap opens the quest */
+  if(!hol||homeNoted) return; homeNoted=true;
+  setTimeout(()=>{ if(S.screen!=="home") return;
+    let el=$("homePop"); if(el) el.remove();
+    el=document.createElement("button"); el.type="button"; el.id="homePop"; el.className="homepop";
+    el.innerHTML=(quest?`<svg viewBox="-44 -100 92 164" aria-hidden="true" class="mitch">${toyMitchell(true)}</svg>`:`<svg viewBox="-46 -48 92 76" aria-hidden="true">${hol.art()}</svg>`)+
+      `<span><b>${quest?`Mitchell has a ${hol.holiday} quest!`:`You found the ${hol.name}!`}</b><small>${quest?`Find ${tokAll(hol)} ${hol.items} in ${W[hol.world].name}. Tap to start.`:`It's in your Duck Log for ${W[hol.world].name}.`}</small></span>`;
+    el.addEventListener("click",()=>{ el.remove(); if(quest) openHolidayQuest(hol); else openHoliday(); });
+    document.body.appendChild(el); requestAnimationFrame(()=>el.classList.add("on"));
+    setTimeout(()=>{ el.classList.remove("on"); setTimeout(()=>el.remove(),400); },6500);
+    const off=()=>{ if(S.screen!=="home") el.remove(); }; setTimeout(off,7000); },700); }
 function goHome(){
   setScreen("home"); $("title").innerHTML=`<span class="logo" role="img" aria-label="Quackers"><svg class="qmark" viewBox="16 20 190 168" aria-hidden="true">${QMARK}</svg><b aria-hidden="true">uackers</b></span>`;
   const hol=HOL.find(h=>holOn(h));
   const got=WORLDS.reduce((n,w)=>n+wFound(w),0);
-  let ev;
-  if(hol&&!S.found.has(hol.id)) ev=`<b>Mitchell has a ${hol.holiday} quest!</b><small>${hol.name}: ${tokGot(hol)<tokAll(hol)?`find ${tokAll(hol)} ${hol.items} in ${W[hol.world].name} (${tokGot(hol)} of ${tokAll(hol)}), then search for the duck.`:`all ${hol.items} found! Search ${W[hol.world].name} for the duck.`}</small>`;
-  else if(hol) ev=`<b>You found the ${hol.name}!</b><small>It's in your ${W[hol.world].name} Duck Log. More holiday ducks are on the way.</small>`;
-  else ev=`<b>Holiday ducks</b><small>Special ducks visit on holidays. Look out for them!</small>`;
-  const heroH=HOL[0], nxt=homeNext();
+  const quest=!!(hol&&!S.found.has(hol.id)); /* an open holiday quest shows as a dot on the holiday chip */
+  const nxt=homeNext();
   const [specGot,specAll]=specCount();
   const pic=w=>sv("0 0 400 300",thumbOf(w),'preserveAspectRatio="xMidYMid slice" style="pointer-events:none"');
   const tile=w=>{ const f=wFound(w), t=wTotal(w), open=w.n<=S.unlocked, prev=WORLDS[w.n-2], done=open&&f>=t, isNext=w===nxt;
@@ -152,8 +161,11 @@ function goHome(){
   const soonTile=w=>`<button type="button" class="wcard wtile off" data-soon="${w.id}" aria-label="${w.name}, coming soon"><span class="thumb">${pic(w)}<span class="tag">Soon</span></span><span class="meta"><b>${w.name}</b><small>Coming soon</small></span></button>`;
   $("scrHome").innerHTML=`
 
-   <p class="total">${got} of ${allDucks()} ducks found <button type="button" class="spectop" id="hSpecTop" aria-label="Special ducks: ${specGot} of ${specAll}">${SPECSTAR}${specGot}/${specAll} special</button> <button type="button" class="spectop hol" id="hHolTop" aria-label="Holiday ducks: ${holCount().join(" of ")}">${HOLGIFT}${holCount().join("/")} holiday</button></p>
-   <button type="button" class="event" id="evt">${hol&&!S.found.has(hol.id)?`<svg viewBox="-44 -100 92 164" aria-hidden="true" class="mitch"><g class="bob">${toyMitchell(true)}</g></svg>`:`<svg viewBox="-46 -48 92 76" aria-hidden="true"><g class="bob">${(hol||heroH).art()}</g></svg>`}<span>${ev}</span></button>
+   <div class="total chips" role="group" aria-label="Your ducks">
+    <span class="chip ducks" aria-label="${got} of ${allDucks()} ducks found"><svg viewBox="-36 -44 78 70" aria-hidden="true">${toyDuck(YEL)}</svg><span>${got}/${allDucks()}</span><small>ducks</small></span>
+    <button type="button" class="chip spec" id="hSpecTop" aria-label="Special ducks: ${specGot} of ${specAll}">${SPECSTAR}<span>${specGot}/${specAll}</span><small>special</small></button>
+    <button type="button" class="chip hol${quest?" quest":""}" id="hHolTop" aria-label="${quest?`Mitchell has a ${hol.holiday} quest! `:""}Holiday ducks: ${holCount().join(" of ")}">${HOLGIFT}<span>${holCount().join("/")}</span><small>holiday</small>${quest?'<i class="dot" aria-hidden="true"></i>':""}</button>
+   </div>
    <h2 class="wtitle">Worlds</h2>
    <div class="worlds wgrid">${WORLDS.map(tile).join("")}${SOON.map(soonTile).join("")}${(WORLDS.length+SOON.length)%2?`<div class="moretile" aria-hidden="true"><span>${QMARKMINI}</span><b>More worlds coming!</b><small>Mitchell is dreaming them up.</small></div>`:""}</div>
    <div class="extras">
@@ -168,9 +180,9 @@ function goHome(){
     <button type="button" class="tab board" id="hBoard">${TROPHY_SM}<span>Top ducks</span></button>
    </nav>`;
   flush();
-  $("evt").addEventListener("click",()=>{ if(hol&&!S.found.has(hol.id)) openHolidayQuest(hol); else openHoliday(); });
   $("hShop").addEventListener("click",()=>openShop());
-  $("hSpecial").addEventListener("click",openSpecial); $("hSpecTop").addEventListener("click",openSpecial); $("hHolTop").addEventListener("click",openHoliday);
+  $("hSpecial").addEventListener("click",openSpecial); $("hSpecTop").addEventListener("click",openSpecial); $("hHolTop").addEventListener("click",()=>{ if(quest) openHolidayQuest(hol); else openHoliday(); });
+  homeNote(hol,quest);
   $("hGames").addEventListener("click",openGames);
   $("hBoard").addEventListener("click",()=>{ if(typeof openBoard==="function") openBoard(); });
   $("hIdeas").addEventListener("click",openIdeas);

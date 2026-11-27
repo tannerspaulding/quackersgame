@@ -4,6 +4,9 @@
    play time for this visit (under its own random id), phone/tablet/computer, and app or browser.
    No names unless the player types one for the leaderboard. Respects Do Not Track.
    Fails quietly when offline or the API is down: the game never waits on it.
+   Free-plan safeguards: every call gives up after 6 seconds; after a failure the client waits (1, 2, 4... up to 60 minutes,
+   or until the daily limit resets when the server says it's over its limit) before trying again, keeping its events in the
+   queue meanwhile; pings are batched and only sent when something changed, with a daily cap per device.
 
    Wiring in game.js (for the thread that owns quackersgame):
      QStats.snap = () => ({ ducks:S.found.size, worlds:<worlds finished>, world_max:S.unlocked,
@@ -32,7 +35,8 @@
 */
 (function(){
   const API = "https://quackers-api.tannerspaulding81.workers.dev";
-  const IDK = "quackers-pid", QK = "quackers-stats-q", RK = "quackers-ref", OFFK = "quackers-stats-off";
+  const IDK = "quackers-pid", QK = "quackers-stats-q", RK = "quackers-ref", OFFK = "quackers-stats-off", BK = "quackers-stats-wait", DK = "quackers-stats-day";
+  const TIMEOUT = 6000, DAY_CAP = 40, EVERY = 300000;   // give up after 6s; at most 40 pings a day per device; a background ping at most every 5 minutes
   const GAME = "https://quackersgame.com/";
   const get = k => { try{ return localStorage.getItem(k); }catch(e){ return null; } };
   const set = (k, v) => { try{ v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); }catch(e){} };
@@ -53,17 +57,48 @@
   function device(){ const w = Math.min(screen.width, screen.height); return /Mobi|Android|iPhone/i.test(navigator.userAgent) ? (w >= 600 ? "tablet" : "phone") : (navigator.maxTouchPoints > 1 && w >= 600 ? "tablet" : "computer"); }
   function mode(){ return (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone ? "app" : "browser"; }
   function tick(){ const n = Date.now(); if(document.visibilityState === "visible") active += Math.min(n - last, 5000); last = n; }
-  async function post(path, data){ const r = await fetch(API + path, { method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify(data), keepalive:true }); return r.json(); }
+  /* Back-off: after a failure, wait before trying again so a struggling or over-limit backend isn't hammered. */
+  const waitInfo = () => { try{ return JSON.parse(get(BK) || "null") || { until:0, n:0 }; }catch(e){ return { until:0, n:0 }; } };
+  const resting = () => Date.now() < waitInfo().until;
+  function failed(limit){ const w = waitInfo(), n = Math.min((w.n || 0) + 1, 7);
+    let ms = Math.min(60000 * Math.pow(2, n - 1), 3600000);                    // 1, 2, 4, 8, 16, 32, 60 minutes
+    if(limit){ const d = new Date(); ms = Math.max(ms, Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + 1) - d.getTime() + 60000 * (5 + Math.random() * 25)); }  // daily limits reset at midnight UTC
+    set(BK, JSON.stringify({ until:Date.now() + ms, n })); }
+  function worked(){ if(get(BK)) set(BK, null); }
+  /* One place for every request: a 6 second timeout, and any failure (offline, 5xx, over the limit, bad reply) is thrown. */
+  async function req(path, data){
+    if(resting()) throw new Error("resting");
+    const ctl = typeof AbortController !== "undefined" ? new AbortController() : null;
+    const tm = ctl ? setTimeout(() => ctl.abort(), TIMEOUT) : null;
+    try{
+      const r = await fetch(API + path, data === undefined ? (ctl ? { signal:ctl.signal } : undefined)
+        : Object.assign({ method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify(data), keepalive:true }, ctl ? { signal:ctl.signal } : {}));
+      if(r && r.status && (r.status === 429 || r.status >= 500)){ failed(r.status === 429 || r.status === 503); throw new Error("http " + r.status); }
+      const j = await r.json();
+      if(j && j.limit){ failed(true); throw new Error("limit"); }
+      worked(); return j;
+    }catch(e){ if(e && e.message !== "resting" && !/^http|^limit/.test(e.message || "")) failed(false); throw e; }
+    finally{ if(tm) clearTimeout(tm); }
+  }
+  const post = (path, data) => req(path, data || {});
+  const getj = path => req(path);
+  /* Daily cap on background pings per device (things the player asks for, like the board, don't count). */
+  function spend(){ const today = new Date().toISOString().slice(0,10); let d; try{ d = JSON.parse(get(DK) || "null"); }catch(e){}
+    if(!d || d.day !== today) d = { day:today, n:0 }; if(d.n >= DAY_CAP) return false; d.n++; set(DK, JSON.stringify(d)); return true; }
+  let lastSig = "", lastAt = 0, readySig = "", readyAt = 0;
   const Q = {
     snap: () => ({}),
     send(){
-      const id = pid(); if(!id || off() || busy) return;
+      const id = pid(); if(!id || off() || busy || resting()) return;
       tick(); let s = {}; try{ s = Q.snap() || {}; }catch(e){}
       const ev = queue().slice(0, 60);
+      const sig = JSON.stringify([s.ducks, s.worlds, s.world_max, s.points, s.games, ev.length, get(RK) ? 1 : 0]), secs = Math.round(active / 1000);
+      if(sig === lastSig && secs - lastAt < 60) return;      // nothing new worth a request
+      if(!spend()) return;                                   // daily cap reached: keep events for tomorrow
       busy = true;
       post("/v1/ping", Object.assign({ pid:id, device:device(), mode:mode(), where,
         sess:Object.assign({ secs:Math.round(active / 1000) }, sess), ev }, s))
-        .then(r => { if(r && r.ok && !r.slow) keep(queue().slice(ev.length));
+        .then(r => { if(r && r.ok){ lastSig = sig; lastAt = secs; } if(r && r.ok && !r.slow) keep(queue().slice(ev.length));
           const code = get(RK); if(code && r && r.ok && (s.ducks || (s.found || []).length))
             return post("/v1/friend/claim", { pid:id, code }).then(c => { if(c && !c.retry) set(RK, null); }); })
         .catch(()=>{}).finally(() => { busy = false; });
@@ -72,23 +107,26 @@
       if(off()) return;
       Q.send();
       setInterval(tick, 1000);
-      setInterval(() => { if(document.visibilityState === "visible") Q.send(); }, 120000);
+      setInterval(() => { if(document.visibilityState === "visible") Q.send(); }, EVERY);
       document.addEventListener("visibilitychange", () => { tick(); if(document.visibilityState === "hidden") Q.send(); });
     },
-    changed(){ clearTimeout(t); t = setTimeout(Q.send, 4000); },
+    wait:20000,
+    changed(){ clearTimeout(t); t = setTimeout(Q.send, Q.wait); },   // finds close together go out as one ping
     screen(world, screenName){ where = { world:String(world || "").toLowerCase().slice(0,30), screen:String(screenName || "").slice(0,30) }; },
     event(type, data){ if(off()) return; const q = queue(); q.push(Object.assign({ t:type }, data || {})); keep(q); if(q.length >= 40) Q.changed(); },
-    async board(){ try{ const r = await fetch(API + "/v1/board?pid=" + encodeURIComponent(pid() || "")); return await r.json(); }catch(e){ return { ok:false, rows:[], offline:true }; } },
+    async board(){ try{ return await getj("/v1/board?pid=" + encodeURIComponent(pid() || "")); }catch(e){ return { ok:false, rows:[], offline:true }; } },
     async setName(name){ const c = window.QName ? QName.check(name) : { ok:true, name };
       if(!c.ok) return c;
       const id = pid(); if(!id) return { ok:false, msg:"Can't reach the leaderboard right now. Try again soon." };
       let snap = {}; try{ snap = Q.snap() || {}; }catch(e){}
-      try{ await post("/v1/ping", Object.assign({ pid:id, device:device(), mode:mode(), where }, snap)); }catch(e){}
+      try{ await Q.ready(); }catch(e){}
       try{ return await post("/v1/board", { pid:pid(), name:c.name }); }catch(e){ return { ok:false, msg:"Can't reach the leaderboard right now. Try again soon." }; } },
     async ready(){ let snap = {}; try{ snap = Q.snap() || {}; }catch(e){}
-      try{ await post("/v1/ping", Object.assign({ pid:pid(), device:device(), mode:mode(), where }, snap)); }catch(e){} },
+      const sig = "r" + JSON.stringify([snap.ducks, snap.worlds, snap.points]);   // the server already has this progress: skip the extra request
+      if(sig === readySig && Date.now() - readyAt < 300000) return;
+      try{ const r = await post("/v1/ping", Object.assign({ pid:pid(), device:device(), mode:mode(), where }, snap)); if(r && r.ok){ readySig = sig; readyAt = Date.now(); } }catch(e){} },
     async ideas(){ const id = off() ? "" : (pid() || "");
-      try{ const r = await fetch(API + "/v1/ideas?pid=" + encodeURIComponent(id)); return await r.json(); }catch(e){ return { ok:false, ideas:[], offline:true }; } },
+      try{ return await getj("/v1/ideas?pid=" + encodeURIComponent(id)); }catch(e){ return { ok:false, ideas:[], offline:true }; } },
     async suggestIdea(kind, text){ if(off()) return OFF_MSG;
       const c = window.QName && QName.checkText ? QName.checkText(text) : { ok:true, text };
       if(!c.ok) return c;
@@ -99,10 +137,10 @@
     async friend(){ if(off()) return OFF_MSG;
       await Q.ready();
       try{ const c = await post("/v1/friend/code", { pid:pid() }); if(!c || !c.ok) return c || { ok:false };
-        const st = await (await fetch(API + "/v1/friend/status?pid=" + encodeURIComponent(pid() || ""))).json();
+        const st = await getj("/v1/friend/status?pid=" + encodeURIComponent(pid() || ""));
         return { ok:true, code:c.code, friends:(st && st.friends) || 0, link:GAME + "?f=" + c.code }; }catch(e){ return { ok:false, offline:true }; } },
     async friends(){ if(off()) return { ok:false, friends:0, off:true };
-      try{ return await (await fetch(API + "/v1/friend/status?pid=" + encodeURIComponent(pid() || ""))).json(); }catch(e){ return { ok:false, friends:0, offline:true }; } },
+      try{ return await getj("/v1/friend/status?pid=" + encodeURIComponent(pid() || "")); }catch(e){ return { ok:false, friends:0, offline:true }; } },
     async shareFriend(){ const r = await Q.friend(); if(!r.ok) return r;
       const data = { title:"Quackers", text:"Come find hidden ducks with me in Quackers!", url:r.link };
       try{ if(navigator.share){ await navigator.share(data); return { ok:true, shared:true }; } }catch(e){ if(e && e.name === "AbortError") return { ok:false, cancelled:true }; }
@@ -113,6 +151,7 @@
       return r && r.ok ? { ok:true } : { ok:false, msg:(r && r.msg) || "That didn't work. Try again soon." }; },
     sharing(){ return !off(); },
     setSharing(on){ set(OFFK, on ? null : "1"); if(on) Q.send(); },
+    health(){ const w = waitInfo(); let d = null; try{ d = JSON.parse(get(DK) || "null"); }catch(e){} return { resting:resting(), until:w.until || 0, fails:w.n || 0, pingsToday:d && d.day === new Date().toISOString().slice(0,10) ? d.n : 0, cap:DAY_CAP, queued:queue().length }; },
   };
   window.QStats = Q;
 })();
