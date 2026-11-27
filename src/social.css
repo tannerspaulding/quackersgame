@@ -31,7 +31,9 @@
 .ibvote:disabled{opacity:.6}
 .ibmine li{flex-wrap:wrap;background:#F6FBFF}
 .ibst{flex-basis:100%;font-style:normal;font-family:var(--note);font-size:1.02rem;color:var(--dim)}
-.ibst.approved{color:#1C5C34}.ibst.declined{color:#7A1C1C}
+.ibst.approved{color:#1C5C34}.ibst.declined{color:#7A1C1C}.ibst.built{color:#1C5C34;font-weight:700}
+.ibdone li{background:#E9F8EE}
+.ibbuilt .go{align-self:center;min-width:160px}
 .ibnote{font-size:.85rem;color:var(--dim);text-align:center}
 .frtop{display:flex;align-items:center;gap:10px}
 .frtop svg{width:84px;height:78px;flex:none}

@@ -14,6 +14,32 @@ const MONTHS=["January","February","March","April","May","June","July","August",
 function monthEnd(){ const d=new Date(); const last=new Date(d.getFullYear(),d.getMonth()+1,0).getDate(); return `${MONTHS[d.getMonth()]} ${last}`; }
 
 /* ---- Idea Box ---- */
+/* This device remembers the ids of ideas it sent (on this device only, never sent anywhere), so it can say
+   "Your idea was built!" when Mitchell builds one. The server forgets which device sent an idea when the month ends. */
+const IDK="quackers-ideas";
+function myIdeas(){ let d=null; try{ d=JSON.parse(localStorage.getItem(IDK)||"null"); }catch(e){}
+  d=d&&typeof d==="object"?d:{}; d.ids=Array.isArray(d.ids)?d.ids:[]; d.seen=Array.isArray(d.seen)?d.seen:[]; return d; }
+function keepIdeas(d){ const yr=Date.now()-365*864e5; d.ids=d.ids.filter(x=>x&&x.id&&x.at>yr).slice(-30); d.seen=d.seen.slice(-30);
+  try{ localStorage.setItem(IDK,JSON.stringify(d)); }catch(e){} }
+function rememberIdeas(list){ const d=myIdeas(); let ch=false;
+  (list||[]).forEach(id=>{ id=Number(id); if(id>0&&!d.ids.some(x=>x.id===id)){ d.ids.push({id,at:Date.now()}); ch=true; } });
+  if(ch||!d.sync){ d.sync=1; keepIdeas(d); } return d; }
+/* Built ideas that came from this device and haven't been shown yet. */
+function newBuilt(r){ const d=rememberIdeas((r.mine||[]).map(x=>x.id)), mine=new Set(d.ids.map(x=>x.id)), seen=new Set(d.seen);
+  return (r.built||[]).filter(x=>mine.has(x.id)&&!seen.has(x.id)); }
+function markSeen(list){ const d=myIdeas(); list.forEach(x=>{ if(!d.seen.includes(x.id)) d.seen.push(x.id); }); keepIdeas(d); }
+let builtChecked=false;
+function checkBuilt(){ if(builtChecked||!statsOn()) return; const d=myIdeas(); if(d.sync&&!d.ids.length) return; builtChecked=true;
+  QStats.ideas().then(r=>{ if(!r||!r.ok) return; const b=newBuilt(r); if(!b.length) return;
+    setTimeout(()=>{ if(S.screen!=="home"||!$("sheet").hidden) { builtChecked=false; return; } markSeen(b); showBuilt(b); },1400); }).catch(()=>{ builtChecked=false; }); }
+function showBuilt(list){
+  const one=list.length===1, w=list.every(x=>x.kind==="world");
+  openSheet(`<div class="ib ibbuilt">
+   <div class="lbhello">${BULB}<div><b>${one?"Your idea was built!":"Your ideas were built!"}</b><small>Mitchell made ${one?"your idea":"your ideas"} part of Quackers. Thank you!</small></div></div>
+   <ul class="ibmine">${list.map(x=>`<li>${kindTag(x.kind)}<span class="ibt">${ibEsc(x.text)}</span><em class="ibst built">Built!</em></li>`).join("")}</ul>
+   <small class="ibnote">${w?"Look for it on the home screen.":"Go find it in the game!"}</small>
+   <button type="button" class="go" id="ibYay">Yay!</button></div>`,"Idea Box");
+  $("ibYay").addEventListener("click",closeSheet); pop(); }
 function openIdeas(){
   let kind="duck";
   openSheet(`<div class="ib">
@@ -44,6 +70,7 @@ function openIdeas(){
     let r; try{ r=await QStats.suggestIdea(kind,t); }catch(err){ r={ok:false}; }
     if(!$("ibForm")) return; btn.disabled=false;
     if(!r||!r.ok){ say(false,(r&&r.msg)||"Can't reach the Idea Box right now. Try again soon."); const i=$("ibText"); i.classList.remove("shake"); void i.offsetWidth; i.classList.add("shake"); blip(); return; }
+    if(r.id) rememberIdeas([r.id]);
     $("ibText").value=""; $("ibCount").textContent="0 / 80"; quack();
     say(true,"Thanks! A grown-up will check your idea. Then everyone can vote on it.");
     loadIdeas();
@@ -68,8 +95,11 @@ async function loadIdeas(){
     b.classList.toggle("on",!!v.voted); b.setAttribute("aria-pressed",String(!!v.voted)); b.querySelector("b").textContent=v.votes;
     b.setAttribute("aria-label",`${v.voted?"Take back your vote":"Vote for this idea"}, ${v.votes} votes`); if(v.voted) pop();
     const mv=$("ibMine")&&$("ibMine").querySelector(`[data-votes="${b.dataset.id}"]`); if(mv) mv.textContent=v.votes; }));
-  const mine=r.mine||[], win=r.winner, st={waiting:"Waiting for a grown-up",approved:"On the board",declined:"Not this time"};
+  const mine=r.mine||[], win=r.winner, st={waiting:"Waiting for a grown-up",approved:"On the board",declined:"Not this time",built:"Mitchell built it!"};
+  const fresh=newBuilt(r); if(fresh.length) markSeen(fresh);
+  const mineIds=new Set(myIdeas().ids.map(x=>x.id)), built=r.built||[];
   $("ibMine").innerHTML=(mine.length?`<h4 class="ibh">Your ideas this month</h4><ul class="ibmine">${mine.map(x=>`<li>${kindTag(x.kind)}<span class="ibt">${x.text?ibEsc(x.text):"(idea removed)"}</span><em class="ibst ${ibEsc(x.status)}">${st[x.status]||""}${x.status==="approved"?` · <span data-votes="${ibEsc(x.id)}">${x.votes}</span> votes`:""}</em></li>`).join("")}</ul><small class="ibnote">You can send 3 ideas a month.</small>`:"")
+    +(built.length?`<h4 class="ibh">Built from player ideas</h4><ul class="ibmine ibdone">${built.slice(0,8).map(x=>`<li>${kindTag(x.kind)}<span class="ibt">${ibEsc(x.text)}${mineIds.has(x.id)?` <i class="ibyou">(yours!)</i>`:""}</span><em class="ibst built">Built!</em></li>`).join("")}</ul>`:"")
     +(win?`<div class="ibwin"><b>Last month's winner</b>${kindTag(win.kind)}<span class="ibt">${ibEsc(win.text)}</span><small>${win.made?"Mitchell made it! Look for it in the game.":`${win.votes} votes. Mitchell is looking at it!`}</small></div>`:"");
 }
 
@@ -132,12 +162,12 @@ function askForget(){ const b=$("hForget"), m=$("setMsg");
   go.then(r=>{ if(!b.isConnected) return;
     if(!r||!r.ok){ b.disabled=false; delete b.dataset.armed; b.classList.remove("armed"); b.textContent="Delete my data";
       m.hidden=false; m.className="lbmsg no"; m.textContent=(r&&r.msg)||"Couldn't reach the game server, so nothing was deleted. Try again soon."; return; }
-    [LBK].forEach(k=>{ try{ localStorage.removeItem(k); }catch(e){} });
+    [LBK,IDK].forEach(k=>{ try{ localStorage.removeItem(k); }catch(e){} }); builtChecked=true;
     localStorage.removeItem(KEY); S.found=new Set(); S.flags={}; S.unlocked=1; S.tokens=[]; S.best=0; S.last={}; S.pts=0; S.mg={}; S.own=[]; S.hat=""; S.color=""; S.spark=0; S.buddy=0; doneShown.clear();
     m.hidden=false; m.className="lbmsg yes"; m.textContent="Done. Your ducks and game data are deleted from this device and the game server."; b.textContent="Deleted";
     setTimeout(goHome,2600); });
 }
-{ const home1=goHome; goHome=function(){ const r=home1(); setTimeout(()=>checkFriends(false),800); return r; }; }
+{ const home1=goHome; goHome=function(){ const r=home1(); setTimeout(()=>checkFriends(false),800); setTimeout(checkBuilt,1000); return r; }; }
 function shareLabel(){ return `${SHIELD}<span>Share game stats: ${window.QStats&&QStats.sharing()?"on":"off"}</span>`; }
 function toggleSharing(){ if(!window.QStats) return; const b=$("hShare");
   if(navigator.doNotTrack==="1"||window.doNotTrack==="1"){ const m=$("setMsg"); m.hidden=false; m.className="lbmsg no"; m.textContent="Do Not Track is on in this browser, so stats stay off."; return; }
