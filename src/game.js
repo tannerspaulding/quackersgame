@@ -47,7 +47,7 @@ const door=(to,label,inner,soon)=>`<g class="door" ${soon?`data-soon="${soon}"`:
 const act=(name,label,inner)=>`<g class="act" data-act="${name}" tabindex="0" role="button" aria-label="${label}">${inner}</g>`;
 const helperAt=(w,x,y,s)=>`<g transform="translate(${x} ${y}) scale(${s})" ${N}>${shadow(20)}<g class="bob">${w.helper.art(false)}</g></g>`;
 /* Each new world has a helper. Every duck you find gives you one of its tokens; hand them all over and the helper becomes the last duck. */
-const ICONS={rock:s=>typeof rockIcon==="function"?rockIcon(s):"",fish:s=>fishIcon(s),ticket:s=>ticketIcon(s),gear:s=>gearIcon(s),feather:s=>featherIcon(s),gem:s=>gemIcon(s)};
+const ICONS={rock:s=>typeof rockIcon==="function"?rockIcon(s):"",fish:s=>fishIcon(s),ticket:s=>ticketIcon(s),gear:s=>gearIcon(s),feather:s=>featherIcon(s),gem:s=>gemIcon(s),dice:s=>diceIcon(s)};
 const regDucks=w=>(w.ducks||[]).filter(d=>!d.helper);
 const helperDuck=w=>(w.ducks||[]).find(d=>d.helper);
 const tokensFor=w=>regDucks(w).filter(d=>S.found.has(d.id)).length;
