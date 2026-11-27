@@ -508,6 +508,79 @@ body.onhome .topbar h1 .logo svg.qmark{width:46px;height:41px;margin:0 -10px -4p
 body.onhome .topbar h1 .logo b{font-size:1.75rem;-webkit-text-stroke:2.2px var(--ink)}
 body.onhome .home{padding:76px 0 112px;padding:calc(76px + env(safe-area-inset-top,0px)) 0 calc(112px + env(safe-area-inset-bottom,0px))}
 
+/* Idea Box, friend link, privacy */
+.extras{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+.xcard{display:flex;align-items:center;gap:8px;text-align:left;border:3px solid var(--ink);border-radius:18px;padding:10px;background:#FFF3C4;box-shadow:0 4px 0 var(--ink);color:var(--ink);font-family:var(--body);min-height:76px}
+.xcard.friend{background:#D6F5F1}
+.xcard:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.xcard svg{width:46px;height:46px;flex:none}
+.xcard b{display:block;font-family:var(--display);font-weight:900;font-size:1rem;line-height:1.1}
+.xcard small{display:block;font-size:.8rem;line-height:1.2;color:var(--dim)}
+.privfoot{margin:6px 0 0;text-align:center;font-family:var(--note);font-size:1.05rem;color:var(--muted)}
+.privfoot a{color:inherit;text-decoration:underline;text-underline-offset:3px;padding:8px 4px}
+.ib,.fr{display:flex;flex-direction:column;gap:12px}
+.ibkind{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.ibkind button{border:3px solid var(--ink);border-radius:14px;padding:8px;background:#F6FBFF;font-family:var(--display);font-weight:800;font-size:1rem;color:var(--ink);min-height:44px}
+.ibkind button[aria-checked="true"]{background:var(--duck);box-shadow:inset 0 -3px 0 rgba(23,58,94,.25)}
+.ibform textarea{width:100%;resize:none;border:3px solid var(--ink);border-radius:14px;padding:9px 12px;font-family:var(--body);font-size:1.05rem;background:#F6FBFF;color:var(--ink)}
+.ibform textarea::placeholder{color:var(--soft)}
+.ibform textarea.shake{animation:lbshake .35s}
+.ibh{margin:4px 0 -4px;font-family:var(--display);font-weight:900;font-size:1.1rem;color:var(--ink)}
+.iblist,.ibmine{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.ibrow,.ibmine li{position:relative;display:flex;align-items:center;gap:8px;background:#fff;border:3px solid var(--ink);border-radius:16px;padding:8px 8px 8px 10px;color:var(--ink)}
+.ibrow.top{background:#FFF7D6}
+.ibcrown{position:absolute;top:-14px;left:8px;width:26px;height:20px}
+.ibcrown svg{width:26px;height:20px}
+.ibk{flex:none;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;border:2px solid var(--ink);border-radius:999px;padding:1px 7px}
+.ibk.d{background:#FFE066}.ibk.w{background:#BFE6FF}
+.ibt{flex:1;min-width:0;font-size:.98rem;line-height:1.25;overflow-wrap:anywhere}
+.ibvote{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:52px;min-height:52px;border:3px solid var(--ink);border-radius:14px;background:#F6FBFF;color:var(--ink);padding:2px 6px}
+.ibvote svg{width:22px;height:22px;fill:#fff}
+.ibvote b{font-family:var(--display);font-weight:900;font-size:.95rem;line-height:1}
+.ibvote.on{background:#FFE0EC}.ibvote.on svg{fill:var(--bubble)}
+.ibvote:disabled{opacity:.6}
+.ibmine li{flex-wrap:wrap;background:#F6FBFF}
+.ibst{flex-basis:100%;font-style:normal;font-family:var(--note);font-size:1.02rem;color:var(--dim)}
+.ibst.approved{color:#1C5C34}.ibst.declined{color:#7A1C1C}
+.ibnote{font-size:.85rem;color:var(--dim);text-align:center}
+.frtop{display:flex;align-items:center;gap:10px}
+.frtop svg{width:84px;height:78px;flex:none}
+.frtop b{display:block;font-family:var(--display);font-weight:900;font-size:1.3rem;line-height:1.1}
+.frtop small{display:block;font-size:.92rem;color:var(--dim)}
+.fr .go{min-height:52px}
+.fr .go:disabled{opacity:.6}
+.frcount{margin:0;text-align:center;font-size:1rem}
+.frurl{display:block;font-family:var(--body);font-size:.95rem;overflow-wrap:anywhere;user-select:all}
+.mbtn.privacy{background:#C9F2D6;color:var(--ink);text-decoration:none}
+.mbtn.forget{color:#a3271a}
+.mbtn.forget:disabled{opacity:.7}
+@media (prefers-reduced-motion:reduce){.ibform textarea.shake{animation:none}}
+.ibyou{font-style:normal;font-size:.85rem;color:var(--dim)}
+.ibvote.mine{opacity:.7}
+.ibwait{margin:0;font-family:var(--note);font-size:1.08rem;text-align:center;color:var(--dim)}
+.ibwin{display:flex;flex-wrap:wrap;align-items:center;gap:6px;background:#FFF7D6;border:3px solid var(--ink);border-radius:16px;padding:10px;color:var(--ink)}
+.ibwin>b{flex-basis:100%;font-family:var(--display);font-weight:900}
+.ibwin small{flex-basis:100%;color:var(--dim)}
+.mbtn.share{background:#E2F7E9}
+.frlink input{width:100%;box-sizing:border-box;min-height:48px;padding:10px 12px;border:3px solid var(--ink);border-radius:14px;background:#F4FBFF;color:var(--ink);font:700 16px var(--body);text-align:center;-webkit-user-select:all;user-select:all}
+.frbtns{display:flex;gap:10px}
+.frbtns .go{flex:1;color:var(--ink);display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;margin:0}
+.frbtns .go[disabled]{opacity:.5}
+.badge.spec{margin-left:6px;background:#FFE9F4;padding:1px 9px 1px 5px}
+.home .total{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px 10px}
+.spectop{display:inline-flex;align-items:center;gap:4px;min-height:36px;padding:2px 10px 2px 6px;border:2.5px solid var(--ink);border-radius:999px;background:#FFE9F4;color:var(--ink);font:900 .95rem var(--display);box-shadow:0 3px 0 var(--ink)}
+.spectop:active{transform:translateY(3px);box-shadow:none}
+.spechow{margin:2px 0 10px;font-size:.95rem;color:var(--dim);text-align:center}
+
+.badge.hol{margin-left:6px;background:#DFF6E4;padding:1px 9px 1px 5px}
+.spectop.hol{background:#DFF6E4}
+.hcard .sil{filter:brightness(0);opacity:.2}
+.hcard.soon{opacity:.85;border-style:dashed}
+.hcard.locked b{color:var(--dim)}
+/* Phones: the quest, duck, special and holiday counters all fit across the top. */
+@media (max-width:440px){.hud{gap:4px}.badge.quest .qlab{display:none}.badge{padding:1px 6px 1px 3px;gap:2px;font-size:.95rem}.badge.quest+.badge,.badge.spec,.badge.hol{margin-left:0}.badge svg{max-width:20px;max-height:20px}#areaPill{padding-right:8px}}
+@media (max-width:440px){#areaPill{font-size:0;gap:0;padding-right:5px;flex:0 0 auto}}
+
 </style>
 </head>
 <body>
@@ -526,7 +599,7 @@ body.onhome .home{padding:76px 0 112px;padding:calc(76px + env(safe-area-inset-t
           <div class="hud">
             <button class="hbtn" type="button" id="exitBtn" aria-label="Back to the worlds"><svg viewBox="0 0 22 22" aria-hidden="true"><path d="M3 11 L11 4 L19 11 V19 H13 V14 H9 V19 H3 Z" fill="#FFCB2F" stroke="#173A5E" stroke-width="2.4" stroke-linejoin="round"/></svg></button>
             <span class="chip" id="areaPill"></span>
-            <button class="badge quest" type="button" id="questPill" hidden></button><button class="badge" type="button" id="countPill"></button>
+            <button class="badge quest" type="button" id="questPill" hidden></button><button class="badge" type="button" id="countPill"></button><button class="badge spec" type="button" id="specPill"></button><button class="badge hol" type="button" id="holPill"></button>
           </div>
           <button class="hbtn corner bl hint" type="button" id="tabHint" aria-label="Hint"><svg viewBox="0 0 26 26" aria-hidden="true"><path d="M13 3 A7 7 0 0 1 17 16 V18 H9 V16 A7 7 0 0 1 13 3 Z" fill="#FFE066" stroke="#173A5E" stroke-width="2.4" stroke-linejoin="round"/><rect x="9" y="19" width="8" height="4" rx="2" fill="#9DB7D2" stroke="#173A5E" stroke-width="2"/></svg></button>
           <button class="hbtn corner br" type="button" id="tabMenu" aria-label="Menu"><svg viewBox="0 0 22 22" aria-hidden="true"><path d="M5 7 H17 M5 11 H17 M5 15 H17" stroke="#173A5E" stroke-width="2.8" stroke-linecap="round"/></svg></button>
@@ -586,10 +659,34 @@ body.onhome .home{padding:76px 0 112px;padding:calc(76px + env(safe-area-inset-t
       return {ok:false,why:"info",msg:"Keep it secret! No real names, schools or places. Try a duck nickname."};
     return {ok:true,name};
   }
+
+  /* Ideas for new ducks and worlds: longer free text, checked word by word so nice words like peacock or scrap pass. */
+  const IMAX=80, IMIN=4;
+  const SAFE=["peacock","peacocks","cockatoo","cockatiel","scrap","scraps","scrappy","scrape","scraper","skyscraper","skyscrapers","grape","grapes","drape","drapes","trapeze","therapist","essex","sussex","dickens","hancock","shitake","assassin","cocktail"];
+  const IINFO=["gmail","email","insta","instagram","tiktok","snapchat","discord","youtube","roblox","twitch","whatsapp","facebook","phone","address","http","https","www","dotcom"];
+  const IPHRASE=/\b(my name is|my names|i am \d|i'?m \d|i live|i go to|my school|my teacher|years old|yrs old|my address|my phone|call me at|text me)\b/i;
+  function checkIdea(raw){
+    const text=tidy(raw).slice(0,200);
+    if(text.length<IMIN) return {ok:false,why:"short",msg:"Tell us a little more about your idea."};
+    if(text.length>IMAX) return {ok:false,why:"long",msg:`Keep it to ${IMAX} letters or less.`};
+    if(/[@\\<>{}]|https?:|www\.|\.(com|net|org|io|co|gg|me|tv)\b/i.test(text)) return {ok:false,why:"info",msg:"No emails or websites. Just tell us your idea!"};
+    if(/\d[\d\s().-]{5,}\d/.test(text)||/\d(st|nd|rd|th)\s*grade/i.test(text)) return {ok:false,why:"info",msg:"Keep it secret! No numbers about you, like phone numbers or grades."};
+    if(IPHRASE.test(text)) return {ok:false,why:"info",msg:"Keep it secret! No names, ages, schools or places. Just your idea."};
+    if(!/^[A-Za-z0-9 .,!?'"&()-]+$/.test(text)) return {ok:false,why:"chars",msg:"Use letters, numbers and simple punctuation only."};
+    if(!/[a-z]{2}/i.test(text)) return {ok:false,why:"short",msg:"Tell us a little more about your idea."};
+    const ws=text.split(/[\s.,!?'"&()-]+/).filter(Boolean).map(w=>leet(w)).filter(Boolean);
+    const spaced=text.replace(/\b([a-z0-9@$!|])[ .-]+(?=[a-z0-9@$!|]\b)/gi,"$1");   // f u c k, f.u.c.k -> fuck
+    const all=[...ws,...spaced.split(/[\s.,!?'"&()-]+/).filter(Boolean).map(w=>leet(w))];
+    const badWord=w=>{ if(SAFE.includes(w)||w==='from'||w==='age') return false; const q=squash(w);
+      return WORDS.includes(w)||WORDS.includes(q)||ROOTS.some(r=>w.includes(r)||((squash(r).length>=4||(squash(r)===r&&r.length>=3))&&q.includes(squash(r)))); };
+    if(all.some(badWord)) return {ok:false,why:"word",msg:"Let's keep it friendly! Try different words."};
+    if(all.some(w=>IINFO.includes(w))) return {ok:false,why:"info",msg:"Keep it secret! No usernames or apps. Just your idea."};
+    return {ok:true,text};
+  }
   const A=["Speedy","Sneaky","Golden","Puddle","Captain","Sir","Lucky","Fluffy","Turbo","Sunny","Mighty","Tiny","Bubbly","Cosmic","Splashy","Royal"];
   const B=["Quacker","Mallard","Duckling","Waddler","Feather","Paddler","Beak","Puddle","Pond Pal","Duckster","Wing","Egg"];
   function suggest(rnd=Math.random){ for(let i=0;i<20;i++){ const n=A[Math.floor(rnd()*A.length)]+" "+B[Math.floor(rnd()*B.length)]; if(n.length<=MAX&&n.split(" ")[0]!==n.split(" ")[1]) return n; } return "Lucky Duck"; }
-  const api={check,suggest,MAX};
+  const api={check,checkIdea,checkText:checkIdea,suggest,MAX,IMAX,TMAX:IMAX};
   if(typeof module!=="undefined"&&module.exports) module.exports=api; else root.QName=api;
 })(typeof globalThis!=="undefined"?globalThis:this);
 
@@ -612,11 +709,31 @@ body.onhome .home{padding:76px 0 112px;padding:calc(76px + env(safe-area-inset-t
      QStats.event("earn", {src:"egg", n:15});                // Pond Points earned (src: duck, quest, egg, scrap, sand, jump)
      QStats.board().then(...)                 // leaderboard sheet
      QStats.setName(name).then(...)           // {ok,name} or {ok:false,msg}
+
+   Idea box:
+     QStats.ideas().then(r => ...)            // {ok, month, ends, rows:[{id,kind,text,votes,voted,mine}], mine:[{id,kind,text,status,votes}], winner}
+     QStats.suggestIdea("duck"|"world", text) // {ok,id,status:"waiting",msg} or {ok:false,msg,why}; checked here first, then on the server
+     QStats.vote(id, true|false)              // {ok, votes, voted} or {ok:false,msg,why:"own"}
+   Friend link (load this file before the game reads the URL; it keeps ?f=<code> on a new device, tidies the
+   address bar, and claims the friend credit by itself after the first duck is found):
+     QStats.friend().then(r => ...)           // {ok, code, friends, link}; unlock the bonus duck when friends >= 1
+     QStats.shareFriend()                     // opens the share sheet with the player's link (falls back to copying it)
+   Privacy:
+     QStats.forget()                          // deletes this device's data on the server and starts fresh
+     QStats.sharing() / QStats.setSharing(on) // turn sending stats off or on (off also hides leaderboard, ideas, friends)
 */
 (function(){
   const API = "https://quackers-api.tannerspaulding81.workers.dev";
-  const IDK = "quackers-pid", QK = "quackers-stats-q";
-  const off = () => navigator.doNotTrack === "1" || window.doNotTrack === "1";
+  const IDK = "quackers-pid", QK = "quackers-stats-q", RK = "quackers-ref", OFFK = "quackers-stats-off";
+  const GAME = "https://quackersgame.com/";
+  const get = k => { try{ return localStorage.getItem(k); }catch(e){ return null; } };
+  const set = (k, v) => { try{ v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); }catch(e){} };
+  const off = () => navigator.doNotTrack === "1" || window.doNotTrack === "1" || get(OFFK) === "1";
+  const OFF_MSG = { ok:false, off:true, msg:"Stats sharing is turned off. Turn it on in settings to use this." };
+  // Friend link: keep the code from ?f=<code> until the server says it counted (or can't), and take it out of the address bar.
+  try{ const u = new URL(location.href), f = (u.searchParams.get("f") || "").toLowerCase();
+    if(/^[a-z2-9]{8}$/.test(f) && !get(IDK)) set(RK, f);
+    if(u.searchParams.has("f")){ u.searchParams.delete("f"); history.replaceState(history.state, "", u.pathname + (u.search || "") + u.hash); } }catch(e){}
   const rid = n => { const a = new Uint8Array(n); crypto.getRandomValues(a); return Array.from(a, b => b.toString(36).padStart(2,"0")).join("").slice(0, n * 2); };
   let t = null, busy = false, where = {}, active = 0, last = Date.now();
   const sess = { id: rid(8), hour: new Date().getHours(), dow: new Date().getDay() };
@@ -638,7 +755,9 @@ body.onhome .home{padding:76px 0 112px;padding:calc(76px + env(safe-area-inset-t
       busy = true;
       post("/v1/ping", Object.assign({ pid:id, device:device(), mode:mode(), where,
         sess:Object.assign({ secs:Math.round(active / 1000) }, sess), ev }, s))
-        .then(r => { if(r && r.ok && !r.slow) keep(queue().slice(ev.length)); })
+        .then(r => { if(r && r.ok && !r.slow) keep(queue().slice(ev.length));
+          const code = get(RK); if(code && r && r.ok && (s.ducks || (s.found || []).length))
+            return post("/v1/friend/claim", { pid:id, code }).then(c => { if(c && !c.retry) set(RK, null); }); })
         .catch(()=>{}).finally(() => { busy = false; });
     },
     start(){
@@ -658,6 +777,34 @@ body.onhome .home{padding:76px 0 112px;padding:calc(76px + env(safe-area-inset-t
       let snap = {}; try{ snap = Q.snap() || {}; }catch(e){}
       try{ await post("/v1/ping", Object.assign({ pid:id, device:device(), mode:mode(), where }, snap)); }catch(e){}
       try{ return await post("/v1/board", { pid:pid(), name:c.name }); }catch(e){ return { ok:false, msg:"Can't reach the leaderboard right now. Try again soon." }; } },
+    async ready(){ let snap = {}; try{ snap = Q.snap() || {}; }catch(e){}
+      try{ await post("/v1/ping", Object.assign({ pid:pid(), device:device(), mode:mode(), where }, snap)); }catch(e){} },
+    async ideas(){ const id = off() ? "" : (pid() || "");
+      try{ const r = await fetch(API + "/v1/ideas?pid=" + encodeURIComponent(id)); return await r.json(); }catch(e){ return { ok:false, ideas:[], offline:true }; } },
+    async suggestIdea(kind, text){ if(off()) return OFF_MSG;
+      const c = window.QName && QName.checkText ? QName.checkText(text) : { ok:true, text };
+      if(!c.ok) return c;
+      await Q.ready();
+      try{ return await post("/v1/ideas", { pid:pid(), kind, text:c.text }); }catch(e){ return { ok:false, msg:"Can't reach the idea box right now. Try again soon." }; } },
+    async vote(id, on){ if(off()) return OFF_MSG;
+      try{ return await post("/v1/ideas/vote", { pid:pid(), id, on:on !== false }); }catch(e){ return { ok:false, msg:"Can't reach the idea box right now. Try again soon." }; } },
+    async friend(){ if(off()) return OFF_MSG;
+      await Q.ready();
+      try{ const c = await post("/v1/friend/code", { pid:pid() }); if(!c || !c.ok) return c || { ok:false };
+        const st = await (await fetch(API + "/v1/friend/status?pid=" + encodeURIComponent(pid() || ""))).json();
+        return { ok:true, code:c.code, friends:(st && st.friends) || 0, link:GAME + "?f=" + c.code }; }catch(e){ return { ok:false, offline:true }; } },
+    async friends(){ if(off()) return { ok:false, friends:0, off:true };
+      try{ return await (await fetch(API + "/v1/friend/status?pid=" + encodeURIComponent(pid() || ""))).json(); }catch(e){ return { ok:false, friends:0, offline:true }; } },
+    async shareFriend(){ const r = await Q.friend(); if(!r.ok) return r;
+      const data = { title:"Quackers", text:"Come find hidden ducks with me in Quackers!", url:r.link };
+      try{ if(navigator.share){ await navigator.share(data); return { ok:true, shared:true }; } }catch(e){ if(e && e.name === "AbortError") return { ok:false, cancelled:true }; }
+      try{ await navigator.clipboard.writeText(r.link); return { ok:true, copied:true, link:r.link }; }catch(e){ return { ok:true, link:r.link }; } },
+    async forget(){ const id = get(IDK); let r = { ok:true };
+      if(id){ try{ r = await post("/v1/forget", { pid:id }); }catch(e){ return { ok:false, msg:"Can't reach the server right now, so nothing was deleted. Try again soon." }; } }
+      if(r && r.ok){ set(IDK, null); set(QK, null); set(RK, null); }
+      return r && r.ok ? { ok:true } : { ok:false, msg:(r && r.msg) || "That didn't work. Try again soon." }; },
+    sharing(){ return !off(); },
+    setSharing(on){ set(OFFK, on ? null : "1"); if(on) Q.send(); },
   };
   window.QStats = Q;
 })();
@@ -901,6 +1048,28 @@ function toyMitchell(wave=true,talk=false){ const skin=G("#f7d3bb"), tee=G("#2f9
   <path d="M-8.4 -34.4 Q0 -32.2 8.4 -34.4 L8 -31.6 Q0 -29.4 -8 -31.6 Z" fill="#ffffff"/>
   <path d="M-7.6 -33 H7.6" stroke="#9aa6b2" stroke-width="1.2"/>${[-6,-3,0,3,6].map(x=>`<rect x="${x-.9}" y="-33.9" width="1.8" height="1.8" fill="#8f9aa6"/>`).join("")}</g>`;
 }
+/* Error Code Duck (Mitchell's friend-link duck): 8-bit pixel duck, a blue error screen for a face and a body made of error messages. */
+function errorDuck(){
+  const I="#173A5E", body="M-32 -12 H16 V-8 H24 V16 H20 V20 H12 V24 H-24 V20 H-32 V16 H-36 V-8 H-32 Z";
+  const lines=[["ERROR 0x0DUCK","#D93A3A"],["QUACK.EXE STOPPED",I],["!! DUCK NOT FOUND","#D93A3A"],["ERR ERR ERR ERR",I],["FATAL: TOO QUACKY","#D93A3A"],["RETRY? RETRY?",I]];
+  return `<g shape-rendering="crispEdges">
+  <path d="M-44 -30 H-36 V-22 H-28 V-12 H-36 V-18 H-44 Z" fill="#E6ECF3" stroke="${I}" stroke-width="2.4"/>
+  <rect x="-16" y="24" width="8" height="5" fill="#FF9F43" stroke="${I}" stroke-width="2"/><rect x="0" y="24" width="8" height="5" fill="#FF9F43" stroke="${I}" stroke-width="2"/>
+  <clipPath id="errBody"><path d="${body}"/></clipPath>
+  <path d="${body}" fill="#F4F7FB"/>
+  <g clip-path="url(#errBody)" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="3.7" font-weight="700">
+   ${lines.map(([t,c],i)=>`<text x="${-33+(i%2)*3}" y="${-6.5+i*4.6}" fill="${c}">${t}</text>`).join("")}
+   <rect x="-36" y="20" width="64" height="6" fill="#D5DEE8"/>
+  </g>
+  <path d="${body}" fill="none" stroke="${I}" stroke-width="2.6" stroke-linejoin="miter"/>
+  <rect x="32" y="-30" width="10" height="8" fill="#FF9F43" stroke="${I}" stroke-width="2.4"/><rect x="32" y="-23" width="7" height="5" fill="#F07F1E" stroke="${I}" stroke-width="2"/>
+  <rect x="0" y="-46" width="34" height="34" fill="#1F5FD6" stroke="${I}" stroke-width="3"/>
+  <rect x="3" y="-43" width="28" height="3" fill="#4D86F0"/>
+  <rect x="8" y="-38" width="5" height="5" fill="#fff"/><rect x="21" y="-38" width="5" height="5" fill="#fff"/>
+  <rect x="6" y="-28" width="22" height="2.4" fill="#fff"/><rect x="6" y="-24" width="16" height="2.4" fill="#fff" opacity=".85"/><rect x="6" y="-20" width="19" height="2.4" fill="#fff" opacity=".7"/>
+  <rect x="6" y="-16" width="9" height="2.4" fill="#fff" opacity=".55"/>
+  </g>`;
+}
 
 /* ---------- More things ducks wear (for Spooky Manor and Under the Sea) ---------- */
 Object.assign(ACC,{
@@ -986,9 +1155,9 @@ const KEY="quackers-v3";
 const NOW_MONTH=(()=>{ try{ const m=+new URLSearchParams(location.search).get("month"); if(m>=1&&m<=12) return m-1; }catch(e){} return new Date().getMonth(); })();
 function load(){ try{ const j=JSON.parse(localStorage.getItem(KEY)||"null"); if(j&&typeof j==="object") return j; }catch(e){} return {}; }
 const SV=load();
-const S={screen:"home",world:null,area:null,found:new Set(SV.found||[]),flags:SV.flags||{},unlocked:SV.unlocked||1,sound:SV.sound!==false,tokens:SV.tokens||[],best:SV.best||0,last:SV.last||{},seen:new Set(),pts:SV.pts|0,mg:SV.mg||(SV.best?{egg:{lvl:2,stars:{1:SV.best}}}:{}),own:SV.own||[],hat:SV.hat||"",color:SV.color||"",spark:SV.spark|0,crowAt:0,
+const S={screen:"home",world:null,area:null,found:new Set(SV.found||[]),flags:SV.flags||{},unlocked:SV.unlocked||1,sound:SV.sound!==false,tokens:SV.tokens||[],best:SV.best||0,last:SV.last||{},seen:new Set(),pts:SV.pts|0,mg:SV.mg||(SV.best?{egg:{lvl:2,stars:{1:SV.best}}}:{}),own:SV.own||[],hat:SV.hat||"",color:SV.color||"",spark:SV.spark|0,buddy:SV.buddy|0,crowAt:0,
   get F(){ return this.flags[this.world]||(this.flags[this.world]={}); }};
-function save(){ try{ localStorage.setItem(KEY,JSON.stringify({found:[...S.found],flags:S.flags,unlocked:S.unlocked,sound:S.sound,tokens:S.tokens,best:S.best,last:S.last,pts:S.pts,mg:S.mg,own:S.own,hat:S.hat,color:S.color,spark:S.spark})); }catch(e){} }
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify({found:[...S.found],flags:S.flags,unlocked:S.unlocked,sound:S.sound,tokens:S.tokens,best:S.best,last:S.last,pts:S.pts,mg:S.mg,own:S.own,hat:S.hat,color:S.color,spark:S.spark,buddy:S.buddy})); }catch(e){} }
 
 /* ---------- Sound ---------- */
 let actx;
@@ -1015,7 +1184,7 @@ const door=(to,label,inner,soon)=>`<g class="door" ${soon?`data-soon="${soon}"`:
 const act=(name,label,inner)=>`<g class="act" data-act="${name}" tabindex="0" role="button" aria-label="${label}">${inner}</g>`;
 const helperAt=(w,x,y,s)=>`<g transform="translate(${x} ${y}) scale(${s})" ${N}>${shadow(20)}<g class="bob">${w.helper.art(false)}</g></g>`;
 /* Each new world has a helper. Every duck you find gives you one of its tokens; hand them all over and the helper becomes the last duck. */
-const ICONS={fish:s=>fishIcon(s),ticket:s=>ticketIcon(s),gear:s=>gearIcon(s),feather:s=>featherIcon(s)};
+const ICONS={rock:s=>typeof rockIcon==="function"?rockIcon(s):"",fish:s=>fishIcon(s),ticket:s=>ticketIcon(s),gear:s=>gearIcon(s),feather:s=>featherIcon(s)};
 const regDucks=w=>(w.ducks||[]).filter(d=>!d.helper);
 const helperDuck=w=>(w.ducks||[]).find(d=>d.helper);
 const tokensFor=w=>regDucks(w).filter(d=>S.found.has(d.id)).length;
@@ -1632,7 +1801,7 @@ function goHome(){
   else if(hol) ev=`<b>You found the ${hol.name}!</b><small>It's in your ${W[hol.world].name} Duck Log. More holiday ducks are on the way.</small>`;
   else ev=`<b>Holiday ducks</b><small>Special ducks visit on holidays. Look out for them!</small>`;
   const heroH=HOL[0], nxt=homeNext();
-  const specGot=MINI.filter(starWon).length+SHOP.filter(i=>i.kind==="duck"&&own(i.id)).length, specAll=MINI.length+Object.keys(SHOPDUCK).length;
+  const [specGot,specAll]=specCount();
   const pic=w=>sv("0 0 400 300",thumbOf(w),'preserveAspectRatio="xMidYMid slice" style="pointer-events:none"');
   const tile=w=>{ const f=wFound(w), t=wTotal(w), open=w.n<=S.unlocked, prev=WORLDS[w.n-2], done=open&&f>=t, isNext=w===nxt;
     return `<button type="button" class="wcard wtile${open?"":" locked"}${done?" finished":""}${isNext?" next":""}" data-world="${w.id}" aria-label="${w.name}${open?`, ${f} of ${t} ducks found`:", locked"}">
@@ -1641,10 +1810,15 @@ function goHome(){
   const soonTile=w=>`<button type="button" class="wcard wtile off" data-soon="${w.id}" aria-label="${w.name}, coming soon"><span class="thumb">${pic(w)}<span class="tag">Soon</span></span><span class="meta"><b>${w.name}</b><small>Coming soon</small></span></button>`;
   $("scrHome").innerHTML=`
 
-   <p class="total">${got} of ${allDucks()} ducks found</p>
+   <p class="total">${got} of ${allDucks()} ducks found <button type="button" class="spectop" id="hSpecTop" aria-label="Special ducks: ${specGot} of ${specAll}">${SPECSTAR}${specGot}/${specAll} special</button> <button type="button" class="spectop hol" id="hHolTop" aria-label="Holiday ducks: ${holCount().join(" of ")}">${HOLGIFT}${holCount().join("/")} holiday</button></p>
    <button type="button" class="event" id="evt">${hol&&!S.found.has(hol.id)?`<svg viewBox="-44 -100 92 164" aria-hidden="true" class="mitch"><g class="bob">${toyMitchell(true)}</g></svg>`:`<svg viewBox="-46 -48 92 76" aria-hidden="true"><g class="bob">${(hol||heroH).art()}</g></svg>`}<span>${ev}</span></button>
    <h2 class="wtitle">Worlds</h2>
    <div class="worlds wgrid">${WORLDS.map(tile).join("")}${SOON.map(soonTile).join("")}${(WORLDS.length+SOON.length)%2?`<div class="moretile" aria-hidden="true"><span>${QMARKMINI}</span><b>More worlds coming!</b><small>Mitchell is dreaming them up.</small></div>`:""}</div>
+   <div class="extras">
+    <button type="button" class="xcard ideas" id="hIdeas">${BULB}<span><b>Idea Box</b><small>Tell Mitchell your duck or world idea</small></span></button>
+    <button type="button" class="xcard friend" id="hFriend"><svg viewBox="-44 -52 88 82" aria-hidden="true">${S.buddy?buddyArt():`<g opacity=".55">${buddyArt()}</g>`}</svg><span><b>Invite a friend</b><small>${S.buddy?"You got Error Code Duck!":"Win the Error Code Duck"}</small></span></button>
+   </div>
+   <p class="privfoot"><a href="/privacy/">Privacy</a> · A game by Mitchell</p>
    <nav class="tabs" aria-label="More to do">
     <button type="button" class="tab games" id="hGames">${IC.games}<span>Mini games</span></button>
     <button type="button" class="tab shop" id="hShop">${IC.shop}<span>Shop</span><em class="tabpts">${PP}${S.pts}</em></button>
@@ -1654,9 +1828,11 @@ function goHome(){
   flush();
   $("evt").addEventListener("click",()=>{ if(hol&&!S.found.has(hol.id)) openHolidayQuest(hol); else openHoliday(); });
   $("hShop").addEventListener("click",()=>openShop());
-  $("hSpecial").addEventListener("click",openSpecial);
+  $("hSpecial").addEventListener("click",openSpecial); $("hSpecTop").addEventListener("click",openSpecial); $("hHolTop").addEventListener("click",openHoliday);
   $("hGames").addEventListener("click",openGames);
   $("hBoard").addEventListener("click",()=>{ if(typeof openBoard==="function") openBoard(); });
+  $("hIdeas").addEventListener("click",openIdeas);
+  $("hFriend").addEventListener("click",openFriend);
   $("scrHome").querySelectorAll("[data-world]").forEach(b=>b.addEventListener("click",()=>{ const w=W[b.dataset.world];
     if(w.n>S.unlocked){ homeToast(b,`Finish ${WORLDS[w.n-2].name} first!`); blip(); return; } enterWorld(w.id); }));
   $("scrHome").querySelectorAll("[data-soon]").forEach(b=>b.addEventListener("click",()=>{ homeToast(b,"Mitchell is still building this one!"); blip(); }));
@@ -1665,13 +1841,19 @@ function openSettings(){
   openSheet(`<div class="menu setmenu">
     <button type="button" class="mbtn" id="sSound">${S.sound?SND_ON:SND_OFF}<span>Sound: ${S.sound?"on":"off"}</span></button>
     <button type="button" class="mbtn reset" id="hReset">Start over</button>
+    <button type="button" class="mbtn share" id="hShare">${shareLabel()}</button>
+    <a class="mbtn privacy" href="/privacy/">${SHIELD}<span>Privacy: what we keep</span></a>
+    <button type="button" class="mbtn reset forget" id="hForget">Delete my data</button>
+    <div class="lbmsg" id="setMsg" role="status" hidden></div>
     <p class="setfoot">A game by Mitchell. Every character is drawn just for Quackers.</p></div>`,"Settings");
   $("sSound").addEventListener("click",()=>{ toggleSound(); const b=$("sSound"); b.innerHTML=`${S.sound?SND_ON:SND_OFF}<span>Sound: ${S.sound?"on":"off"}</span>`; });
   $("hReset").addEventListener("click",askReset);
+  $("hForget").addEventListener("click",askForget);
+  $("hShare").addEventListener("click",toggleSharing);
 }
 let resetT;
 function askReset(){ const b=$("hReset");
-  if(b.dataset.armed){ localStorage.removeItem(KEY); S.found=new Set(); S.flags={}; S.unlocked=1; S.tokens=[]; S.best=0; S.last={}; S.pts=0; S.mg={}; S.own=[]; S.hat=""; S.color=""; S.spark=0; doneShown.clear(); save(); goHome(); return; }
+  if(b.dataset.armed){ localStorage.removeItem(KEY); S.found=new Set(); S.flags={}; S.unlocked=1; S.tokens=[]; S.best=0; S.last={}; S.pts=0; S.mg={}; S.own=[]; S.hat=""; S.color=""; S.spark=0; S.buddy=0; doneShown.clear(); save(); goHome(); return; }
   b.dataset.armed="1"; b.textContent="Tap again to erase all your ducks"; b.classList.add("armed");
   clearTimeout(resetT); resetT=setTimeout(()=>{ if(b.isConnected){ delete b.dataset.armed; b.textContent="Start over"; b.classList.remove("armed"); } },3500);
 }
@@ -1763,6 +1945,8 @@ function renderHud(pop){
   const n=wFound(w), t=wTotal(w), b=$("countPill"), h=holHere();
   b.setAttribute("aria-label",`Duck Log: ${n} of ${t} found`);
   b.innerHTML=`<svg width="26" height="22" viewBox="-36 -44 78 70" aria-hidden="true">${toyDuck(YEL)}</svg>${n}/${t}`;
+  const [sn,st]=specCount(), sp=$("specPill"); sp.innerHTML=`${SPECSTAR}${sn}/${st}`; sp.setAttribute("aria-label",`Special ducks: ${sn} of ${st}. See how to get them`);
+  const [hn,ht]=holCount(), hp=$("holPill"); hp.innerHTML=`${HOLGIFT}${hn}/${ht}`; hp.setAttribute("aria-label",`Holiday ducks: ${hn} of ${ht}. See when they come`);
   const q=$("questPill"), qs=quests(w);
   q.hidden=!qs.length; q.classList.toggle("ready",qs.some(x=>x.ready));
   q.innerHTML=`<span class="qlab">Quest</span>`+qs.map(x=>`<svg width="18" height="18" viewBox="-12 -12 24 24" aria-hidden="true">${x.icon}</svg>${x.got}/${x.need}`).join(`<i class="sep"></i>`);
@@ -2001,7 +2185,7 @@ function useSparkle(d){
   pop(); toast(botReady?"Beep boop! The Crow Bot found a duck.":`Sparkle! ${S.spark} Duck Sparkle${S.spark===1?"":"s"} left.`,2200);
 }
 $("tabHint").addEventListener("click",hint);
-$("countPill").addEventListener("click",openLog); $("questPill").addEventListener("click",()=>openQuests(false));
+$("countPill").addEventListener("click",openLog); $("specPill").addEventListener("click",()=>openSpecial()); $("holPill").addEventListener("click",openHoliday); $("questPill").addEventListener("click",()=>openQuests(false));
 $("exitBtn").addEventListener("click",goHome);
 $("homeBtn").addEventListener("click",goHome); $("gearBtn").innerHTML=GEAR; $("gearBtn").addEventListener("click",openSettings);
 const IC={
@@ -2023,10 +2207,15 @@ function openMenu(){ const w=W[S.world];
 }
 $("tabMenu").addEventListener("click",openMenu);
 
-function openHoliday(){
-  openSheet(`<p class="note">Holiday ducks only visit in their month, after a special task.</p><div class="hgrid">${HOL.map(h=>`<div class="hcard${holOn(h)?" now":""}"><svg viewBox="-48 -56 96 84" aria-hidden="true">${h.art()}</svg>
-    <span class="mon">${S.found.has(h.id)?"Found!":holOn(h)?"Here this month":h.month}</span><b>${h.name}</b><small>${h.holiday}: ${h.task}${holLive(h)?` You have ${tokGot(h)} of ${tokAll(h)} ${h.items}.`:""}</small></div>`).join("")}
-    <div class="hcard more"><b>More on the way</b><small>More holiday ducks are coming soon.</small></div></div>`,"Holiday ducks");
+/* Holiday ducks: the ones built so far count; future holidays show as coming soon. */
+const HOLSOON=[{holiday:"Halloween",month:"October"},{holiday:"Valentine's Day",month:"February"},{holiday:"St. Patrick's Day",month:"March"},{holiday:"April Fool's Day",month:"April"}];
+const holCount=()=>[HOL.filter(h=>S.found.has(h.id)).length,HOL.length];
+const HOLGIFT=`<svg width="22" height="22" viewBox="-13 -14 26 27" aria-hidden="true">${presentIcon(1)}</svg>`;
+function openHoliday(){ const [n,t]=holCount();
+  openSheet(`<p class="note">Holiday ducks only visit in their month. Do the holiday task in their world, then search for the duck.</p><div class="hgrid">${HOL.map(h=>{ const got=S.found.has(h.id);
+    return `<div class="hcard${holOn(h)&&!got?" now":""}${got?"":" locked"}"><svg viewBox="-48 -56 96 84" aria-hidden="true">${got?`<g class="bob">${h.art()}</g>`:`<g class="sil">${h.art()}</g>`}</svg>
+    <span class="mon">${got?"Found!":holOn(h)?"Here this month":h.month}</span><b>${got?h.name:`${h.holiday} duck`}</b><small>${got?`Found in ${W[h.world].name}.`:`Comes in ${h.month}. ${h.task}${holLive(h)?` You have ${tokGot(h)} of ${tokAll(h)} ${h.items}.`:""}`}</small></div>`; }).join("")}
+    ${HOLSOON.map(x=>`<div class="hcard soon"><svg viewBox="-48 -56 96 84" aria-hidden="true"><g class="sil">${toyDuck(YEL)}</g><text x="10" y="-12" text-anchor="middle" font-family="Grandstander,sans-serif" font-weight="900" font-size="30" fill="#fff">?</text></svg><span class="mon">Coming soon</span><b>${x.holiday} duck</b><small>Mitchell is still dreaming this one up. It will come in ${x.month}.</small></div>`).join("")}</div>`,`Holiday ducks: ${n} of ${t}`);
 }
 /* ---------- Pond Points, the shop and special ducks ---------- */
 /* Pond Points come only from mini games. Each mini game has 5 levels; beating level 5 wins its star character. */
@@ -2089,13 +2278,17 @@ function buy(id){ const i=SHOP.find(x=>x.id===id); if(!i) return;
   save(); fanfare(); refreshHome();
   openShop(i.boss?"Kingsley joins your special ducks! Long live the king!":i.kind==="duck"?`The ${i.name} joins your special ducks!`:i.kind==="hat"?`Your duck is wearing the ${i.name}!`:i.kind==="color"?`Your duck is ${i.color} now!`:`You have ${S.spark} Duck Sparkle${S.spark>1?"s":""}. Use one with the light bulb in a world.`);
 }
+/* Special ducks are the ones outside the worlds: mini game stars, shop ducks and the friend duck. */
+function specCount(){ return [MINI.filter(starWon).length+SHOP.filter(i=>i.kind==="duck"&&own(i.id)).length+(S.buddy?1:0), MINI.length+Object.keys(SHOPDUCK).length+1]; }
+const SPECSTAR=`<svg width="22" height="22" viewBox="-12 -12 24 24" aria-hidden="true"><path d="M0 -10 L2.9 -3.6 L9.6 -3.1 L4.5 1.4 L6 8.2 L0 4.6 L-6 8.2 L-4.5 1.4 L-9.6 -3.1 L-2.9 -3.6 Z" fill="#FFB8DC" stroke="#173A5E" stroke-width="2" stroke-linejoin="round"/><circle cx="7" cy="-8" r="1.6" fill="#fff"/></svg>`;
 function openSpecial(){
   const cards=MINI.map(m=>{ const got=starWon(m);
-    return `<div class="card${got?"":" miss"}"><svg viewBox="-42 -46 86 76" aria-hidden="true">${got?(m.win?`<g class="${m.win}">${m.a()}</g>`:m.a()):`<g opacity=".35">${m.a()}</g>`}</svg><span class="tier t-Legendary">Mini game</span>${got?`<b>${m.star}</b>`:`<small>Beat level ${LV} of ${m.n}</small>`}</div>`; })
+    return `<div class="card${got?"":" miss"}"><svg viewBox="-42 -46 86 76" aria-hidden="true">${got?(m.win?`<g class="${m.win}">${m.a()}</g>`:m.a()):`<g opacity=".35">${m.a()}</g>`}</svg><span class="tier t-Legendary">Mini game</span>${got?`<b>${m.star}</b>`:`<small>Win it: beat level ${LV} of ${m.n}</small>`}</div>`; })
    .concat(SHOP.filter(i=>i.kind==="duck").map(i=>{ const got=own(i.id);
-    return `<div class="card${got?"":" miss"}"><svg viewBox="-44 -52 88 82" aria-hidden="true">${got?shopArt(i):`<g opacity=".35">${i.art?i.art():toyDuck(GHOST)}</g>`}</svg><span class="tier t-Rare">Shop</span>${got?`<b>${i.name}</b>`:`<small>${i.boss?"1,000 Pond Points":"In the shop"}</small>`}</div>`; })).join("");
-  const n=MINI.filter(starWon).length+SHOP.filter(i=>i.kind==="duck"&&own(i.id)).length, t=MINI.length+Object.keys(SHOPDUCK).length;
-  openSheet(`<div class="shoptop"><svg viewBox="-40 -52 84 82" aria-hidden="true"><g class="bob">${youDuck()}</g></svg><div><b>Your duck</b><small>Get hats and colors in the Pond Points shop.</small></div></div><div class="cards">${cards}</div>`,`Special ducks: ${n} of ${t}`);
+    return `<div class="card${got?"":" miss"}"><svg viewBox="-44 -52 88 82" aria-hidden="true">${got?shopArt(i):`<g opacity=".35">${i.art?i.art():toyDuck(GHOST)}</g>`}</svg><span class="tier t-Rare">Shop</span>${got?`<b>${i.name}</b>`:`<small>${i.boss?"Shop: 1,000 Pond Points":`Shop: ${i.cost} Pond Points`}</small>`}</div>`; }))
+   .concat([`<div class="card${S.buddy?"":" miss"}"><svg viewBox="-44 -52 88 82" aria-hidden="true">${S.buddy?buddyArt():`<g opacity=".35">${buddyArt()}</g>`}</svg><span class="tier t-Special">Friend</span>${S.buddy?`<b>${BUDDY.name}</b>`:`<small>Invite a friend who finds a duck</small>`}</div>`]).join("");
+  const [n,t]=specCount();
+  openSheet(`<div class="shoptop"><svg viewBox="-40 -52 84 82" aria-hidden="true"><g class="bob">${youDuck()}</g></svg><div><b>Your duck</b><small>Get hats and colors in the Pond Points shop.</small></div></div><p class="spechow">Special ducks don't hide in the worlds. Win them in mini games, buy them in the shop, or invite a friend.</p><div class="cards">${cards}</div>`,`Special ducks: ${n} of ${t}`);
 }
 function refreshHome(){ if(S.screen==="home") goHome(); }
 
@@ -2421,6 +2614,147 @@ async function loadBoard(){
 }
 /* Stats only go out from the real site, so previews and tests never send anything. */
 if(window.QStats&&/(^|\.)quackersgame\.com$/.test(location.hostname)) try{ QStats.start(); }catch(e){}
+
+/* ---------- Idea Box, friend link (Error Code Duck) and privacy (Settings) ---------- */
+const BUDDY={id:"buddy",name:"Error Code Duck"};
+const buddyArt=()=>errorDuck();
+const BULB=`<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 6a19 19 0 0 0-11 34.5c2 1.6 3 3.6 3 6V49h16v-2.5c0-2.4 1-4.4 3-6A19 19 0 0 0 32 6z" fill="#FFE066" stroke="#173A5E" stroke-width="3" stroke-linejoin="round"/><path d="M25 54h14M27 59h10" stroke="#173A5E" stroke-width="3" stroke-linecap="round"/><path d="M24 22q2-7 9-8" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".8"/></svg>`;
+const SHIELD=`<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3 27 7v8c0 7-5 12-11 14C10 27 5 22 5 15V7z" fill="#C9F2D6" stroke="#173A5E" stroke-width="3" stroke-linejoin="round"/><path d="m11 16 4 4 7-8" fill="none" stroke="#173A5E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const HEART=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-8-5.2-8-11a4.6 4.6 0 0 1 8-3 4.6 4.6 0 0 1 8 3c0 5.8-8 11-8 11z" stroke="#173A5E" stroke-width="2.4" stroke-linejoin="round"/></svg>`;
+const ibEsc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const statsOn=()=>!!window.QStats&&QStats.sharing();
+const OFFTXT="Game stats sharing is off on this device. Turn it on in Settings to use this.";
+const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
+function monthEnd(){ const d=new Date(); const last=new Date(d.getFullYear(),d.getMonth()+1,0).getDate(); return `${MONTHS[d.getMonth()]} ${last}`; }
+
+/* ---- Idea Box ---- */
+function openIdeas(){
+  let kind="duck";
+  openSheet(`<div class="ib">
+   <div class="lbhello">${BULB}<div><b>Got an idea?</b><small>Tell us your idea for a new duck or world. The idea with the most votes on ${monthEnd()} goes to Mitchell!</small></div></div>
+   <form class="lbcard ibform" id="ibForm" autocomplete="off" novalidate>
+    <div class="ibkind" role="radiogroup" aria-label="What is your idea for?">
+     <button type="button" role="radio" aria-checked="true" data-k="duck">A new duck</button>
+     <button type="button" role="radio" aria-checked="false" data-k="world">A new world</button></div>
+    <textarea id="ibText" rows="2" maxlength="80" aria-label="Your idea" placeholder="A duck that..." spellcheck="true" aria-describedby="ibMsg"></textarea>
+    <div class="lbcount" id="ibCount">0 / 80</div>
+    <div class="lbmsg" id="ibMsg" role="status" hidden></div>
+    <button class="go" type="submit" id="ibSend">Send my idea</button>
+    <small>A grown-up reads every idea before anyone else can see it. Don't put your name or anything about you.</small>
+   </form>
+   <h4 class="ibh">Vote for your favorites</h4>
+   <div id="ibList" class="lbload">Loading ideas...</div>
+   <div id="ibMine"></div></div>`,"Idea Box");
+  const say=(ok,t)=>{ const m=$("ibMsg"); if(!m) return; m.hidden=false; m.className="lbmsg "+(ok?"yes":"no"); m.textContent=t; };
+  $("ibForm").querySelectorAll("[data-k]").forEach(b=>b.addEventListener("click",()=>{ kind=b.dataset.k;
+    $("ibForm").querySelectorAll("[data-k]").forEach(x=>x.setAttribute("aria-checked",String(x===b)));
+    $("ibText").placeholder=kind==="duck"?"A duck that...":"A world where..."; blip(); }));
+  $("ibText").addEventListener("input",()=>{ $("ibCount").textContent=`${$("ibText").value.length} / 80`; $("ibMsg").hidden=true; });
+  if(!statsOn()) say(false,OFFTXT);
+  $("ibForm").addEventListener("submit",async e=>{ e.preventDefault();
+    if(!statsOn()){ say(false,OFFTXT); return; }
+    const t=$("ibText").value; if(!t.trim()){ say(false,"Type your idea first!"); blip(); return; }
+    const btn=$("ibSend"); btn.disabled=true;
+    let r; try{ r=await QStats.suggestIdea(kind,t); }catch(err){ r={ok:false}; }
+    if(!$("ibForm")) return; btn.disabled=false;
+    if(!r||!r.ok){ say(false,(r&&r.msg)||"Can't reach the Idea Box right now. Try again soon."); const i=$("ibText"); i.classList.remove("shake"); void i.offsetWidth; i.classList.add("shake"); blip(); return; }
+    $("ibText").value=""; $("ibCount").textContent="0 / 80"; quack();
+    say(true,"Thanks! A grown-up will check your idea. Then everyone can vote on it.");
+    loadIdeas();
+  });
+  loadIdeas();
+}
+const kindTag=k=>`<span class="ibk ${k==="world"?"w":"d"}">${k==="world"?"World":"Duck"}</span>`;
+async function loadIdeas(){
+  const el=$("ibList"); if(!el) return;
+  const r=statsOn()?await QStats.ideas():{ok:false,off:true};
+  if(!$("ibList")) return;
+  if(!r||!r.ok){ el.className="lbload"; el.textContent=r&&r.off?OFFTXT:"Can't reach the Idea Box right now. Try again soon."; $("ibMine").innerHTML=""; return; }
+  const rows=(r.rows||[]).slice().sort((a,b)=>b.votes-a.votes);
+  el.className="";
+  el.innerHTML=rows.length?`<ol class="iblist">${rows.map((x,i)=>`<li class="ibrow${i===0&&x.votes>0?" top":""}">${i===0&&x.votes>0?`<span class="ibcrown" aria-label="Most votes">${sv("-14 -18 28 22",ACC.crown().replace('translate(12 -31)','translate(0 0)'))}</span>`:""}${kindTag(x.kind)}<span class="ibt">${ibEsc(x.text)}${x.mine?` <i class="ibyou">(yours)</i>`:""}</span>
+     ${x.mine?`<span class="ibvote mine" aria-label="${x.votes} votes">${HEART}<b>${x.votes}</b></span>`:`<button type="button" class="ibvote${x.voted?" on":""}" data-id="${ibEsc(x.id)}" aria-pressed="${x.voted?"true":"false"}" aria-label="${x.voted?"Take back your vote":"Vote for this idea"}, ${x.votes} votes">${HEART}<b>${x.votes}</b></button>`}</li>`).join("")}</ol>`
+    :`<p class="lbload">No ideas on the board yet this month. Be the first!</p>`;
+  el.querySelectorAll("button.ibvote").forEach(b=>b.addEventListener("click",async()=>{
+    const on=b.getAttribute("aria-pressed")!=="true"; b.disabled=true;
+    const v=await QStats.vote(b.dataset.id,on); if(!b.isConnected) return; b.disabled=false;
+    if(!v||!v.ok){ blip(); return; }
+    b.classList.toggle("on",!!v.voted); b.setAttribute("aria-pressed",String(!!v.voted)); b.querySelector("b").textContent=v.votes;
+    b.setAttribute("aria-label",`${v.voted?"Take back your vote":"Vote for this idea"}, ${v.votes} votes`); if(v.voted) pop(); }));
+  const mine=r.mine||[], win=r.winner, st={waiting:"Waiting for a grown-up",approved:"On the board",declined:"Not this time"};
+  $("ibMine").innerHTML=(mine.length?`<h4 class="ibh">Your ideas this month</h4><ul class="ibmine">${mine.map(x=>`<li>${kindTag(x.kind)}<span class="ibt">${x.text?ibEsc(x.text):"(idea removed)"}</span><em class="ibst ${ibEsc(x.status)}">${st[x.status]||""}${x.status==="approved"?` · ${x.votes} votes`:""}</em></li>`).join("")}</ul><small class="ibnote">You can send 3 ideas a month.</small>`:"")
+    +(win?`<div class="ibwin"><b>Last month's winner</b>${kindTag(win.kind)}<span class="ibt">${ibEsc(win.text)}</span><small>${win.made?"Mitchell made it! Look for it in the game.":`${win.votes} votes. Mitchell is looking at it!`}</small></div>`:"");
+}
+
+/* ---- Friend link and Error Code Duck ---- */
+/* The friend code in ?f= is kept by quackers-stats.js and counted by the server when the new player finds a duck. */
+let friendsChecked=false;
+function checkFriends(force){ if(!statsOn()||(friendsChecked&&!force)) return Promise.resolve(null); friendsChecked=true;
+  return QStats.friends().then(r=>{ if(!r||!r.ok) return null; const n=r.friends|0;
+    if(n>=1&&!S.buddy){ S.buddy=1; save(); setTimeout(()=>toast("A friend found their first duck! Error Code Duck joined your Special ducks!",3600),400); refreshHome(); }
+    return n; }).catch(()=>null); }
+/* The link is fetched when the sheet opens, so a tap on Share opens the phone's own share sheet straight away
+   (iPhone and Android only allow that right after a tap, not after waiting on the server). */
+const SHARE_TXT="Come find hidden ducks with me in Quackers!";
+const canShare=l=>{ try{ return !!navigator.share&&(!navigator.canShare||navigator.canShare({title:"Quackers",text:SHARE_TXT,url:l})); }catch(e){ return false; } };
+function copyText(t){
+  const old=()=>{ const i=document.createElement("textarea"); i.value=t; i.setAttribute("readonly",""); i.style.cssText="position:fixed;top:0;left:0;opacity:0;font-size:16px";
+    document.body.appendChild(i); i.select(); i.setSelectionRange(0,t.length); let ok=false; try{ ok=document.execCommand("copy"); }catch(e){} i.remove(); return ok; };
+  try{ if(navigator.clipboard&&window.isSecureContext!==false) return navigator.clipboard.writeText(t).then(()=>true,()=>old()); }catch(e){}
+  return Promise.resolve(old()); }
+async function openFriend(){
+  openSheet(`<div class="fr">
+   <div class="frtop"><svg viewBox="-44 -52 88 82" aria-hidden="true">${S.buddy?`<g class="bob">${buddyArt()}</g>`:`<g opacity=".4">${buddyArt()}</g>`}</svg>
+    <div><b>${S.buddy?"You got Error Code Duck!":"Win Error Code Duck"}</b><small>Send your link to a friend. When they find their first duck in Quackers, Error Code Duck joins your Special ducks.</small></div></div>
+   <div class="frlink"><input id="frUrl" type="text" readonly value="Making your link..." aria-label="Your friend link"></div>
+   <div class="frbtns"><button type="button" class="go" id="frShare" disabled>${SHAREIC}Share</button><button type="button" class="go ghost" id="frCopy" disabled>${COPYIC}Copy link</button></div>
+   <div class="lbmsg" id="frMsg" role="status" hidden></div>
+   <p class="frcount">Friends who found a duck: <b id="frN">...</b></p>
+   <small class="ibnote">Your link only opens Quackers. It doesn't say who you are. Ask a grown-up before you send it.</small></div>`,"Invite a friend");
+  const say=(ok,t)=>{ const m=$("frMsg"); if(!m) return; m.hidden=false; m.className="lbmsg "+(ok?"yes":"no"); m.innerHTML=t; };
+  const u=$("frUrl"), sb=$("frShare"), cb=$("frCopy");
+  if(!statsOn()){ say(false,OFFTXT); $("frN").textContent="0"; u.value="Turn on stats sharing to get a link"; return; }
+  checkFriends(true).then(n=>{ if($("frN")) $("frN").textContent=n==null?"0":n; });
+  let link="";
+  const r=await QStats.friend(); if(!u.isConnected) return;
+  if(!r||!r.ok||!r.link){ u.value="No link yet"; say(false,(r&&r.off)?OFFTXT:"Can't make your link right now. Close this and try again soon."); return; }
+  link=r.link; u.value=link; cb.disabled=false;
+  if(canShare(link)) sb.disabled=false; else sb.hidden=true;
+  const copy=()=>copyText(link).then(ok=>{ if(!cb.isConnected) return;
+    if(ok){ say(true,"Link copied! Paste it in a message to your friend."); cb.innerHTML=`${CHECKIC}Copied!`; setTimeout(()=>{ if(cb.isConnected) cb.innerHTML=`${COPYIC}Copy link`; },2200); pop(); }
+    else { u.focus(); u.select(); say(false,"Press and hold the link above, then tap Copy."); } });
+  u.addEventListener("click",()=>{ u.select(); u.setSelectionRange(0,link.length); });
+  cb.addEventListener("click",copy);
+  sb.addEventListener("click",()=>{
+    navigator.share({title:"Quackers",text:SHARE_TXT,url:link})
+      .then(()=>{ if(sb.isConnected) say(true,"Link sent! Error Code Duck comes when your friend finds a duck."); })
+      .catch(e=>{ if(!sb.isConnected||(e&&e.name==="AbortError")) return; say(false,"The share menu didn't open. Tap Copy link instead."); });
+  });
+}
+const SHAREIC=`<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 V15 M7 8 L12 3 L17 8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 12 H5 V20 H19 V12 H18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const COPYIC=`<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="13" rx="3" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M5 16 V6 Q5 4 7 4 H15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>`;
+const CHECKIC=`<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12 L10 17 L19 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+/* ---- Privacy and Delete my data (Settings) ---- */
+let forgetT;
+function askForget(){ const b=$("hForget"), m=$("setMsg");
+  if(!b.dataset.armed){ b.dataset.armed="1"; b.textContent="Tap again to delete everything"; b.classList.add("armed");
+    clearTimeout(forgetT); forgetT=setTimeout(()=>{ if(b.isConnected){ delete b.dataset.armed; b.textContent="Delete my data"; b.classList.remove("armed"); } },3500); return; }
+  clearTimeout(forgetT); b.disabled=true; friendsChecked=true; b.textContent="Deleting...";
+  const go=window.QStats?QStats.forget():Promise.resolve({ok:true});
+  go.then(r=>{ if(!b.isConnected) return;
+    if(!r||!r.ok){ b.disabled=false; delete b.dataset.armed; b.classList.remove("armed"); b.textContent="Delete my data";
+      m.hidden=false; m.className="lbmsg no"; m.textContent=(r&&r.msg)||"Couldn't reach the game server, so nothing was deleted. Try again soon."; return; }
+    [LBK].forEach(k=>{ try{ localStorage.removeItem(k); }catch(e){} });
+    localStorage.removeItem(KEY); S.found=new Set(); S.flags={}; S.unlocked=1; S.tokens=[]; S.best=0; S.last={}; S.pts=0; S.mg={}; S.own=[]; S.hat=""; S.color=""; S.spark=0; S.buddy=0; doneShown.clear();
+    m.hidden=false; m.className="lbmsg yes"; m.textContent="Done. Your ducks and game data are deleted from this device and the game server."; b.textContent="Deleted";
+    setTimeout(goHome,2600); });
+}
+{ const home1=goHome; goHome=function(){ const r=home1(); setTimeout(()=>checkFriends(false),800); return r; }; }
+function shareLabel(){ return `${SHIELD}<span>Share game stats: ${window.QStats&&QStats.sharing()?"on":"off"}</span>`; }
+function toggleSharing(){ if(!window.QStats) return; const b=$("hShare");
+  if(navigator.doNotTrack==="1"||window.doNotTrack==="1"){ const m=$("setMsg"); m.hidden=false; m.className="lbmsg no"; m.textContent="Do Not Track is on in this browser, so stats stay off."; return; }
+  QStats.setSharing(!QStats.sharing()); b.innerHTML=shareLabel(); blip(); }
 
 
 renderSound(); goHome();

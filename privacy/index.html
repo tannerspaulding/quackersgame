@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quackers privacy</title>
+<meta name="description" content="What the Quackers game keeps, what it never keeps, and how to delete it.">
+<link rel="icon" href="/brand/quackers-icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Grandstander:wght@800;900&family=Patrick+Hand&display=swap">
+<style>
+:root{--ink:#173A5E;--duck:#FFCB2F;--lily:#3FB86A;--dim:#4F6E8C;--sky-top:#BFE6FF;--sky-bot:#EAF6FF;--card:#FFFFFF;--text:#173A5E;--muted:#4F6E8C;--line:#173A5E;
+  --display:"Grandstander","Arial Rounded MT Bold",system-ui,sans-serif;--body:"Andika","Trebuchet MS",system-ui,sans-serif;--note:"Patrick Hand","Comic Neue",cursive}
+@media (prefers-color-scheme: dark){:root{--sky-top:#14314F;--sky-bot:#0D1F33;--card:#173352;--text:#EAF4FF;--muted:#9DB7D2;--line:#6F93B8;color-scheme:dark}}
+*{box-sizing:border-box}
+html{background:var(--sky-bot)}
+body{margin:0;color:var(--text);font-family:var(--body);font-size:17px;line-height:1.5;background:linear-gradient(var(--sky-top) 0,var(--sky-bot) 420px) no-repeat,var(--sky-bot);
+  padding:24px 16px 48px;padding:calc(24px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 48px max(16px,env(safe-area-inset-left,0px))}
+main{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.back{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;font-family:var(--display);font-weight:900;color:var(--ink);background:var(--duck);border:3px solid var(--ink);border-radius:14px;padding:8px 14px;box-shadow:0 4px 0 var(--ink);text-decoration:none;min-height:44px}
+h1{font-family:var(--display);font-weight:900;font-size:2rem;line-height:1.1;margin:6px 0 0}
+h2{font-family:var(--display);font-weight:900;font-size:1.25rem;margin:0 0 6px}
+.card{background:var(--card);border:3px solid var(--line);border-radius:20px;padding:14px 16px}
+.kid{background:#FFF7D6;color:#173A5E;border-color:#173A5E;box-shadow:0 5px 0 #173A5E}
+.kid p{font-family:var(--note);font-size:1.25rem;line-height:1.3;margin:0}
+.kid ul{margin:8px 0 0;padding-left:22px;font-family:var(--note);font-size:1.2rem;line-height:1.35}
+ul{margin:6px 0 0;padding-left:22px}
+li{margin:3px 0}
+p{margin:6px 0 0}
+.card>p:first-of-type,.card>h2+p{margin-top:0}
+.small{font-size:.92rem;color:var(--muted)}
+.mail{color:inherit;font-weight:700;text-decoration:underline;overflow-wrap:anywhere}
+.ask{background:#FFE9C7;color:#173A5E;border:2px dashed #C9761C;border-radius:10px;padding:1px 6px;font-weight:700}
+footer{text-align:center;font-family:var(--note);font-size:1.05rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<main>
+<a class="back" href="/">&larr; Back to Quackers</a>
+<h1>Privacy in Quackers</h1>
+
+<section class="card kid" aria-label="The short version for kids">
+<p>The short version:</p>
+<ul>
+<li>We never ask for your real name, where you live or your school.</li>
+<li>The game keeps your duck progress so we can see how people play and make it better.</li>
+<li>Nobody can tell who you are from it.</li>
+<li>You can switch it off or delete it in Settings.</li>
+</ul>
+</section>
+
+<section class="card">
+<h2>For parents</h2>
+<p>Quackers is a free game made by Mitchell, a kid, with help from his dad, Tanner. There are no ads, no accounts, no in-game purchases with real money and no third-party trackers. We keep a small amount of play data so we can see which worlds and ducks kids enjoy. Data privacy comes first, always. This page says exactly what that data is.</p>
+</section>
+
+<section class="card">
+<h2>What we never collect</h2>
+<ul>
+<li>IP addresses. Our game server doesn't save them, and it writes no logs.</li>
+<li>Real names, email addresses or phone numbers.</li>
+<li>Exact location, school, contacts or photos.</li>
+<li>Anything typed, except a leaderboard nickname or an idea for the Idea Box, if your child chooses to add one.</li>
+<li>Advertising IDs or tracking cookies.</li>
+</ul>
+</section>
+
+<section class="card">
+<h2>What the game keeps for each device</h2>
+<p>The first time the game runs, it makes a random ID for that device. It's a string of letters and numbers that isn't linked to a name, account or email. Under that ID we keep:</p>
+<ul>
+<li>When the game was first and last played, and how many days it was played.</li>
+<li>Country and state.</li>
+<li>Whether it's a phone, tablet or computer, and whether it's the home-screen app or a browser. The browser's details stay on the device; only that one word is sent.</li>
+<li>Game progress: which ducks were found, worlds reached and finished, Pond Points, best level in each mini game, and the last world and screen.</li>
+<li>Which days the device played, kept for 90 days for a players-per-day chart.</li>
+<li>A leaderboard nickname, if your child adds one. It goes through a name filter, and Tanner can hide any name.</li>
+<li>Idea Box ideas and votes (see below).</li>
+<li>A random share code for the friend link, and how many friends joined with it.</li>
+</ul>
+</section>
+
+<section class="card">
+<h2>Totals that aren't linked to anyone</h2>
+<p>Some numbers are only counted as totals, so they can't be traced back to a player:</p>
+<ul>
+<li>How many players were in each city each day. The city is worked out roughly by Cloudflare from the visit and is never saved with a player's data.</li>
+<li>How long each play session lasted, and the hour and weekday it started, under a separate random ID that isn't linked to the player.</li>
+<li>How often each duck is found, mini game tries and wins, shop items bought and Pond Points earned.</li>
+</ul>
+</section>
+
+<section class="card">
+<h2>The Idea Box</h2>
+<p>Kids can suggest new ducks and worlds and vote on other players' ideas. A filter blocks bad words, links, numbers and personal details. Then a grown-up reads every idea before anyone else can see or vote on it. Ideas show without a name, and the link between an idea and its device is removed when the month ends. Ideas that aren't approved have their text erased right away.</p>
+</section>
+
+<section class="card">
+<h2>The friend link</h2>
+<p>A player can share a link to the game with a friend. The link has a random code in it, which isn't the device ID and says nothing about the player. When a new player opens the link and finds their first duck, the player who shared it gets a bonus duck. Once that happens, we keep only that the new device was counted, not who invited it.</p>
+</section>
+
+<section class="card">
+<h2>Turning it off</h2>
+<ul>
+<li>In the game, open Settings (the gear) and switch <b>Share game stats</b> off. The game then sends nothing. The leaderboard, Idea Box and friend link need stats sharing, so they turn off too.</li>
+<li>If the browser has Do Not Track turned on, the game sends nothing.</li>
+<li>Your child can still play every world and mini game with sharing off. Progress is saved on the device itself.</li>
+</ul>
+</section>
+
+<section class="card">
+<h2>Deleting your child's data</h2>
+<ul>
+<li>In Settings, tap <b>Delete my data</b> twice. That deletes everything kept for that device on our server, and clears the game's progress on the device.</li>
+<li>Data for a device that hasn't played for 12 months is deleted automatically.</li>
+<li>To ask us to delete data another way, email <!-- Parent contact email: change it here only. --><a class="mail" href="mailto:tannerspaulding81@gmail.com?subject=Quackers%20data">tannerspaulding81@gmail.com</a>.</li>
+</ul>
+</section>
+
+<section class="card">
+<h2>Where it's kept and who sees it</h2>
+<p>The data is stored with Cloudflare, on Tanner's own account. Only Tanner can see the stats page, and it's password protected. We never sell or share the data with anyone. Cloudflare runs the server, so it may keep its own short-lived records of requests to run its service.</p>
+</section>
+
+<p class="small">Last updated November 2026. If anything about what the game keeps changes, this page will change first.</p>
+<footer>Quackers is a game by Mitchell. Every character is drawn just for Quackers.</footer>
+</main>
+</body>
+</html>

@@ -237,3 +237,25 @@ function toyMitchell(wave=true,talk=false){ const skin=G("#f7d3bb"), tee=G("#2f9
   <path d="M-8.4 -34.4 Q0 -32.2 8.4 -34.4 L8 -31.6 Q0 -29.4 -8 -31.6 Z" fill="#ffffff"/>
   <path d="M-7.6 -33 H7.6" stroke="#9aa6b2" stroke-width="1.2"/>${[-6,-3,0,3,6].map(x=>`<rect x="${x-.9}" y="-33.9" width="1.8" height="1.8" fill="#8f9aa6"/>`).join("")}</g>`;
 }
+/* Error Code Duck (Mitchell's friend-link duck): 8-bit pixel duck, a blue error screen for a face and a body made of error messages. */
+function errorDuck(){
+  const I="#173A5E", body="M-32 -12 H16 V-8 H24 V16 H20 V20 H12 V24 H-24 V20 H-32 V16 H-36 V-8 H-32 Z";
+  const lines=[["ERROR 0x0DUCK","#D93A3A"],["QUACK.EXE STOPPED",I],["!! DUCK NOT FOUND","#D93A3A"],["ERR ERR ERR ERR",I],["FATAL: TOO QUACKY","#D93A3A"],["RETRY? RETRY?",I]];
+  return `<g shape-rendering="crispEdges">
+  <path d="M-44 -30 H-36 V-22 H-28 V-12 H-36 V-18 H-44 Z" fill="#E6ECF3" stroke="${I}" stroke-width="2.4"/>
+  <rect x="-16" y="24" width="8" height="5" fill="#FF9F43" stroke="${I}" stroke-width="2"/><rect x="0" y="24" width="8" height="5" fill="#FF9F43" stroke="${I}" stroke-width="2"/>
+  <clipPath id="errBody"><path d="${body}"/></clipPath>
+  <path d="${body}" fill="#F4F7FB"/>
+  <g clip-path="url(#errBody)" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="3.7" font-weight="700">
+   ${lines.map(([t,c],i)=>`<text x="${-33+(i%2)*3}" y="${-6.5+i*4.6}" fill="${c}">${t}</text>`).join("")}
+   <rect x="-36" y="20" width="64" height="6" fill="#D5DEE8"/>
+  </g>
+  <path d="${body}" fill="none" stroke="${I}" stroke-width="2.6" stroke-linejoin="miter"/>
+  <rect x="32" y="-30" width="10" height="8" fill="#FF9F43" stroke="${I}" stroke-width="2.4"/><rect x="32" y="-23" width="7" height="5" fill="#F07F1E" stroke="${I}" stroke-width="2"/>
+  <rect x="0" y="-46" width="34" height="34" fill="#1F5FD6" stroke="${I}" stroke-width="3"/>
+  <rect x="3" y="-43" width="28" height="3" fill="#4D86F0"/>
+  <rect x="8" y="-38" width="5" height="5" fill="#fff"/><rect x="21" y="-38" width="5" height="5" fill="#fff"/>
+  <rect x="6" y="-28" width="22" height="2.4" fill="#fff"/><rect x="6" y="-24" width="16" height="2.4" fill="#fff" opacity=".85"/><rect x="6" y="-20" width="19" height="2.4" fill="#fff" opacity=".7"/>
+  <rect x="6" y="-16" width="9" height="2.4" fill="#fff" opacity=".55"/>
+  </g>`;
+}

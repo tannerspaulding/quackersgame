@@ -59,13 +59,17 @@ function buy(id){ const i=SHOP.find(x=>x.id===id); if(!i) return;
   save(); fanfare(); refreshHome();
   openShop(i.boss?"Kingsley joins your special ducks! Long live the king!":i.kind==="duck"?`The ${i.name} joins your special ducks!`:i.kind==="hat"?`Your duck is wearing the ${i.name}!`:i.kind==="color"?`Your duck is ${i.color} now!`:`You have ${S.spark} Duck Sparkle${S.spark>1?"s":""}. Use one with the light bulb in a world.`);
 }
+/* Special ducks are the ones outside the worlds: mini game stars, shop ducks and the friend duck. */
+function specCount(){ return [MINI.filter(starWon).length+SHOP.filter(i=>i.kind==="duck"&&own(i.id)).length+(S.buddy?1:0), MINI.length+Object.keys(SHOPDUCK).length+1]; }
+const SPECSTAR=`<svg width="22" height="22" viewBox="-12 -12 24 24" aria-hidden="true"><path d="M0 -10 L2.9 -3.6 L9.6 -3.1 L4.5 1.4 L6 8.2 L0 4.6 L-6 8.2 L-4.5 1.4 L-9.6 -3.1 L-2.9 -3.6 Z" fill="#FFB8DC" stroke="#173A5E" stroke-width="2" stroke-linejoin="round"/><circle cx="7" cy="-8" r="1.6" fill="#fff"/></svg>`;
 function openSpecial(){
   const cards=MINI.map(m=>{ const got=starWon(m);
-    return `<div class="card${got?"":" miss"}"><svg viewBox="-42 -46 86 76" aria-hidden="true">${got?(m.win?`<g class="${m.win}">${m.a()}</g>`:m.a()):`<g opacity=".35">${m.a()}</g>`}</svg><span class="tier t-Legendary">Mini game</span>${got?`<b>${m.star}</b>`:`<small>Beat level ${LV} of ${m.n}</small>`}</div>`; })
+    return `<div class="card${got?"":" miss"}"><svg viewBox="-42 -46 86 76" aria-hidden="true">${got?(m.win?`<g class="${m.win}">${m.a()}</g>`:m.a()):`<g opacity=".35">${m.a()}</g>`}</svg><span class="tier t-Legendary">Mini game</span>${got?`<b>${m.star}</b>`:`<small>Win it: beat level ${LV} of ${m.n}</small>`}</div>`; })
    .concat(SHOP.filter(i=>i.kind==="duck").map(i=>{ const got=own(i.id);
-    return `<div class="card${got?"":" miss"}"><svg viewBox="-44 -52 88 82" aria-hidden="true">${got?shopArt(i):`<g opacity=".35">${i.art?i.art():toyDuck(GHOST)}</g>`}</svg><span class="tier t-Rare">Shop</span>${got?`<b>${i.name}</b>`:`<small>${i.boss?"1,000 Pond Points":"In the shop"}</small>`}</div>`; })).join("");
-  const n=MINI.filter(starWon).length+SHOP.filter(i=>i.kind==="duck"&&own(i.id)).length, t=MINI.length+Object.keys(SHOPDUCK).length;
-  openSheet(`<div class="shoptop"><svg viewBox="-40 -52 84 82" aria-hidden="true"><g class="bob">${youDuck()}</g></svg><div><b>Your duck</b><small>Get hats and colors in the Pond Points shop.</small></div></div><div class="cards">${cards}</div>`,`Special ducks: ${n} of ${t}`);
+    return `<div class="card${got?"":" miss"}"><svg viewBox="-44 -52 88 82" aria-hidden="true">${got?shopArt(i):`<g opacity=".35">${i.art?i.art():toyDuck(GHOST)}</g>`}</svg><span class="tier t-Rare">Shop</span>${got?`<b>${i.name}</b>`:`<small>${i.boss?"Shop: 1,000 Pond Points":`Shop: ${i.cost} Pond Points`}</small>`}</div>`; }))
+   .concat([`<div class="card${S.buddy?"":" miss"}"><svg viewBox="-44 -52 88 82" aria-hidden="true">${S.buddy?buddyArt():`<g opacity=".35">${buddyArt()}</g>`}</svg><span class="tier t-Special">Friend</span>${S.buddy?`<b>${BUDDY.name}</b>`:`<small>Invite a friend who finds a duck</small>`}</div>`]).join("");
+  const [n,t]=specCount();
+  openSheet(`<div class="shoptop"><svg viewBox="-40 -52 84 82" aria-hidden="true"><g class="bob">${youDuck()}</g></svg><div><b>Your duck</b><small>Get hats and colors in the Pond Points shop.</small></div></div><p class="spechow">Special ducks don't hide in the worlds. Win them in mini games, buy them in the shop, or invite a friend.</p><div class="cards">${cards}</div>`,`Special ducks: ${n} of ${t}`);
 }
 function refreshHome(){ if(S.screen==="home") goHome(); }
 

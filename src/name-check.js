@@ -37,9 +37,33 @@
       return {ok:false,why:"info",msg:"Keep it secret! No real names, schools or places. Try a duck nickname."};
     return {ok:true,name};
   }
+
+  /* Ideas for new ducks and worlds: longer free text, checked word by word so nice words like peacock or scrap pass. */
+  const IMAX=80, IMIN=4;
+  const SAFE=["peacock","peacocks","cockatoo","cockatiel","scrap","scraps","scrappy","scrape","scraper","skyscraper","skyscrapers","grape","grapes","drape","drapes","trapeze","therapist","essex","sussex","dickens","hancock","shitake","assassin","cocktail"];
+  const IINFO=["gmail","email","insta","instagram","tiktok","snapchat","discord","youtube","roblox","twitch","whatsapp","facebook","phone","address","http","https","www","dotcom"];
+  const IPHRASE=/\b(my name is|my names|i am \d|i'?m \d|i live|i go to|my school|my teacher|years old|yrs old|my address|my phone|call me at|text me)\b/i;
+  function checkIdea(raw){
+    const text=tidy(raw).slice(0,200);
+    if(text.length<IMIN) return {ok:false,why:"short",msg:"Tell us a little more about your idea."};
+    if(text.length>IMAX) return {ok:false,why:"long",msg:`Keep it to ${IMAX} letters or less.`};
+    if(/[@\\<>{}]|https?:|www\.|\.(com|net|org|io|co|gg|me|tv)\b/i.test(text)) return {ok:false,why:"info",msg:"No emails or websites. Just tell us your idea!"};
+    if(/\d[\d\s().-]{5,}\d/.test(text)||/\d(st|nd|rd|th)\s*grade/i.test(text)) return {ok:false,why:"info",msg:"Keep it secret! No numbers about you, like phone numbers or grades."};
+    if(IPHRASE.test(text)) return {ok:false,why:"info",msg:"Keep it secret! No names, ages, schools or places. Just your idea."};
+    if(!/^[A-Za-z0-9 .,!?'"&()-]+$/.test(text)) return {ok:false,why:"chars",msg:"Use letters, numbers and simple punctuation only."};
+    if(!/[a-z]{2}/i.test(text)) return {ok:false,why:"short",msg:"Tell us a little more about your idea."};
+    const ws=text.split(/[\s.,!?'"&()-]+/).filter(Boolean).map(w=>leet(w)).filter(Boolean);
+    const spaced=text.replace(/\b([a-z0-9@$!|])[ .-]+(?=[a-z0-9@$!|]\b)/gi,"$1");   // f u c k, f.u.c.k -> fuck
+    const all=[...ws,...spaced.split(/[\s.,!?'"&()-]+/).filter(Boolean).map(w=>leet(w))];
+    const badWord=w=>{ if(SAFE.includes(w)||w==='from'||w==='age') return false; const q=squash(w);
+      return WORDS.includes(w)||WORDS.includes(q)||ROOTS.some(r=>w.includes(r)||((squash(r).length>=4||(squash(r)===r&&r.length>=3))&&q.includes(squash(r)))); };
+    if(all.some(badWord)) return {ok:false,why:"word",msg:"Let's keep it friendly! Try different words."};
+    if(all.some(w=>IINFO.includes(w))) return {ok:false,why:"info",msg:"Keep it secret! No usernames or apps. Just your idea."};
+    return {ok:true,text};
+  }
   const A=["Speedy","Sneaky","Golden","Puddle","Captain","Sir","Lucky","Fluffy","Turbo","Sunny","Mighty","Tiny","Bubbly","Cosmic","Splashy","Royal"];
   const B=["Quacker","Mallard","Duckling","Waddler","Feather","Paddler","Beak","Puddle","Pond Pal","Duckster","Wing","Egg"];
   function suggest(rnd=Math.random){ for(let i=0;i<20;i++){ const n=A[Math.floor(rnd()*A.length)]+" "+B[Math.floor(rnd()*B.length)]; if(n.length<=MAX&&n.split(" ")[0]!==n.split(" ")[1]) return n; } return "Lucky Duck"; }
-  const api={check,suggest,MAX};
+  const api={check,checkIdea,checkText:checkIdea,suggest,MAX,IMAX,TMAX:IMAX};
   if(typeof module!=="undefined"&&module.exports) module.exports=api; else root.QName=api;
 })(typeof globalThis!=="undefined"?globalThis:this);

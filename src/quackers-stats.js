@@ -17,11 +17,31 @@
      QStats.event("earn", {src:"egg", n:15});                // Pond Points earned (src: duck, quest, egg, scrap, sand, jump)
      QStats.board().then(...)                 // leaderboard sheet
      QStats.setName(name).then(...)           // {ok,name} or {ok:false,msg}
+
+   Idea box:
+     QStats.ideas().then(r => ...)            // {ok, month, ends, rows:[{id,kind,text,votes,voted,mine}], mine:[{id,kind,text,status,votes}], winner}
+     QStats.suggestIdea("duck"|"world", text) // {ok,id,status:"waiting",msg} or {ok:false,msg,why}; checked here first, then on the server
+     QStats.vote(id, true|false)              // {ok, votes, voted} or {ok:false,msg,why:"own"}
+   Friend link (load this file before the game reads the URL; it keeps ?f=<code> on a new device, tidies the
+   address bar, and claims the friend credit by itself after the first duck is found):
+     QStats.friend().then(r => ...)           // {ok, code, friends, link}; unlock the bonus duck when friends >= 1
+     QStats.shareFriend()                     // opens the share sheet with the player's link (falls back to copying it)
+   Privacy:
+     QStats.forget()                          // deletes this device's data on the server and starts fresh
+     QStats.sharing() / QStats.setSharing(on) // turn sending stats off or on (off also hides leaderboard, ideas, friends)
 */
 (function(){
   const API = "https://quackers-api.tannerspaulding81.workers.dev";
-  const IDK = "quackers-pid", QK = "quackers-stats-q";
-  const off = () => navigator.doNotTrack === "1" || window.doNotTrack === "1";
+  const IDK = "quackers-pid", QK = "quackers-stats-q", RK = "quackers-ref", OFFK = "quackers-stats-off";
+  const GAME = "https://quackersgame.com/";
+  const get = k => { try{ return localStorage.getItem(k); }catch(e){ return null; } };
+  const set = (k, v) => { try{ v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); }catch(e){} };
+  const off = () => navigator.doNotTrack === "1" || window.doNotTrack === "1" || get(OFFK) === "1";
+  const OFF_MSG = { ok:false, off:true, msg:"Stats sharing is turned off. Turn it on in settings to use this." };
+  // Friend link: keep the code from ?f=<code> until the server says it counted (or can't), and take it out of the address bar.
+  try{ const u = new URL(location.href), f = (u.searchParams.get("f") || "").toLowerCase();
+    if(/^[a-z2-9]{8}$/.test(f) && !get(IDK)) set(RK, f);
+    if(u.searchParams.has("f")){ u.searchParams.delete("f"); history.replaceState(history.state, "", u.pathname + (u.search || "") + u.hash); } }catch(e){}
   const rid = n => { const a = new Uint8Array(n); crypto.getRandomValues(a); return Array.from(a, b => b.toString(36).padStart(2,"0")).join("").slice(0, n * 2); };
   let t = null, busy = false, where = {}, active = 0, last = Date.now();
   const sess = { id: rid(8), hour: new Date().getHours(), dow: new Date().getDay() };
@@ -43,7 +63,9 @@
       busy = true;
       post("/v1/ping", Object.assign({ pid:id, device:device(), mode:mode(), where,
         sess:Object.assign({ secs:Math.round(active / 1000) }, sess), ev }, s))
-        .then(r => { if(r && r.ok && !r.slow) keep(queue().slice(ev.length)); })
+        .then(r => { if(r && r.ok && !r.slow) keep(queue().slice(ev.length));
+          const code = get(RK); if(code && r && r.ok && (s.ducks || (s.found || []).length))
+            return post("/v1/friend/claim", { pid:id, code }).then(c => { if(c && !c.retry) set(RK, null); }); })
         .catch(()=>{}).finally(() => { busy = false; });
     },
     start(){
@@ -63,6 +85,34 @@
       let snap = {}; try{ snap = Q.snap() || {}; }catch(e){}
       try{ await post("/v1/ping", Object.assign({ pid:id, device:device(), mode:mode(), where }, snap)); }catch(e){}
       try{ return await post("/v1/board", { pid:pid(), name:c.name }); }catch(e){ return { ok:false, msg:"Can't reach the leaderboard right now. Try again soon." }; } },
+    async ready(){ let snap = {}; try{ snap = Q.snap() || {}; }catch(e){}
+      try{ await post("/v1/ping", Object.assign({ pid:pid(), device:device(), mode:mode(), where }, snap)); }catch(e){} },
+    async ideas(){ const id = off() ? "" : (pid() || "");
+      try{ const r = await fetch(API + "/v1/ideas?pid=" + encodeURIComponent(id)); return await r.json(); }catch(e){ return { ok:false, ideas:[], offline:true }; } },
+    async suggestIdea(kind, text){ if(off()) return OFF_MSG;
+      const c = window.QName && QName.checkText ? QName.checkText(text) : { ok:true, text };
+      if(!c.ok) return c;
+      await Q.ready();
+      try{ return await post("/v1/ideas", { pid:pid(), kind, text:c.text }); }catch(e){ return { ok:false, msg:"Can't reach the idea box right now. Try again soon." }; } },
+    async vote(id, on){ if(off()) return OFF_MSG;
+      try{ return await post("/v1/ideas/vote", { pid:pid(), id, on:on !== false }); }catch(e){ return { ok:false, msg:"Can't reach the idea box right now. Try again soon." }; } },
+    async friend(){ if(off()) return OFF_MSG;
+      await Q.ready();
+      try{ const c = await post("/v1/friend/code", { pid:pid() }); if(!c || !c.ok) return c || { ok:false };
+        const st = await (await fetch(API + "/v1/friend/status?pid=" + encodeURIComponent(pid() || ""))).json();
+        return { ok:true, code:c.code, friends:(st && st.friends) || 0, link:GAME + "?f=" + c.code }; }catch(e){ return { ok:false, offline:true }; } },
+    async friends(){ if(off()) return { ok:false, friends:0, off:true };
+      try{ return await (await fetch(API + "/v1/friend/status?pid=" + encodeURIComponent(pid() || ""))).json(); }catch(e){ return { ok:false, friends:0, offline:true }; } },
+    async shareFriend(){ const r = await Q.friend(); if(!r.ok) return r;
+      const data = { title:"Quackers", text:"Come find hidden ducks with me in Quackers!", url:r.link };
+      try{ if(navigator.share){ await navigator.share(data); return { ok:true, shared:true }; } }catch(e){ if(e && e.name === "AbortError") return { ok:false, cancelled:true }; }
+      try{ await navigator.clipboard.writeText(r.link); return { ok:true, copied:true, link:r.link }; }catch(e){ return { ok:true, link:r.link }; } },
+    async forget(){ const id = get(IDK); let r = { ok:true };
+      if(id){ try{ r = await post("/v1/forget", { pid:id }); }catch(e){ return { ok:false, msg:"Can't reach the server right now, so nothing was deleted. Try again soon." }; } }
+      if(r && r.ok){ set(IDK, null); set(QK, null); set(RK, null); }
+      return r && r.ok ? { ok:true } : { ok:false, msg:(r && r.msg) || "That didn't work. Try again soon." }; },
+    sharing(){ return !off(); },
+    setSharing(on){ set(OFFK, on ? null : "1"); if(on) Q.send(); },
   };
   window.QStats = Q;
 })();

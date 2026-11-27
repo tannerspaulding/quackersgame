@@ -18,9 +18,9 @@ const KEY="quackers-v3";
 const NOW_MONTH=(()=>{ try{ const m=+new URLSearchParams(location.search).get("month"); if(m>=1&&m<=12) return m-1; }catch(e){} return new Date().getMonth(); })();
 function load(){ try{ const j=JSON.parse(localStorage.getItem(KEY)||"null"); if(j&&typeof j==="object") return j; }catch(e){} return {}; }
 const SV=load();
-const S={screen:"home",world:null,area:null,found:new Set(SV.found||[]),flags:SV.flags||{},unlocked:SV.unlocked||1,sound:SV.sound!==false,tokens:SV.tokens||[],best:SV.best||0,last:SV.last||{},seen:new Set(),pts:SV.pts|0,mg:SV.mg||(SV.best?{egg:{lvl:2,stars:{1:SV.best}}}:{}),own:SV.own||[],hat:SV.hat||"",color:SV.color||"",spark:SV.spark|0,crowAt:0,
+const S={screen:"home",world:null,area:null,found:new Set(SV.found||[]),flags:SV.flags||{},unlocked:SV.unlocked||1,sound:SV.sound!==false,tokens:SV.tokens||[],best:SV.best||0,last:SV.last||{},seen:new Set(),pts:SV.pts|0,mg:SV.mg||(SV.best?{egg:{lvl:2,stars:{1:SV.best}}}:{}),own:SV.own||[],hat:SV.hat||"",color:SV.color||"",spark:SV.spark|0,buddy:SV.buddy|0,crowAt:0,
   get F(){ return this.flags[this.world]||(this.flags[this.world]={}); }};
-function save(){ try{ localStorage.setItem(KEY,JSON.stringify({found:[...S.found],flags:S.flags,unlocked:S.unlocked,sound:S.sound,tokens:S.tokens,best:S.best,last:S.last,pts:S.pts,mg:S.mg,own:S.own,hat:S.hat,color:S.color,spark:S.spark})); }catch(e){} }
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify({found:[...S.found],flags:S.flags,unlocked:S.unlocked,sound:S.sound,tokens:S.tokens,best:S.best,last:S.last,pts:S.pts,mg:S.mg,own:S.own,hat:S.hat,color:S.color,spark:S.spark,buddy:S.buddy})); }catch(e){} }
 
 /* ---------- Sound ---------- */
 let actx;
@@ -47,7 +47,7 @@ const door=(to,label,inner,soon)=>`<g class="door" ${soon?`data-soon="${soon}"`:
 const act=(name,label,inner)=>`<g class="act" data-act="${name}" tabindex="0" role="button" aria-label="${label}">${inner}</g>`;
 const helperAt=(w,x,y,s)=>`<g transform="translate(${x} ${y}) scale(${s})" ${N}>${shadow(20)}<g class="bob">${w.helper.art(false)}</g></g>`;
 /* Each new world has a helper. Every duck you find gives you one of its tokens; hand them all over and the helper becomes the last duck. */
-const ICONS={fish:s=>fishIcon(s),ticket:s=>ticketIcon(s),gear:s=>gearIcon(s),feather:s=>featherIcon(s)};
+const ICONS={rock:s=>typeof rockIcon==="function"?rockIcon(s):"",fish:s=>fishIcon(s),ticket:s=>ticketIcon(s),gear:s=>gearIcon(s),feather:s=>featherIcon(s)};
 const regDucks=w=>(w.ducks||[]).filter(d=>!d.helper);
 const helperDuck=w=>(w.ducks||[]).find(d=>d.helper);
 const tokensFor=w=>regDucks(w).filter(d=>S.found.has(d.id)).length;
@@ -143,7 +143,7 @@ function goHome(){
   else if(hol) ev=`<b>You found the ${hol.name}!</b><small>It's in your ${W[hol.world].name} Duck Log. More holiday ducks are on the way.</small>`;
   else ev=`<b>Holiday ducks</b><small>Special ducks visit on holidays. Look out for them!</small>`;
   const heroH=HOL[0], nxt=homeNext();
-  const specGot=MINI.filter(starWon).length+SHOP.filter(i=>i.kind==="duck"&&own(i.id)).length, specAll=MINI.length+Object.keys(SHOPDUCK).length;
+  const [specGot,specAll]=specCount();
   const pic=w=>sv("0 0 400 300",thumbOf(w),'preserveAspectRatio="xMidYMid slice" style="pointer-events:none"');
   const tile=w=>{ const f=wFound(w), t=wTotal(w), open=w.n<=S.unlocked, prev=WORLDS[w.n-2], done=open&&f>=t, isNext=w===nxt;
     return `<button type="button" class="wcard wtile${open?"":" locked"}${done?" finished":""}${isNext?" next":""}" data-world="${w.id}" aria-label="${w.name}${open?`, ${f} of ${t} ducks found`:", locked"}">
@@ -152,10 +152,15 @@ function goHome(){
   const soonTile=w=>`<button type="button" class="wcard wtile off" data-soon="${w.id}" aria-label="${w.name}, coming soon"><span class="thumb">${pic(w)}<span class="tag">Soon</span></span><span class="meta"><b>${w.name}</b><small>Coming soon</small></span></button>`;
   $("scrHome").innerHTML=`
 
-   <p class="total">${got} of ${allDucks()} ducks found</p>
+   <p class="total">${got} of ${allDucks()} ducks found <button type="button" class="spectop" id="hSpecTop" aria-label="Special ducks: ${specGot} of ${specAll}">${SPECSTAR}${specGot}/${specAll} special</button> <button type="button" class="spectop hol" id="hHolTop" aria-label="Holiday ducks: ${holCount().join(" of ")}">${HOLGIFT}${holCount().join("/")} holiday</button></p>
    <button type="button" class="event" id="evt">${hol&&!S.found.has(hol.id)?`<svg viewBox="-44 -100 92 164" aria-hidden="true" class="mitch"><g class="bob">${toyMitchell(true)}</g></svg>`:`<svg viewBox="-46 -48 92 76" aria-hidden="true"><g class="bob">${(hol||heroH).art()}</g></svg>`}<span>${ev}</span></button>
    <h2 class="wtitle">Worlds</h2>
    <div class="worlds wgrid">${WORLDS.map(tile).join("")}${SOON.map(soonTile).join("")}${(WORLDS.length+SOON.length)%2?`<div class="moretile" aria-hidden="true"><span>${QMARKMINI}</span><b>More worlds coming!</b><small>Mitchell is dreaming them up.</small></div>`:""}</div>
+   <div class="extras">
+    <button type="button" class="xcard ideas" id="hIdeas">${BULB}<span><b>Idea Box</b><small>Tell Mitchell your duck or world idea</small></span></button>
+    <button type="button" class="xcard friend" id="hFriend"><svg viewBox="-44 -52 88 82" aria-hidden="true">${S.buddy?buddyArt():`<g opacity=".55">${buddyArt()}</g>`}</svg><span><b>Invite a friend</b><small>${S.buddy?"You got Error Code Duck!":"Win the Error Code Duck"}</small></span></button>
+   </div>
+   <p class="privfoot"><a href="/privacy/">Privacy</a> · A game by Mitchell</p>
    <nav class="tabs" aria-label="More to do">
     <button type="button" class="tab games" id="hGames">${IC.games}<span>Mini games</span></button>
     <button type="button" class="tab shop" id="hShop">${IC.shop}<span>Shop</span><em class="tabpts">${PP}${S.pts}</em></button>
@@ -165,9 +170,11 @@ function goHome(){
   flush();
   $("evt").addEventListener("click",()=>{ if(hol&&!S.found.has(hol.id)) openHolidayQuest(hol); else openHoliday(); });
   $("hShop").addEventListener("click",()=>openShop());
-  $("hSpecial").addEventListener("click",openSpecial);
+  $("hSpecial").addEventListener("click",openSpecial); $("hSpecTop").addEventListener("click",openSpecial); $("hHolTop").addEventListener("click",openHoliday);
   $("hGames").addEventListener("click",openGames);
   $("hBoard").addEventListener("click",()=>{ if(typeof openBoard==="function") openBoard(); });
+  $("hIdeas").addEventListener("click",openIdeas);
+  $("hFriend").addEventListener("click",openFriend);
   $("scrHome").querySelectorAll("[data-world]").forEach(b=>b.addEventListener("click",()=>{ const w=W[b.dataset.world];
     if(w.n>S.unlocked){ homeToast(b,`Finish ${WORLDS[w.n-2].name} first!`); blip(); return; } enterWorld(w.id); }));
   $("scrHome").querySelectorAll("[data-soon]").forEach(b=>b.addEventListener("click",()=>{ homeToast(b,"Mitchell is still building this one!"); blip(); }));
@@ -176,13 +183,19 @@ function openSettings(){
   openSheet(`<div class="menu setmenu">
     <button type="button" class="mbtn" id="sSound">${S.sound?SND_ON:SND_OFF}<span>Sound: ${S.sound?"on":"off"}</span></button>
     <button type="button" class="mbtn reset" id="hReset">Start over</button>
+    <button type="button" class="mbtn share" id="hShare">${shareLabel()}</button>
+    <a class="mbtn privacy" href="/privacy/">${SHIELD}<span>Privacy: what we keep</span></a>
+    <button type="button" class="mbtn reset forget" id="hForget">Delete my data</button>
+    <div class="lbmsg" id="setMsg" role="status" hidden></div>
     <p class="setfoot">A game by Mitchell. Every character is drawn just for Quackers.</p></div>`,"Settings");
   $("sSound").addEventListener("click",()=>{ toggleSound(); const b=$("sSound"); b.innerHTML=`${S.sound?SND_ON:SND_OFF}<span>Sound: ${S.sound?"on":"off"}</span>`; });
   $("hReset").addEventListener("click",askReset);
+  $("hForget").addEventListener("click",askForget);
+  $("hShare").addEventListener("click",toggleSharing);
 }
 let resetT;
 function askReset(){ const b=$("hReset");
-  if(b.dataset.armed){ localStorage.removeItem(KEY); S.found=new Set(); S.flags={}; S.unlocked=1; S.tokens=[]; S.best=0; S.last={}; S.pts=0; S.mg={}; S.own=[]; S.hat=""; S.color=""; S.spark=0; doneShown.clear(); save(); goHome(); return; }
+  if(b.dataset.armed){ localStorage.removeItem(KEY); S.found=new Set(); S.flags={}; S.unlocked=1; S.tokens=[]; S.best=0; S.last={}; S.pts=0; S.mg={}; S.own=[]; S.hat=""; S.color=""; S.spark=0; S.buddy=0; doneShown.clear(); save(); goHome(); return; }
   b.dataset.armed="1"; b.textContent="Tap again to erase all your ducks"; b.classList.add("armed");
   clearTimeout(resetT); resetT=setTimeout(()=>{ if(b.isConnected){ delete b.dataset.armed; b.textContent="Start over"; b.classList.remove("armed"); } },3500);
 }
@@ -274,6 +287,8 @@ function renderHud(pop){
   const n=wFound(w), t=wTotal(w), b=$("countPill"), h=holHere();
   b.setAttribute("aria-label",`Duck Log: ${n} of ${t} found`);
   b.innerHTML=`<svg width="26" height="22" viewBox="-36 -44 78 70" aria-hidden="true">${toyDuck(YEL)}</svg>${n}/${t}`;
+  const [sn,st]=specCount(), sp=$("specPill"); sp.innerHTML=`${SPECSTAR}${sn}/${st}`; sp.setAttribute("aria-label",`Special ducks: ${sn} of ${st}. See how to get them`);
+  const [hn,ht]=holCount(), hp=$("holPill"); hp.innerHTML=`${HOLGIFT}${hn}/${ht}`; hp.setAttribute("aria-label",`Holiday ducks: ${hn} of ${ht}. See when they come`);
   const q=$("questPill"), qs=quests(w);
   q.hidden=!qs.length; q.classList.toggle("ready",qs.some(x=>x.ready));
   q.innerHTML=`<span class="qlab">Quest</span>`+qs.map(x=>`<svg width="18" height="18" viewBox="-12 -12 24 24" aria-hidden="true">${x.icon}</svg>${x.got}/${x.need}`).join(`<i class="sep"></i>`);
@@ -512,7 +527,7 @@ function useSparkle(d){
   pop(); toast(botReady?"Beep boop! The Crow Bot found a duck.":`Sparkle! ${S.spark} Duck Sparkle${S.spark===1?"":"s"} left.`,2200);
 }
 $("tabHint").addEventListener("click",hint);
-$("countPill").addEventListener("click",openLog); $("questPill").addEventListener("click",()=>openQuests(false));
+$("countPill").addEventListener("click",openLog); $("specPill").addEventListener("click",()=>openSpecial()); $("holPill").addEventListener("click",openHoliday); $("questPill").addEventListener("click",()=>openQuests(false));
 $("exitBtn").addEventListener("click",goHome);
 $("homeBtn").addEventListener("click",goHome); $("gearBtn").innerHTML=GEAR; $("gearBtn").addEventListener("click",openSettings);
 const IC={
@@ -534,10 +549,15 @@ function openMenu(){ const w=W[S.world];
 }
 $("tabMenu").addEventListener("click",openMenu);
 
-function openHoliday(){
-  openSheet(`<p class="note">Holiday ducks only visit in their month, after a special task.</p><div class="hgrid">${HOL.map(h=>`<div class="hcard${holOn(h)?" now":""}"><svg viewBox="-48 -56 96 84" aria-hidden="true">${h.art()}</svg>
-    <span class="mon">${S.found.has(h.id)?"Found!":holOn(h)?"Here this month":h.month}</span><b>${h.name}</b><small>${h.holiday}: ${h.task}${holLive(h)?` You have ${tokGot(h)} of ${tokAll(h)} ${h.items}.`:""}</small></div>`).join("")}
-    <div class="hcard more"><b>More on the way</b><small>More holiday ducks are coming soon.</small></div></div>`,"Holiday ducks");
+/* Holiday ducks: the ones built so far count; future holidays show as coming soon. */
+const HOLSOON=[{holiday:"Halloween",month:"October"},{holiday:"Valentine's Day",month:"February"},{holiday:"St. Patrick's Day",month:"March"},{holiday:"April Fool's Day",month:"April"}];
+const holCount=()=>[HOL.filter(h=>S.found.has(h.id)).length,HOL.length];
+const HOLGIFT=`<svg width="22" height="22" viewBox="-13 -14 26 27" aria-hidden="true">${presentIcon(1)}</svg>`;
+function openHoliday(){ const [n,t]=holCount();
+  openSheet(`<p class="note">Holiday ducks only visit in their month. Do the holiday task in their world, then search for the duck.</p><div class="hgrid">${HOL.map(h=>{ const got=S.found.has(h.id);
+    return `<div class="hcard${holOn(h)&&!got?" now":""}${got?"":" locked"}"><svg viewBox="-48 -56 96 84" aria-hidden="true">${got?`<g class="bob">${h.art()}</g>`:`<g class="sil">${h.art()}</g>`}</svg>
+    <span class="mon">${got?"Found!":holOn(h)?"Here this month":h.month}</span><b>${got?h.name:`${h.holiday} duck`}</b><small>${got?`Found in ${W[h.world].name}.`:`Comes in ${h.month}. ${h.task}${holLive(h)?` You have ${tokGot(h)} of ${tokAll(h)} ${h.items}.`:""}`}</small></div>`; }).join("")}
+    ${HOLSOON.map(x=>`<div class="hcard soon"><svg viewBox="-48 -56 96 84" aria-hidden="true"><g class="sil">${toyDuck(YEL)}</g><text x="10" y="-12" text-anchor="middle" font-family="Grandstander,sans-serif" font-weight="900" font-size="30" fill="#fff">?</text></svg><span class="mon">Coming soon</span><b>${x.holiday} duck</b><small>Mitchell is still dreaming this one up. It will come in ${x.month}.</small></div>`).join("")}</div>`,`Holiday ducks: ${n} of ${t}`);
 }
 /*MINI*/
 
