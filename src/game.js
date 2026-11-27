@@ -60,14 +60,17 @@ function HELP(wid,x,y,s){ const w=WORLDS_REF(wid), hd=helperDuck(w);
 
 /* ---------- Holiday ducks ---------- */
 const HOL=[{id:"turkey",name:"Turkey Duck",holiday:"Thanksgiving",m:10,month:"November",world:"yard",area:"garden",tier:"Holiday",
-  hint:"Gobble gobble",task:"Find 6 acorns in The Backyard, then search for the duck.",say:"Hey, it's Thanksgiving! Collect 6 acorns from The Backyard to get the Turkey Duck to spawn. Good luck trying to find him!",tokens:{a1:"yard",a2:"yard",a3:"garden",a4:"pond",a5:"treetop",a6:"house"},art:()=>toyTurkey()}];
+  hint:"Gobble gobble",task:"Find 6 acorns in The Backyard, then search for the duck.",say:"Hey, it's Thanksgiving! Collect 6 acorns from The Backyard to get the Turkey Duck to spawn. Good luck trying to find him!",item:"acorn",items:"acorns",icon:s=>acornIcon(s),tokens:{a1:"yard",a2:"yard",a3:"garden",a4:"pond",a5:"treetop",a6:"house"},art:()=>toyTurkey()},
+ {id:"santa",name:"Santa Duck",holiday:"Christmas",m:11,month:"December",world:"snow",area:"peak",tier:"Holiday",
+  hint:"Ho ho ho",task:"Find 6 presents in Snowy Peaks, then search for the duck.",say:"Hey, it's Christmas! Collect 6 presents from Snowy Peaks to get the Santa Duck to spawn. Good luck trying to find him!",item:"present",items:"presents",icon:s=>presentIcon(s),tokens:{p1:"igloo",p2:"rink",p3:"rink",p4:"cave",p5:"peak",p6:"igloo"},art:()=>toySanta()}];
+const cap=t=>t[0].toUpperCase()+t.slice(1);
 const holOn=h=>!!h&&h.m===NOW_MONTH;
 const holLive=h=>holOn(h)&&!S.found.has(h.id);
 const holHere=()=>HOL.find(h=>h.world===S.world);
 const tokAll=h=>Object.keys(h.tokens).length;
 const tokGot=h=>S.tokens.filter(t=>t in h.tokens).length;
 function T(id,x,y){ if(THUMB) return ""; const h=holHere(); if(!holLive(h)||!(id in h.tokens)||S.tokens.includes(id)) return "";
-  return `<g class="token" data-token="${id}" tabindex="0" role="button" aria-label="Something small" transform="translate(${x} ${y})"><circle r="18" fill="transparent"/><g class="bob">${acornIcon(.9)}</g></g>`; }
+  return `<g class="token" data-token="${id}" tabindex="0" role="button" aria-label="Something small" transform="translate(${x} ${y})"><circle r="18" fill="transparent"/><g class="bob">${h.icon(.9)}</g></g>`; }
 function H(id,x,y,s){ const h=HOL.find(k=>k.id===id); if(THUMB||!holOn(h)||tokGot(h)<tokAll(h)) return ""; return place(id,x,y,s); }
 
 /* ---------- Worlds ---------- */
@@ -116,7 +119,7 @@ const QMARK=`<g class="logo-duck"><g transform="translate(57.6 66) scale(.62)"><
 function setScreen(name){
   S.screen=name; closeSheet();
   $("scrHome").hidden=name!=="home"; $("scrWorld").hidden=name!=="world"; $("scrEgg").hidden=name!=="egg";
-  $("homeBtn").hidden=name==="home"; $("gearBtn").hidden=name!=="home";
+  $("homeBtn").hidden=name==="home"; $("gearBtn").hidden=name!=="home"; document.body.classList.toggle("onhome",name==="home");
   const play=name==="world"||name==="egg";
   $("app").classList.toggle("playing",play); document.documentElement.style.overflow=play?"hidden":"";
   $("done").hidden=true; if(name!=="world") $("intro").classList.add("off");
@@ -132,12 +135,12 @@ const PLAYTRI=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5 L19 12 
 const QMARKMINI=`<svg viewBox="16 20 190 168" aria-hidden="true">${QMARK}</svg>`;
 const CHECK=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 L10 17 L19 7" fill="none" stroke="#fff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 function goHome(){
-  setScreen("home"); $("title").textContent="Quackers";
+  setScreen("home"); $("title").innerHTML=`<span class="logo" role="img" aria-label="Quackers"><svg class="qmark" viewBox="16 20 190 168" aria-hidden="true">${QMARK}</svg><b aria-hidden="true">uackers</b></span>`;
   const hol=HOL.find(h=>holOn(h));
   const got=WORLDS.reduce((n,w)=>n+wFound(w),0);
   let ev;
-  if(hol&&!S.found.has(hol.id)) ev=`<b>Mitchell has a ${hol.holiday} quest!</b><small>${hol.name}: ${tokGot(hol)<tokAll(hol)?`find ${tokAll(hol)} acorns in The Backyard (${tokGot(hol)} of ${tokAll(hol)}), then search for the duck.`:"all acorns found! Search The Backyard for the duck."}</small>`;
-  else if(hol) ev=`<b>You found the ${hol.name}!</b><small>It's in your Backyard Duck Log. More holiday ducks are on the way.</small>`;
+  if(hol&&!S.found.has(hol.id)) ev=`<b>Mitchell has a ${hol.holiday} quest!</b><small>${hol.name}: ${tokGot(hol)<tokAll(hol)?`find ${tokAll(hol)} ${hol.items} in ${W[hol.world].name} (${tokGot(hol)} of ${tokAll(hol)}), then search for the duck.`:`all ${hol.items} found! Search ${W[hol.world].name} for the duck.`}</small>`;
+  else if(hol) ev=`<b>You found the ${hol.name}!</b><small>It's in your ${W[hol.world].name} Duck Log. More holiday ducks are on the way.</small>`;
   else ev=`<b>Holiday ducks</b><small>Special ducks visit on holidays. Look out for them!</small>`;
   const heroH=HOL[0], nxt=homeNext();
   const specGot=MINI.filter(starWon).length+SHOP.filter(i=>i.kind==="duck"&&own(i.id)).length, specAll=MINI.length+Object.keys(SHOPDUCK).length;
@@ -148,7 +151,7 @@ function goHome(){
       <span class="meta"><b>${w.name}</b>${open?`<span class="prog"><span class="bar2"><i style="width:${t?f/t*100:0}%"></i></span><small>${f}/${t}</small></span>`:`<small>Finish ${prev.name}</small>`}</span></button>`; };
   const soonTile=w=>`<button type="button" class="wcard wtile off" data-soon="${w.id}" aria-label="${w.name}, coming soon"><span class="thumb">${pic(w)}<span class="tag">Soon</span></span><span class="meta"><b>${w.name}</b><small>Coming soon</small></span></button>`;
   $("scrHome").innerHTML=`
-   <div class="logo" role="img" aria-label="Quackers"><svg class="qmark" viewBox="16 20 190 168" aria-hidden="true">${QMARK}</svg><b aria-hidden="true">uackers</b></div>
+
    <p class="total">${got} of ${allDucks()} ducks found</p>
    <button type="button" class="event" id="evt">${hol&&!S.found.has(hol.id)?`<svg viewBox="-44 -100 92 164" aria-hidden="true" class="mitch"><g class="bob">${toyMitchell(true)}</g></svg>`:`<svg viewBox="-46 -48 92 76" aria-hidden="true"><g class="bob">${(hol||heroH).art()}</g></svg>`}<span>${ev}</span></button>
    <h2 class="wtitle">Worlds</h2>
@@ -194,7 +197,7 @@ function enterWorld(id){
   if(!S.seen.has(id)){ S.seen.add(id); intro(w); }
   questIntro(w);
   const h=holHere();
-  if(holLive(h)&&tokGot(h)===0) setTimeout(()=>{ if(S.world===id&&S.screen==="world") toast(`A ${h.holiday} visitor is in ${w.name}! Find ${tokAll(h)} hidden acorns.`,3400); },2700);
+  if(holLive(h)&&tokGot(h)===0) setTimeout(()=>{ if(S.world===id&&S.screen==="world") toast(`A ${h.holiday} visitor is in ${w.name}! Find ${tokAll(h)} hidden ${h.items}.`,3400); },2700);
 }
 let introT;
 function intro(w){ const el=$("intro");
@@ -212,10 +215,10 @@ function miniMap(){
 function quests(w){ const out=[], hd=helperDuck(w);
   const hol=HOL.find(x=>x.world===w.id);
   if(holLive(hol)){ const got=tokGot(hol), need=tokAll(hol);
-    out.push({kind:"holiday",title:`${hol.holiday}: find the ${hol.name}`,art:hol.art(),icon:`<g transform="translate(0 -1) scale(.72)">${acornIcon(1)}</g>`,got,need,plural:"acorns",ready:got>=need,
-      how:`For ${hol.holiday}, ${need} acorns are hidden around ${w.name}. Tap each one to pick it up. Once you have them all, the ${hol.name} comes out somewhere in this world.`,
-      now:got>=need?`You have all ${need} acorns! Now search for the ${hol.name}.`:`You have ${got} of ${need} acorns.`,
-      say:got>=need?`You found all ${need} acorns! The ${hol.name} is out there somewhere now. Good luck trying to find him!`:hol.say,clip:got>=need?`${hol.id}-ready`:hol.id}); }
+    out.push({kind:"holiday",title:`${hol.holiday}: find the ${hol.name}`,art:hol.art(),icon:`<g transform="translate(0 -1) scale(.72)">${hol.icon(1)}</g>`,got,need,plural:hol.items,ready:got>=need,
+      how:`For ${hol.holiday}, ${need} ${hol.items} are hidden around ${w.name}. Tap each one to pick it up. Once you have them all, the ${hol.name} comes out somewhere in this world.`,
+      now:got>=need?`You have all ${need} ${hol.items}! Now search for the ${hol.name}.`:`You have ${got} of ${need} ${hol.items}.`,
+      say:got>=need?`You found all ${need} ${hol.items}! The ${hol.name} is out there somewhere now. Good luck trying to find him!`:hol.say,clip:got>=need?`${hol.id}-ready`:hol.id}); }
   if(w.helper&&hd&&!S.found.has(hd.id)){ const h=w.helper, got=tokensFor(w), need=regDucks(w).length, where=w.areas[hd.area].name;
     out.push({kind:"helper",title:`Help the ${h.name}`,art:h.art(false),icon:`<g transform="scale(.62)">${ICONS[h.icon](1)}</g>`,got,need,plural:h.plural,ready:got>=need,
       how:`Every duck you find gives you a ${h.token}. Bring all ${need} ${h.plural} to the ${h.name} in the ${where} and tap it. Then the ${h.name} joins your Duck Log as the last duck!`,
@@ -388,7 +391,7 @@ function tapToken(tk){
   const b=tk.getBoundingClientRect(); burst(stage,b.left+b.width/2,b.top+b.height/2);
   S.tokens.push(id); save(); pop();
   const n=tokGot(h), t=tokAll(h);
-  toast(n<t?`Acorn ${n} of ${t}!`:`All ${t} acorns! The ${h.name} is hiding somewhere in ${W[S.world].name}. Go find it!`,n<t?1800:3400);
+  toast(n<t?`${cap(h.item)} ${n} of ${t}!`:`All ${t} ${h.items}! The ${h.name} is hiding somewhere in ${W[S.world].name}. Go find it!`,n<t?1800:3400);
   rerender(); renderHud(false); bumpBadge();
 }
 const doneShown=new Set();
@@ -458,7 +461,7 @@ function duckCard(d,got){
     <span class="tier t-${d.tier}">${d.tier}</span>${got?`<b>${d.name}</b>`:`<small>${d.hint}</small>`}</div>`;
 }
 function holCard(h){ const got=S.found.has(h.id), on=holOn(h), n=tokGot(h), t=tokAll(h);
-  const note=got?"":!on?`Comes back in ${h.month}`:n<t?`Find ${t} acorns: ${n} of ${t}`:"All acorns found. Search the Backyard!";
+  const note=got?"":!on?`Comes back in ${h.month}`:n<t?`Find ${t} ${h.items}: ${n} of ${t}`:`All ${h.items} found. Search ${W[h.world].name}!`;
   return `<div class="card hol ${got?"":"miss"}"><svg viewBox="-46 -52 92 82" aria-hidden="true">${got?h.art():`<g opacity=".35">${h.art()}</g>`}</svg><span class="tier t-Holiday">Holiday</span>${got?`<b>${h.name}</b>`:`<small>${note}</small>`}</div>`; }
 function openLog(){
   const w=W[S.world];
@@ -488,8 +491,8 @@ function hint(){
     area=left[0].area; toast(`Psst... try the ${w.areas[area].name}.`,2600);
   } else if(holLive(h)){
     const miss=Object.entries(h.tokens).find(([id])=>!S.tokens.includes(id)); area=miss?miss[1]:h.area;
-    if(area===S.area){ toast(miss?"An acorn is somewhere right here!":`The ${h.name} is right here somewhere!`,2600); return; }
-    toast(miss?`Psst... an acorn is in the ${w.areas[area].name}.`:`The ${h.name} is hiding in the ${w.areas[area].name}.`,2600);
+    if(area===S.area){ toast(miss?`A ${h.item} is somewhere right here!`:`The ${h.name} is right here somewhere!`,2600); return; }
+    toast(miss?`Psst... a ${h.item} is in the ${w.areas[area].name}.`:`The ${h.name} is hiding in the ${w.areas[area].name}.`,2600);
   } else { toast("Every duck here is found!"); return; }
   const dir=dirTo(area); const arr=stage.querySelector(`.e-${dir}`)||stage.querySelector(".edge");
   if(arr){ arr.classList.add("lookhere"); setTimeout(()=>arr.classList.remove("lookhere"),2600); }
@@ -533,7 +536,7 @@ $("tabMenu").addEventListener("click",openMenu);
 
 function openHoliday(){
   openSheet(`<p class="note">Holiday ducks only visit in their month, after a special task.</p><div class="hgrid">${HOL.map(h=>`<div class="hcard${holOn(h)?" now":""}"><svg viewBox="-48 -56 96 84" aria-hidden="true">${h.art()}</svg>
-    <span class="mon">${S.found.has(h.id)?"Found!":holOn(h)?"Here this month":h.month}</span><b>${h.name}</b><small>${h.holiday}: ${h.task}${holLive(h)?` You have ${tokGot(h)} of ${tokAll(h)} acorns.`:""}</small></div>`).join("")}
+    <span class="mon">${S.found.has(h.id)?"Found!":holOn(h)?"Here this month":h.month}</span><b>${h.name}</b><small>${h.holiday}: ${h.task}${holLive(h)?` You have ${tokGot(h)} of ${tokAll(h)} ${h.items}.`:""}</small></div>`).join("")}
     <div class="hcard more"><b>More on the way</b><small>More holiday ducks are coming soon.</small></div></div>`,"Holiday ducks");
 }
 /*MINI*/

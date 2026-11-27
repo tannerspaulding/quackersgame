@@ -18,7 +18,7 @@
   <g ${N}><path d="M56 216 A62 54 0 0 1 180 216 Z" fill="${G("#ffffff")}" ${O}/>
   <path d="M68 196 H168 M60 208 H176 M84 180 H152 M100 168 H136" stroke="#c9dcee" stroke-width="2.4"/>
   <path d="M100 216 A18 22 0 0 1 136 216 Z" fill="${LG("#3d5a80","#22385a")}" ${O2}/></g>
-  ${place("s_plain",176,232,.68)}
+  ${place("s_plain",176,232,.68)}${T("p1",240,274)}${T("p6",126,248)}
   ${snowman(226,214,.9,"top")}${place("s_snowman",270,214,.62)}${snowman(318,218,.85,"beanie")}
   ${!F.crack?act("crack","Ice block",`<rect x="24" y="228" width="76" height="58" rx="10" fill="${LG("#d7f3ff","#7cc8ff")}" ${O}/><g transform="translate(62 262) scale(.55)" opacity=".35">${toyDuck(GHOST)}</g><path d="M34 238 h12 M84 236 l-6 10" stroke="#fff" stroke-width="3" stroke-linecap="round"/>`)
     :`${place("s_ice",62,262,.6)}<g ${N}><path d="M28 286 l10 -10 l8 10 Z M84 288 l8 -14 l8 14 Z M54 290 l6 -8 l6 8 Z" fill="${G("#bfe8ff")}" ${O2}/></g>`}
@@ -32,7 +32,7 @@
   <g ${N}><ellipse cx="200" cy="212" rx="178" ry="54" fill="${LG("#d9f4ff","#9fd6ff")}" ${O}/>
   <path d="M90 206 Q140 186 196 204 T300 214 M120 228 Q170 244 230 226" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".9"/>
   ${[0,1,2,3,4,5,6,7,8].map(i=>`<rect x="${26+i*40}" y="${i%2?150:152}" width="6" height="22" rx="2" fill="${G("#a0703f")}" ${O2}/>`).join("")}<path d="M26 156 H352" stroke="#a0703f" stroke-width="4"/></g>
-  ${place("s_skater",292,206,.42)}
+  ${place("s_skater",292,206,.42)}${T("p2",170,214)}${T("p3",342,238)}
   <g ${N}><path d="M286 226 l-10 4 M300 226 l10 4" stroke="${INK}" stroke-width="2" stroke-linecap="round"/></g>
   ${act("cocoa","Hot cocoa stand",`<g transform="translate(60 214)"><rect x="-38" y="-30" width="76" height="46" rx="6" fill="${G("#c0283f")}" ${O}/><path d="M-44 -30 L-38 -50 H38 L44 -30 Z" fill="${G("#ffffff")}" ${O2}/>${[-30,-14,2,18].map(x=>`<path d="M${x} -50 L${x+8} -30" stroke="#d8344f" stroke-width="5"/>`).join("")}<rect x="-16" y="-24" width="32" height="24" rx="5" fill="${G("#7a4523")}" ${O2}/>${F.cocoa?`<path d="M-6 -30 q4 -8 0 -14 M6 -30 q4 -8 0 -14" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>`:""}</g>`)}
   <g ${N}><rect x="300" y="250" width="84" height="10" rx="4" fill="${G("#a0703f")}" ${O2}/><path d="M308 260 V280 M376 260 V280" stroke="${INK}" stroke-width="4"/></g>
@@ -44,7 +44,7 @@
   <g ${N}><path d="M150 30 Q170 120 160 230 H240 Q230 120 250 30 Z" fill="${LG("#bfe8ff","#7cc8ff")}" ${O} opacity=".9"/>
   <path d="M175 60 Q182 140 176 220 M200 50 V226 M224 64 Q218 140 226 220" stroke="#fff" stroke-width="3" fill="none" opacity=".7"/></g>
   <path d="M-10 226 Q200 210 410 226 V310 H-10Z" fill="${LG("#5a86b8","#2c4f80")}" ${O} ${N}/>
-  ${place("s_crystal",318,220,.6,{noShadow:true})}
+  ${place("s_crystal",318,220,.6,{noShadow:true})}${T("p4",250,262)}
   ${!F.crystals?act("crystals","Blue crystals",`<g transform="translate(318 236)">${[[-34,0,26],[-14,-10,40],[8,-4,34],[28,2,24],[-2,6,22]].map(([x,y,h])=>`<path d="M${x-10} ${y+12} L${x} ${y-h} L${x+10} ${y+12} Z" fill="${LG("#a8ecff","#3fa7e8")}" ${O2}/>`).join("")}</g>`)
     :`<g transform="translate(318 236)" ${N}>${[[-44,0,22],[40,2,20]].map(([x,y,h])=>`<path d="M${x-10} ${y+12} L${x} ${y-h} L${x+10} ${y+12} Z" fill="${LG("#a8ecff","#3fa7e8")}" ${O2}/>`).join("")}</g>`}
   <g transform="translate(70 238)" ${N}>${[[-20,0,30],[0,-6,44],[20,2,28]].map(([x,y,h])=>`<path d="M${x-10} ${y+12} L${x} ${y-h} L${x+10} ${y+12} Z" fill="${LG("#d7b8ff","#9b6bd8")}" ${O2}/>`).join("")}</g>
@@ -56,7 +56,7 @@
   <path d="M150 78 L170 52 L190 80 L178 74 L170 86 L162 74 Z" fill="#c9dcee"/>
   <path d="M170 52 V20" stroke="${INK}" stroke-width="3"/><path d="M170 22 L196 30 L170 38 Z" fill="${G("#ff5c5c")}" ${O2}/></g>
   <path d="M-10 236 Q120 210 230 230 Q330 246 410 226 V310 H-10Z" fill="${G("#ffffff")}" ${O} ${N}/>
-  ${place("s_polar",112,214,.6,{noShadow:true})}
+  ${place("s_polar",112,214,.6,{noShadow:true})}${T("p5",40,264)}${H("santa",364,226,.7)}
   <g ${N}><path d="M74 236 Q96 214 122 222 Q146 212 160 236 Z" fill="${G("#ffffff")}" ${O2}/></g>
   ${act("sled","Red sled",`<g transform="translate(290 244)"><path d="M-44 0 H40 Q52 0 50 -10" fill="none" stroke="${INK}" stroke-width="4" stroke-linecap="round"/><rect x="-40" y="-18" width="78" height="12" rx="5" fill="${G("#e8423a")}" ${O2}/><path d="M-30 -6 V0 M28 -6 V0" stroke="${INK}" stroke-width="3"/></g>`)}
   <g ${N}><path d="M220 212 L232 176 M232 212 L240 178" stroke="#5b6b80" stroke-width="3" stroke-linecap="round"/><circle cx="230" cy="208" r="4" fill="#5b6b80"/><circle cx="238" cy="208" r="4" fill="#5b6b80"/></g>

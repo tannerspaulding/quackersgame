@@ -120,6 +120,18 @@ function toyTurkey(){
   <path d="M26 -8 Q30 2 25 6 Q21 2 23 -8 Z" fill="${G("#e8423a")}" ${O2}/>
   <g transform="translate(10 -30) rotate(-6)"><rect x="-10" y="-12" width="20" height="12" rx="2" fill="${G("#2b2b2b")}" ${O2}/><rect x="-15" y="-2" width="30" height="5" rx="2.5" fill="${G("#2b2b2b")}" ${O2}/><rect x="-4" y="-8" width="8" height="6" rx="1" fill="none" stroke="#ffd45c" stroke-width="2"/></g>`;
 }
+function toySanta(){
+  return `${toyDuck({body:"#e8423a",wing:"#c0283f",beak:"#ff8a3d"})}
+  <path d="M-26 8 Q-2 16 22 8 L22 14 Q-2 22 -26 14 Z" fill="${G("#2b2b2b")}" ${O2}/>
+  <rect x="-7" y="8.5" width="10" height="9" rx="2" fill="none" stroke="#ffd45c" stroke-width="2.4"/>
+  <path d="M-24 18 Q-2 26 20 18" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+  <path d="M12 -8 Q8 4 16 8 Q20 12 26 7 Q34 6 32 -2 Q36 -8 30 -10 Q20 -6 12 -8 Z" fill="#ffffff" ${O2}/>
+  <path d="M-1 -27 Q-6 -52 -24 -46 Q-12 -40 -10 -30 Z" fill="${G("#e8423a")}" ${O2}/>
+  <path d="M-2 -28 Q6 -46 22 -30 Z" fill="${G("#e8423a")}" ${O2}/>
+  <ellipse cx="11" cy="-29" rx="16" ry="5" fill="#ffffff" ${O2}/>
+  <circle cx="-25" cy="-46" r="5.5" fill="#ffffff" ${O2}/>`;
+}
+function presentIcon(s=1){ return `<g transform="scale(${s})"><rect x="-10" y="-6" width="20" height="17" rx="2" fill="${G("#e8423a")}" ${O2}/><rect x="-12" y="-11" width="24" height="6" rx="2" fill="${G("#e8423a")}" ${O2}/><path d="M0 -11 V11" stroke="#2f9e5a" stroke-width="4"/><path d="M0 -11 Q-9 -20 -8 -12 Q-7 -9 0 -11 Q7 -9 8 -12 Q9 -20 0 -11 Z" fill="${G("#3fbf6f")}" ${O2}/></g>`; }
 function toyChicken(){
   return `<ellipse cx="-6" cy="24" rx="5" ry="3" fill="${G("#ff9f43")}" ${O2}/><ellipse cx="6" cy="24" rx="5" ry="3" fill="${G("#ff9f43")}" ${O2}/>
   <path d="M-20 0 L-32 -16 L-22 -18 L-30 -28 L-14 -10 Z" fill="${G("#ffffff")}" ${O2}/>
@@ -186,7 +198,7 @@ const snowman=(x,y,s,hat)=>`<g transform="translate(${x} ${y}) scale(${s})" ${N}
    plus a faint hairline so small parts (beaks, hats) still read. */
 const SOFT=`stroke="#173A5E" stroke-opacity=".1" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"`;
 const soften=f=>(...a)=>f(...a).split(O).join(SOFT).split(O2).join(SOFT).replace(/stroke="#173A5E"(?! stroke-opacity)/g,'stroke="#173A5E" stroke-opacity=".35"');
-toyDuck=soften(toyDuck); toyPenguin=soften(toyPenguin); toyOwl=soften(toyOwl); toyPigeon=soften(toyPigeon); toyTurkey=soften(toyTurkey);
+toyDuck=soften(toyDuck); toyPenguin=soften(toyPenguin); toyOwl=soften(toyOwl); toyPigeon=soften(toyPigeon); toyTurkey=soften(toyTurkey); toySanta=soften(toySanta);
 toyChicken=soften(toyChicken); toyCrow=soften(toyCrow); toyGull=soften(toyGull); toyFox=soften(toyFox);
 
 

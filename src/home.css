@@ -1,5 +1,5 @@
 /* Home: world grid + tab bar */
-.home{gap:10px;padding-bottom:calc(108px + env(safe-area-inset-bottom,0px))}
+.home{gap:10px;padding-bottom:112px;padding-bottom:calc(108px + env(safe-area-inset-bottom,0px))}
 .home .logo svg.qmark{width:54px;height:48px}
 .home .logo b{font-size:2rem}
 .wtitle{font-size:1.05rem;margin:2px 2px -4px;color:var(--ink)}
@@ -41,3 +41,13 @@
 .moretile svg{width:56px;height:50px;opacity:.75}
 .moretile b{font-size:.95rem;color:var(--ink)}
 .moretile small{font-size:.95rem}
+/* Home without the frame: worlds sit on the sky, logo header stays at the top */
+body.onhome{background:linear-gradient(#BFE6FF 0,#EAF6FF 420px) no-repeat,#EAF6FF;padding-top:0}
+body.onhome .app{border:0;border-radius:0;box-shadow:none;background:transparent;overflow:visible}
+body.onhome .topbar{position:fixed;top:0;left:0;right:0;z-index:6;width:min(560px,100%);box-sizing:border-box;margin:0 auto;
+  padding:calc(6px + env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) 8px max(14px,env(safe-area-inset-left,0px));
+  grid-template-columns:44px minmax(0,1fr) 44px;background:rgba(214,238,255,.92);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:0;box-shadow:0 2px 0 rgba(23,58,94,.12)}
+body.onhome .topbar h1{display:flex;justify-content:center;overflow:visible}
+body.onhome .topbar h1 .logo svg.qmark{width:46px;height:41px;margin:0 -10px -4px 0}
+body.onhome .topbar h1 .logo b{font-size:1.75rem;-webkit-text-stroke:2.2px var(--ink)}
+body.onhome .home{padding:76px 0 112px;padding:calc(76px + env(safe-area-inset-top,0px)) 0 calc(112px + env(safe-area-inset-bottom,0px))}
