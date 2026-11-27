@@ -51,3 +51,19 @@ body.onhome .topbar h1{display:flex;justify-content:center;overflow:visible}
 body.onhome .topbar h1 .logo svg.qmark{width:46px;height:41px;margin:0 -10px -4px 0}
 body.onhome .topbar h1 .logo b{font-size:1.75rem;-webkit-text-stroke:2.2px var(--ink)}
 body.onhome .home{padding:76px 0 112px;padding:calc(76px + env(safe-area-inset-top,0px)) 0 calc(112px + env(safe-area-inset-bottom,0px))}
+/* World stars and the second hunt */
+.wstars{display:inline-flex;gap:1px;align-items:center}
+.wstars svg{width:15px;height:15px;display:block;fill:#fff;stroke:var(--ink);stroke-width:2.2;stroke-linejoin:round}
+.wstars svg.on{fill:var(--duck)}
+.wtile .thumb .wstars{position:absolute;right:6px;bottom:6px;background:rgba(255,255,255,.92);border:2px solid var(--ink);border-radius:999px;padding:2px 5px}
+.wtile .thumb .tag.hunttag{background:#8e6ad8;font-size:.66rem;padding:0 8px}
+.wtile .thumb .tag.complete+.tag.hunttag{left:36px}
+.wtile .thumb .tag.hunttag.done{background:var(--lily);color:var(--ink)}
+.done .wstars svg{width:30px;height:30px;stroke-width:1.8}
+.done .wstars{gap:4px;margin-top:-6px}
+.badge.hunt2{background:#E2D8FF}
+.badge .h2tag{font-style:normal;background:#8e6ad8;color:#fff;border:2px solid var(--ink);border-radius:999px;font-size:.62rem;line-height:1;padding:2px 5px;margin:0 2px 0 -8px;align-self:flex-start}
+.note.logstars{display:flex;align-items:center;gap:8px;color:var(--ink)}
+.note.logstars .wstars svg{width:22px;height:22px}
+.h2head{font-family:var(--display);font-weight:900;font-size:1.05rem;margin:16px 0 8px;color:var(--ink)}
+.note.h2note{margin-top:14px}

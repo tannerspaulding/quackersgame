@@ -38,7 +38,7 @@ let delay=0, THUMB=false;
 const shadow=(rx=22)=>`<ellipse class="shadow" cx="0" cy="26" rx="${rx}" ry="4.5" fill="#173a5e" opacity=".2"/>`;
 function place(id,x,y,s,o={}){
   if(S.found.has(id)&&!THUMB) return "";
-  const d=DUCK[id]; if(!d) return ""; delay=(delay+0.47)%2.6;
+  const d=DUCK[id]||HDUCK[id]; if(!d) return ""; delay=(delay+0.47)%2.6;
   const art=d.art?d.art():toyDuck(d.c,d.acc);
   return `<g class="duck" data-duck="${id}" tabindex="0" role="button" aria-label="Something hiding" transform="translate(${x} ${y}) scale(${o.flip?-s:s} ${o.upside?-s:s})"${d.opacity?` opacity="${d.opacity}"`:""}>
     <circle cx="2" cy="-4" r="34" fill="transparent"/>${o.noShadow?"":shadow()}<g class="bob" style="animation-delay:-${delay.toFixed(2)}s">${art}</g></g>`;
@@ -80,6 +80,8 @@ function WORLDS_REF(id){ return WORLDS.concat(SOON).find(w=>w.id===id); }
 const W=Object.fromEntries(WORLDS.map(w=>[w.id,w]));
 const DUCK={}; WORLDS.concat(SOON).forEach(w=>(w.ducks||[]).forEach(d=>{d.world=w.id; DUCK[d.id]=d;}));
 HOL.forEach(h=>{ DUCK[h.id]=h; });
+/* Second-hunt ducks live in their own list (HUNTS), so the main duck count, the Duck Dex and Top Ducks stay the same. */
+const HDUCK={}; Object.entries(HUNTS).forEach(([wid,l])=>l.forEach(d=>{ d.world=wid; d.hunt=true; HDUCK[d.id]=d; }));
 const TOGGLE=new Set(["mail","can","birdhouse"]);
 
 /* ---------- UI helpers ---------- */
@@ -91,8 +93,20 @@ const wDucks=w=>w.ducks||[];
 const wTotal=w=>wDucks(w).length;
 const wFound=w=>wDucks(w).filter(d=>S.found.has(d.id)).length;
 const allDucks=()=>WORLDS.reduce((n,w)=>n+wTotal(w),0);
-/* Open every world whose earlier world is finished, so progress saved before a new world was added still opens it. */
-function syncUnlock(){ let u=Math.max(1,S.unlocked|0); for(const w of WORLDS){ const next=WORLDS[w.n]; if(next&&w.n<=u&&wFound(w)>=wTotal(w)) u=Math.max(u,next.n); } u=Math.min(u,WORLDS.length); if(u!==S.unlocked){ S.unlocked=u; save(); } }
+/* The next world opens at two thirds of a world's ducks, not all of them. */
+const needFor=w=>Math.ceil(wTotal(w)*2/3);
+/* Stars: one at a third of the ducks, two at two thirds (the next world opens), three at every duck. */
+const starsOf=w=>{ const f=wFound(w), t=wTotal(w); return f>=t?3:f>=needFor(w)?2:f>=Math.ceil(t/3)?1:0; };
+const STARP="M12 2.6 L14.9 8.6 L21.4 9.4 L16.6 13.9 L17.9 20.4 L12 17.2 L6.1 20.4 L7.4 13.9 L2.6 9.4 L9.1 8.6 Z";
+const wStarRow=(n,cls="")=>`<span class="wstars${cls?" "+cls:""}" role="img" aria-label="${n} of 3 stars">${[0,1,2].map(i=>`<svg viewBox="0 0 24 24" aria-hidden="true"${i<n?' class="on"':""}><path d="${STARP}"/></svg>`).join("")}</span>`;
+/* Second hunt: once every duck in a world is found, new ducks hide in the same places. */
+const hDucks=w=>HUNTS[w.id]||[];
+const hFound=w=>hDucks(w).filter(d=>S.found.has(d.id)).length;
+const huntOpen=w=>hDucks(w).length>0&&wFound(w)>=wTotal(w);
+const huntDone=w=>huntOpen(w)&&hFound(w)>=hDucks(w).length;
+function H2(id,x,y,s,o){ const d=HDUCK[id]; if(THUMB||!d||!huntOpen(W[d.world])) return ""; return place(id,x,y,s,o); }
+/* Open every world whose earlier world has enough ducks, so progress saved before a new world was added (or under the old finish-everything rule) still opens it. */
+function syncUnlock(){ let u=Math.max(1,S.unlocked|0); for(const w of WORLDS){ const next=WORLDS[w.n]; if(next&&w.n<=u&&wFound(w)>=needFor(w)) u=Math.max(u,next.n); } u=Math.min(u,WORLDS.length); if(u!==S.unlocked){ S.unlocked=u; save(); } }
 syncUnlock();
 let tt;
 function toast(msg,ms=1900){ const t=$("toast"); t.textContent=msg; ms=Math.max(ms,1400+msg.length*45); /* longer messages stay up long enough to read */ t.classList.add("on"); clearTimeout(tt); tt=setTimeout(()=>t.classList.remove("on"),ms); }
@@ -154,10 +168,10 @@ function goHome(){
   const nxt=homeNext();
   const [specGot,specAll]=specCount();
   const pic=w=>sv("0 0 400 300",thumbOf(w),'preserveAspectRatio="xMidYMid slice" style="pointer-events:none"');
-  const tile=w=>{ const f=wFound(w), t=wTotal(w), open=w.n<=S.unlocked, prev=WORLDS[w.n-2], done=open&&f>=t, isNext=w===nxt;
-    return `<button type="button" class="wcard wtile${open?"":" locked"}${done?" finished":""}${isNext?" next":""}" data-world="${w.id}" aria-label="${w.name}${open?`, ${f} of ${t} ducks found`:", locked"}">
-      <span class="thumb">${pic(w)}${isNext?`<span class="tag nexttag">${PLAYTRI}${f?"Keep going":"Play next"}</span>`:done?`<span class="tag complete">${CHECK}</span>`:""}${open?"":`<span class="lockover" aria-hidden="true">${lockSvg.replace('width="16" height="16"','width="40" height="40"')}</span>`}</span>
-      <span class="meta"><b>${w.name}</b>${open?`<span class="prog"><span class="bar2"><i style="width:${t?f/t*100:0}%"></i></span><small>${f}/${t}</small></span>`:`<small>Finish ${prev.name}</small>`}</span></button>`; };
+  const tile=w=>{ const f=wFound(w), t=wTotal(w), open=w.n<=S.unlocked, prev=WORLDS[w.n-2], done=open&&f>=t, isNext=w===nxt, hunt=open&&huntOpen(w), hdone=open&&huntDone(w);
+    return `<button type="button" class="wcard wtile${open?"":" locked"}${done?" finished":""}${isNext?" next":""}" data-world="${w.id}" aria-label="${w.name}${open?`, ${f} of ${t} ducks found, ${starsOf(w)} of 3 stars${hunt?`, second hunt ${hFound(w)} of ${hDucks(w).length}`:""}`:", locked"}">
+      <span class="thumb">${pic(w)}${isNext?`<span class="tag nexttag">${PLAYTRI}${f?"Keep going":"Play next"}</span>`:hdone?`<span class="tag complete">${CHECK}</span><span class="tag hunttag done">Hunt 2</span>`:hunt?`<span class="tag hunttag">Second hunt ${hFound(w)}/${hDucks(w).length}</span>`:done?`<span class="tag complete">${CHECK}</span>`:""}${open?wStarRow(starsOf(w)):`<span class="lockover" aria-hidden="true">${lockSvg.replace('width="16" height="16"','width="40" height="40"')}</span>`}</span>
+      <span class="meta"><b>${w.name}</b>${open?`<span class="prog"><span class="bar2"><i style="width:${t?f/t*100:0}%"></i></span><small>${f}/${t}</small></span>`:`<small>Find ${needFor(prev)} ducks in ${prev.name}</small>`}</span></button>`; };
   const soonTile=w=>`<button type="button" class="wcard wtile off" data-soon="${w.id}" aria-label="${w.name}, coming soon"><span class="thumb">${pic(w)}<span class="tag">Soon</span></span><span class="meta"><b>${w.name}</b><small>Coming soon</small></span></button>`;
   $("scrHome").innerHTML=`
 
@@ -188,7 +202,7 @@ function goHome(){
   $("hIdeas").addEventListener("click",openIdeas);
   $("hFriend").addEventListener("click",openFriend);
   $("scrHome").querySelectorAll("[data-world]").forEach(b=>b.addEventListener("click",()=>{ const w=W[b.dataset.world];
-    if(w.n>S.unlocked){ homeToast(b,`Finish ${WORLDS[w.n-2].name} first!`); blip(); return; } enterWorld(w.id); }));
+    if(w.n>S.unlocked){ const p=WORLDS[w.n-2], more=needFor(p)-wFound(p); homeToast(b,`Find ${more} more duck${more===1?"":"s"} in ${p.name}!`); blip(); return; } enterWorld(w.id); }));
   $("scrHome").querySelectorAll("[data-soon]").forEach(b=>b.addEventListener("click",()=>{ homeToast(b,"Mitchell is still building this one!"); blip(); }));
 }
 function openSettings(){
@@ -215,6 +229,7 @@ function askReset(){ const b=$("hReset");
 function homeToast(b,msg){ const s=b.querySelector("small"); if(s){ const old=s.dataset.old||s.textContent; s.dataset.old=old; s.textContent=msg; clearTimeout(s._t); s._t=setTimeout(()=>{s.textContent=old;},1900);} }
 function thumbOf(w){ THUMB=true; const svg=w.areas[w.start].draw({}).replace(/class="(duck|act|door|token)"/g,'class="x-$1"').replace(/tabindex="0" role="button"/g,""); THUMB=false; return svg; }
 
+const huntToldIn=new Set();
 function enterWorld(id){
   const w=W[id]; S.world=id; setScreen("world"); lockW=0; $("title").textContent=w.name;
   stage.querySelectorAll(".layer").forEach(l=>l.remove());
@@ -222,6 +237,7 @@ function enterWorld(id){
   show(start);
   if(!S.seen.has(id)){ S.seen.add(id); intro(w); }
   questIntro(w);
+  if(huntOpen(w)&&!huntDone(w)&&!huntToldIn.has(id)){ huntToldIn.add(id); setTimeout(()=>{ if(S.world===id&&S.screen==="world") toast(`Second hunt! ${hDucks(w).length-hFound(w)} new ducks are hiding in ${w.name}.`,3200); },2900); }
   const h=holHere();
   if(holLive(h)&&tokGot(h)===0) setTimeout(()=>{ if(S.world===id&&S.screen==="world") toast(`A ${h.holiday} visitor is in ${w.name}! Find ${tokAll(h)} hidden ${h.items}.`,3400); },2700);
 }
@@ -297,9 +313,10 @@ function renderHud(pop){
   const w=W[S.world];
   const p=$("areaPill"); p.innerHTML=miniMap()+w.areas[S.area].name;
   if(pop){p.classList.remove("pop");void p.offsetWidth;p.classList.add("pop");}
-  const n=wFound(w), t=wTotal(w), b=$("countPill"), h=holHere();
-  b.setAttribute("aria-label",`Duck Log: ${n} of ${t} found`);
-  b.innerHTML=`<svg width="26" height="22" viewBox="-36 -44 78 70" aria-hidden="true">${toyDuck(YEL)}</svg>${n}/${t}`;
+  const hunt=huntOpen(w), n=hunt?hFound(w):wFound(w), t=hunt?hDucks(w).length:wTotal(w), b=$("countPill"), h=holHere();
+  b.setAttribute("aria-label",hunt?`Second hunt: ${n} of ${t} found. Open the Duck Log`:`Duck Log: ${n} of ${t} found`);
+  b.classList.toggle("hunt2",hunt);
+  b.innerHTML=`<svg width="26" height="22" viewBox="-36 -44 78 70" aria-hidden="true">${toyDuck(YEL)}</svg>${hunt?'<i class="h2tag" aria-hidden="true">2</i>':""}${n}/${t}`;
   const [sn,st]=specCount(), sp=$("specPill"); sp.innerHTML=`${SPECSTAR}${sn}/${st}`; sp.setAttribute("aria-label",`Special ducks: ${sn} of ${st}. See how to get them`);
   const [hn,ht]=holCount(), hp=$("holPill"); hp.innerHTML=`${HOLGIFT}${hn}/${ht}`; hp.setAttribute("aria-label",`Holiday ducks: ${hn} of ${ht}. See when they come`);
   const q=$("questPill"), qs=quests(w);
@@ -401,7 +418,9 @@ function fillLayer(el,id){ el.innerHTML=sceneSVG(id);
   paint(el); }
 function rerender(){ const l=layer(); if(l) fillLayer(l,S.area); }
 function catchDuck(g){
-  const id=g.dataset.duck, d=DUCK[id], w=W[S.world]; if(S.found.has(id)) return;
+  const id=g.dataset.duck, w=W[S.world]; if(S.found.has(id)) return;
+  if(HDUCK[id]){ catchHunt(g); return; }
+  const d=DUCK[id], was=wFound(w);
   const b=g.getBoundingClientRect(); burst(stage,b.left+b.width/2,b.top+b.height/2);
   S.found.add(id); save(); quack(); g.style.pointerEvents="none";
   if(g.animate && !reduce){ const inner=g.querySelector(".bob"); if(inner){ inner.style.animation="none"; inner.animate([{transform:"none",opacity:1},{transform:"translateY(-18px)",opacity:0}],{duration:420,fill:"forwards",easing:"ease-out"}); } }
@@ -412,7 +431,35 @@ function catchDuck(g){
   if(d.tier==="Holiday") msg=`You found the ${d.name}! Happy ${d.holiday}!`;
   else if(every) msg=`Every ${w.name} duck found!`;
   toast(msg,every||d.tier==="Holiday"||w.helper?2800:1900);
-  renderHud(false); bumpBadge(); setTimeout(rerender,430); if(d.tier!=="Holiday") checkDone();
+  renderHud(false); bumpBadge(); setTimeout(rerender,430); if(d.tier!=="Holiday"){ checkOpen(w,was); checkDone(); }
+}
+function popCard(html,buttons){ const el=$("done"); el.innerHTML=`<div>${html}<span class="row">${buttons}</span></div>`;
+  flush(); el.hidden=false; if(el.animate&&!reduce) el.firstElementChild.animate([{transform:"translateY(24px)",opacity:0},{transform:"none",opacity:1}],{duration:380,easing:"ease-out"});
+  const g=el.querySelector(".go"); if(g) g.focus({preventScroll:true}); }
+/* Crossing two thirds opens the next world right away, with a card to go there or keep looking. */
+function checkOpen(w,was){ const next=WORLDS[w.n], need=needFor(w), f=wFound(w);
+  if(!next||was>=need||f<need||f>=wTotal(w)) return;
+  if(S.unlocked<next.n){ S.unlocked=next.n; save(); }
+  setTimeout(()=>{ if(S.screen!=="world"||S.world!==w.id||!$("done").hidden) return; fanfare();
+    popCard(`<svg viewBox="-44 -54 88 86" aria-hidden="true">${shadow()}<g class="bob">${toyDuck(YEL)}</g></svg>${wStarRow(2,"big")}<span class="big">${next.name} is open!</span>
+      <span>You found ${f} of ${wTotal(w)} ducks here. The last ${wTotal(w)-f} are still hiding for your third star.</span>`,
+      `<button class="go" type="button" id="openNext">Go to ${next.name}</button><button class="go ghost" type="button" id="openStay">Keep looking here</button>`);
+    $("openNext").addEventListener("click",()=>enterWorld(next.id)); $("openStay").addEventListener("click",()=>{ $("done").hidden=true; });
+  },1400); }
+function catchHunt(g){
+  const id=g.dataset.duck, d=HDUCK[id], w=W[S.world];
+  const b=g.getBoundingClientRect(); burst(stage,b.left+b.width/2,b.top+b.height/2);
+  S.found.add(id); save(); quack(); g.style.pointerEvents="none";
+  if(g.animate && !reduce){ const inner=g.querySelector(".bob"); if(inner){ inner.style.animation="none"; inner.animate([{transform:"none",opacity:1},{transform:"translateY(-18px)",opacity:0}],{duration:420,fill:"forwards",easing:"ease-out"}); } }
+  const n=hFound(w), t=hDucks(w).length;
+  toast(n<t?`${d.name} found! Second hunt: ${n} of ${t}.`:`${d.name} found! That's the whole second hunt!`,2600);
+  renderHud(false); bumpBadge(); setTimeout(rerender,430);
+  if(n>=t) setTimeout(()=>{ if(S.screen!=="world"||S.world!==w.id) return; fanfare();
+    popCard(`<svg viewBox="-44 -54 88 86" aria-hidden="true">${shadow()}<g class="bob">${toyDuck(YEL,"gold")}</g></svg><span class="big">Second hunt complete!</span>
+      <span>You found all ${t} new ducks in ${w.name}. They're in this world's Duck Log.</span>`,
+      `<button class="go" type="button" id="h2Home">Back to worlds</button><button class="go ghost" type="button" id="h2Stay">Keep exploring</button>`);
+    $("h2Home").addEventListener("click",goHome); $("h2Stay").addEventListener("click",()=>{ $("done").hidden=true; });
+  },1400);
 }
 function tapToken(tk){
   const h=holHere(); const id=tk.dataset.token; if(!h||S.tokens.includes(id)) return;
@@ -424,15 +471,15 @@ function tapToken(tk){
 }
 const doneShown=new Set();
 function checkDone(){ const w=W[S.world]; if(doneShown.has(w.id)||wFound(w)<wTotal(w)) return; doneShown.add(w.id);
-  const next=WORLDS[w.n]; if(next&&S.unlocked<next.n){ S.unlocked=next.n; save(); }
+  const next=WORLDS[w.n], wasOpen=!next||S.unlocked>=next.n; if(next&&S.unlocked<next.n){ S.unlocked=next.n; save(); }
   setTimeout(()=>{ if(S.screen!=="world"||S.world!==w.id) return; const el=$("done"); fanfare();
-    const last=!next;
-    el.innerHTML=`<div><svg viewBox="-44 -54 88 86" aria-hidden="true">${shadow()}<g class="bob">${toyDuck(YEL,"crown")}</g></svg><span class="big">World complete!</span>
-      <span>${last?`You found all ${allDucks()} ducks in every world! Mitchell is dreaming up more.`:`Every duck in ${w.name} is in your Duck Log. ${next.name} is open!`}</span>
-      <span class="row">${last?`<button class="go" type="button" id="doneHome">Back to worlds</button>`:`<button class="go" type="button" id="doneNext">Go to ${next.name}</button>`}<button class="go ghost" type="button" id="doneStay">Keep exploring</button></span></div>`;
+    const last=!next, hunt=hDucks(w).length;
+    el.innerHTML=`<div><svg viewBox="-44 -54 88 86" aria-hidden="true">${shadow()}<g class="bob">${toyDuck(YEL,"crown")}</g></svg>${wStarRow(3,"big")}<span class="big">World complete!</span>
+      <span>${hunt?`Every duck in ${w.name} is in your Duck Log. Now ${hunt} new ducks are hiding here for a second hunt!`:last?`You found all ${allDucks()} ducks in every world! Mitchell is dreaming up more.`:`Every duck in ${w.name} is in your Duck Log.${wasOpen?"":` ${next.name} is open!`}`}</span>
+      <span class="row">${last?`<button class="go" type="button" id="doneHome">Back to worlds</button>`:`<button class="go" type="button" id="doneNext">Go to ${next.name}</button>`}<button class="go ghost" type="button" id="doneStay">${hunt?"Start the second hunt":"Keep exploring"}</button></span></div>`;
     flush(); el.hidden=false; if(el.animate&&!reduce) el.firstElementChild.animate([{transform:"translateY(24px)",opacity:0},{transform:"none",opacity:1}],{duration:380,easing:"ease-out"});
     if(last) $("doneHome").addEventListener("click",goHome); else $("doneNext").addEventListener("click",()=>enterWorld(next.id));
-    $("doneStay").addEventListener("click",()=>{el.hidden=true;}); el.querySelector(".go").focus({preventScroll:true});
+    $("doneStay").addEventListener("click",()=>{el.hidden=true; if(hunt){ huntToldIn.add(w.id); toast(`Second hunt! ${hunt} new ducks are hiding in ${w.name}.`,3200); } }); el.querySelector(".go").focus({preventScroll:true});
   },1400);
 }
 function giveHelper(a){
@@ -495,13 +542,17 @@ function openLog(){
   const w=W[S.world];
   let cards=wDucks(w).map(d=>duckCard(d,S.found.has(d.id))).join("");
   HOL.filter(h=>h.world===w.id&&(holOn(h)||S.found.has(h.id))).forEach(h=>cards+=holCard(h));
-  openSheet(`<div class="cards">${cards}</div>`, `${w.name} Duck Log: ${wFound(w)} of ${wTotal(w)}`);
+  const f=wFound(w), t=wTotal(w), next=WORLDS[w.n], hs=hDucks(w);
+  const note=f>=t?"Every duck found. Three stars!":next&&f<needFor(w)?`Find ${needFor(w)-f} more to open ${next.name}.`:`Find ${t-f} more for your third star.`;
+  const hunt=!hs.length?"":huntOpen(w)?`<h4 class="h2head">Second hunt: ${hFound(w)} of ${hs.length}</h4><div class="cards">${hs.map(d=>duckCard(d,S.found.has(d.id))).join("")}</div>`
+    :`<p class="note h2note">Find every duck here to start a second hunt with ${hs.length} new ducks.</p>`;
+  openSheet(`<p class="note logstars">${wStarRow(starsOf(w))}<span>${note}</span></p><div class="cards">${cards}</div>${hunt}`, `${w.name} Duck Log: ${f} of ${t}`);
 }
 function openMap(){
   const w=W[S.world]; const {cols,rows}=gridOf(w); const cells=[];
   for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
     const k=Object.keys(w.areas).find(k=>w.areas[k].pos[0]===c&&w.areas[k].pos[1]===r);
-    if(k){ const left=wDucks(w).filter(d=>d.area===k&&!S.found.has(d.id)).length;
+    if(k){ const left=(huntOpen(w)?hDucks(w):wDucks(w)).filter(d=>d.area===k&&!S.found.has(d.id)).length;
       cells.push(`<button type="button" class="mtile ${k===S.area?"here":""}" data-map="${k}">${w.areas[k].name}<small>${k===S.area?"You are here":left?`${left} duck${left>1?"s":""} left`:"All found"}</small></button>`); }
     else cells.push(`<div class="mtile mempty"></div>`);
   }
@@ -511,7 +562,8 @@ function openMap(){
 }
 function hint(){
   closeSheet(); const w=W[S.world], h=holHere();
-  const left=wDucks(w).filter(d=>!S.found.has(d.id));
+  let left=wDucks(w).filter(d=>!S.found.has(d.id));
+  if(!left.length&&huntOpen(w)) left=hDucks(w).filter(d=>!S.found.has(d.id));
   let area=null;
   if(left.length){
     const here=left.find(d=>d.area===S.area);

@@ -11,7 +11,7 @@
   ${sky("#211a42","#5a4690")}${stars(34)}
   <g ${N}><circle cx="332" cy="52" r="26" fill="${G("#fff6c9")}" ${O}/><circle cx="322" cy="46" r="5" fill="#ece3b0"/><circle cx="340" cy="62" r="3.4" fill="#ece3b0"/></g>
   <path d="M-10 214 Q120 196 200 206 Q300 196 410 214 V310 H-10 Z" fill="${LG("#3f5a32","#24361c")}" ${O} ${N}/>
-  <g ${N}><path d="M104 76 L200 22 L296 76 Z" fill="${LG("#4a3a6a","#2b2045")}" ${O}/>
+  ${H2("h2_chimney",270,14,.32,{noShadow:true})}<g ${N}><path d="M104 76 L200 22 L296 76 Z" fill="${LG("#4a3a6a","#2b2045")}" ${O}/>
   <rect x="116" y="72" width="168" height="140" rx="6" fill="${LG("#6a5a94","#463a6a")}" ${O}/>
   <path d="M262 40 V18 H278 V50" fill="${G("#463a6a")}" ${O2}/>
   ${[[138,92,1],[240,92,0],[138,146,0],[240,146,1]].map(([x,y,l])=>`<rect x="${x}" y="${y}" width="24" height="30" rx="7" fill="${l?LG("#fff3a0","#ffcb2f"):LG("#3a2f5a","#241c3c")}" ${O2}/><path d="M${x+12} ${y} V${y+30}" stroke="${INK}" stroke-opacity=".35" stroke-width="2"/>`).join("")}</g>
@@ -34,7 +34,7 @@
   ${tagAt(111,128,"OUTSIDE")}
   ${door("basement","Stairs down to the basement",`<path d="M168 300 L178 238 L222 238 L232 300 Z" fill="${LG("#2a1f3a","#120c1c")}" ${O}/><path d="M178 252 h44 M175 268 h50 M172 284 h56" stroke="#4a3a5a" stroke-width="3"/>`)}
   ${tagAt(200,230,"STAIRS")}
-  <g ${N}><rect x="296" y="96" width="40" height="134" rx="8" fill="${LG("#6a4024","#3a2414")}" ${O}/><circle cx="316" cy="126" r="14" fill="${G("#f3e6c4")}" ${O2}/>
+  ${H2("h2_clock",338,150,.55,{noShadow:true})}<g ${N}><rect x="296" y="96" width="40" height="134" rx="8" fill="${LG("#6a4024","#3a2414")}" ${O}/><circle cx="316" cy="126" r="14" fill="${G("#f3e6c4")}" ${O2}/>
   <path d="M316 126 V116 M316 126 L323 130" stroke="${INK}" stroke-width="2" stroke-linecap="round"/><rect x="308" y="152" width="16" height="56" rx="6" fill="${LG("#2a190c","#1a0f06")}" ${O2}/><circle cx="316" cy="196" r="5" fill="${G("#ffcb2f")}" ${O2}/></g>
   ${place("ghost",254,206,.82)}
   <g ${N}><rect x="20" y="232" width="56" height="10" rx="5" fill="#8a3a4a" opacity=".6"/><rect x="350" y="150" width="8" height="80" rx="3" fill="${G("#c8963a")}" ${O2}/><path d="M354 150 Q344 134 354 122 Q364 134 354 150" fill="${G("#ffe066")}" ${O2}/></g>`},
@@ -44,7 +44,7 @@
   ${books(38,64,68,348)}${books(124,64,68,348,[220,270])}${books(210,64,68,348)}
   <g ${N}>${[104,190,276].map(y=>`<rect x="58" y="${y}" width="300" height="10" rx="4" fill="${G("#a06a40")}" ${O2}/>`).join("")}</g>
   ${place("book",246,176,.56)}
-  <g ${N}><rect x="14" y="36" width="7" height="252" rx="3" fill="${G("#a06a40")}" ${O2}/><rect x="40" y="36" width="7" height="252" rx="3" fill="${G("#a06a40")}" ${O2}/>${[66,106,146,186,226,266].map(y=>`<rect x="14" y="${y}" width="33" height="6" rx="3" fill="${G("#c8925a")}" ${O2}/>`).join("")}
+  ${H2("h2_bookworm",364,228,.55,{noShadow:true})}<g ${N}><rect x="14" y="36" width="7" height="252" rx="3" fill="${G("#a06a40")}" ${O2}/><rect x="40" y="36" width="7" height="252" rx="3" fill="${G("#a06a40")}" ${O2}/>${[66,106,146,186,226,266].map(y=>`<rect x="14" y="${y}" width="33" height="6" rx="3" fill="${G("#c8925a")}" ${O2}/>`).join("")}
   <rect x="332" y="230" width="60" height="60" rx="16" fill="${G("#8a3a4a")}" ${O}/><rect x="326" y="252" width="72" height="36" rx="12" fill="${G("#a04a5a")}" ${O}/></g>`},
  kitchen:{name:"Kitchen",pos:[2,1],bg:["#6a5880","#4e311e"],exits:{left:"hall"},draw:F=>`
   <rect width="400" height="300" fill="${LG("#6a5880","#4e3e62")}"/>
@@ -57,7 +57,7 @@
   ${F.lid?`<g ${N} opacity=".6"><path d="M220 110 q-6 -10 0 -20 q6 -10 0 -20" stroke="#fff" stroke-width="3" fill="none"/><path d="M256 110 q-6 -10 0 -20 q6 -10 0 -20" stroke="#fff" stroke-width="3" fill="none"/></g>
    <g ${N}><ellipse cx="338" cy="184" rx="30" ry="7" fill="${G("#8a8a96")}" ${O}/><rect x="332" y="172" width="12" height="8" rx="3" fill="${G("#b7c3d4")}" ${O2}/></g>`
    :act("lid","Pot lid",`<ellipse cx="238" cy="120" rx="40" ry="8" fill="${G("#8a8a96")}" ${O}/><rect x="231" y="106" width="14" height="9" rx="3" fill="${G("#b7c3d4")}" ${O2}/>`)}
-  <g ${N}><rect x="36" y="112" width="68" height="80" rx="8" fill="${LG("#5a3a24","#3a2414")}" ${O}/><circle cx="70" cy="132" r="9" fill="${G("#e8d7b0")}" ${O2}/><path d="M48 160 h44 M48 174 h44" stroke="#2a190c" stroke-width="3"/>
+  ${H2("h2_cupboard",104,118,.5,{noShadow:true})}<g ${N}><rect x="36" y="112" width="68" height="80" rx="8" fill="${LG("#5a3a24","#3a2414")}" ${O}/><circle cx="70" cy="132" r="9" fill="${G("#e8d7b0")}" ${O2}/><path d="M48 160 h44 M48 174 h44" stroke="#2a190c" stroke-width="3"/>
   <path d="M400 0 L344 0 Q372 18 400 60 Z" fill="none" stroke="#e8e8f0" stroke-opacity=".5" stroke-width="1.4"/><path d="M400 0 L364 40 M400 0 L380 52 M400 0 L352 22" stroke="#e8e8f0" stroke-opacity=".5" stroke-width="1.2"/></g>`},
  attic:{stretchTop:false,name:"Attic",pos:[1,0],bg:["#3a2c48","#3d2a1a"],exits:{down:"hall"},draw:F=>`
   <rect width="400" height="300" fill="${LG("#3a2c48","#241a30")}"/>
@@ -66,7 +66,7 @@
   <g ${N}>${[150,214,350].map((x,i)=>`<g transform="translate(${x} 54) scale(${i===1?.9:1})"><path d="M0 0 V8" stroke="${INK}" stroke-opacity=".4" stroke-width="1.6"/><path d="M0 8 q-12 6 -18 0 q4 12 18 10 q14 2 18 -10 q-6 6 -18 0z" fill="${G("#3a2a55")}" ${O2}/><ellipse cx="0" cy="14" rx="6" ry="9" fill="${G("#3a2a55")}" ${O2}/></g>`).join("")}</g>
   ${place("bat",290,90,.6,{upside:true,noShadow:true})}
   <rect y="228" width="400" height="80" fill="${LG("#5a3e2a","#3a2818")}" ${O} ${N}/>
-  <g ${N}><rect x="30" y="184" width="70" height="50" rx="6" fill="${G("#c8925a")}" ${O}/><path d="M30 200 H100" stroke="${INK}" stroke-opacity=".35" stroke-width="2"/><rect x="86" y="198" width="50" height="36" rx="6" fill="${G("#b07a48")}" ${O}/>
+  ${H2("h2_dusty",344,166,.6,{noShadow:true})}<g ${N}><rect x="30" y="184" width="70" height="50" rx="6" fill="${G("#c8925a")}" ${O}/><path d="M30 200 H100" stroke="${INK}" stroke-opacity=".35" stroke-width="2"/><rect x="86" y="198" width="50" height="36" rx="6" fill="${G("#b07a48")}" ${O}/>
   <rect x="282" y="170" width="84" height="64" rx="8" fill="${G("#8a5a3a")}" ${O}/><path d="M282 186 H366" stroke="${G("#ffcb2f")}" stroke-width="4"/>
   <path d="M190 234 L200 170 L214 170 L224 234" fill="none" stroke="#dcdce6" stroke-opacity=".6" stroke-width="3"/><ellipse cx="207" cy="166" rx="16" ry="10" fill="#e6e6ef" opacity=".6"/></g>`},
  basement:{name:"Basement",pos:[2,2],bg:["#07070d","#07070d"],exits:{up:"hall"},doors:{hall:"up"},draw:F=>{
