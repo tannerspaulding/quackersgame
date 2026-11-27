@@ -408,6 +408,52 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adju
 @media (prefers-reduced-motion:reduce){.dance{animation:none}}
 .prizeart{overflow:visible}
 
+/* Leaderboard sheet (design from the leaderboard preview) */
+.bigbtn.board{grid-column:1/-1;background:#FFE7A3}
+.lb{display:flex;flex-direction:column;gap:14px;color:var(--ink)}
+.lbhello{display:flex;align-items:center;gap:10px}
+.lbhello svg{width:52px;height:52px;flex:none}
+.lbhello b{display:block;font-family:var(--display);font-weight:900;font-size:1.3rem;line-height:1.1}
+.lbhello small{display:block;font-size:.9rem;color:var(--dim)}
+.lbload{text-align:center;font-family:var(--note);font-size:1.15rem;color:var(--dim);padding:14px 6px;border:3px dashed var(--soft);border-radius:16px}
+.lb .podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:end;gap:6px;padding-top:4px;margin-bottom:10px}
+.lb .step{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0}
+.lb .step svg{width:56px;height:50px;overflow:visible}
+.lb .step .who{font-family:var(--display);font-weight:900;font-size:.88rem;text-align:center;line-height:1.1;overflow-wrap:anywhere}
+.lb .step .dk{font-size:.78rem;color:var(--dim);font-variant-numeric:tabular-nums}
+.lb .block{width:100%;border:3px solid var(--ink);border-bottom:0;border-radius:14px 14px 0 0;display:grid;place-items:center;font-family:var(--display);font-weight:900;font-size:1.6rem;color:var(--ink)}
+.lb .p1 .block{height:84px;background:#FFD84D}.lb .p2 .block{height:60px;background:#D9E4EE}.lb .p3 .block{height:44px;background:#F2B27A}
+.lb .p1 svg{animation:lbbob 2.4s ease-in-out infinite}
+@keyframes lbbob{50%{transform:translateY(-4px) rotate(-3deg)}}
+.lb .pbase{grid-column:1/-1;height:10px;margin-top:-9px;border:3px solid var(--ink);border-radius:6px;background:var(--lily)}
+.lblist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.lbrow{display:grid;grid-template-columns:30px 36px minmax(0,1fr) auto;align-items:center;gap:8px;background:#fff;border:3px solid var(--ink);border-radius:16px;padding:4px 10px 4px 6px}
+.lbrow .n{font-family:var(--display);font-weight:900;font-size:1.05rem;text-align:center;font-variant-numeric:tabular-nums}
+.lbrow svg{width:36px;height:32px}
+.lbrow b{font-family:var(--display);font-weight:900;font-size:1rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lbrow b i{font-family:var(--body);font-style:normal;font-weight:400;font-size:.8rem;color:var(--dim)}
+.lbrow .ct{display:flex;align-items:baseline;gap:4px;font-family:var(--display);font-weight:900;font-variant-numeric:tabular-nums}
+.lbrow .ct small{font-family:var(--body);font-weight:400;font-size:.75rem;color:var(--dim)}
+.lbrow.me{background:#FFF3C4;box-shadow:0 4px 0 var(--ink)}
+.lbgap{text-align:center;font-family:var(--display);font-weight:900;color:var(--soft);letter-spacing:.3em;line-height:.6}
+.lbcard{background:#fff;border:3px solid var(--ink);border-radius:20px;padding:12px;display:flex;flex-direction:column;gap:8px;box-shadow:0 5px 0 var(--ink)}
+.lbcard b{font-family:var(--display);font-weight:900;font-size:1.1rem}
+.lbcard small{font-size:.88rem;color:var(--dim)}
+.lbfield{display:flex;gap:8px}
+.lbfield input{flex:1;min-width:0;border:3px solid var(--ink);border-radius:14px;padding:9px 12px;font-family:var(--display);font-weight:700;font-size:1.05rem;background:#F6FBFF;color:var(--ink)}
+.lbfield input::placeholder{color:var(--soft)}
+.lbdice{flex:none;width:50px;border:3px solid var(--ink);border-radius:14px;background:var(--duck);box-shadow:0 3px 0 var(--ink);display:grid;place-items:center;padding:0}
+.lbdice:active{transform:translateY(3px);box-shadow:none}
+.lbdice svg{width:26px;height:26px}
+.lbcount{font-size:.8rem;color:var(--dim);text-align:right;font-variant-numeric:tabular-nums;margin-top:-4px}
+.lbmsg{border:3px solid var(--ink);border-radius:14px;padding:8px 12px;font-family:var(--note);font-size:1.12rem;line-height:1.2}
+.lbmsg.no{background:#FFE3E3;border-color:#D93A3A;color:#7A1C1C}
+.lbmsg.yes{background:#E2F7E9;border-color:var(--lily);color:#1C5C34}
+.lbcard .go:disabled{opacity:.6}
+.lbfield input.shake{animation:lbshake .35s}
+@keyframes lbshake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@media (prefers-reduced-motion:reduce){.lb .p1 svg,.lbfield input.shake{animation:none}}
+
 </style>
 </head>
 <body>
@@ -447,6 +493,121 @@ html,body{touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adju
     <p class="foot">A game by Mitchell. Every character is drawn just for Quackers.</p>
 </main>
 <script>
+/* Quackers leaderboard name check. Same file runs in the game (instant feedback)
+   and in the Worker (the real gate). Returns {ok:true,name} or {ok:false,why,msg}. */
+(function(root){
+  const MAX=14, MIN=2;
+  // Blocked anywhere inside the squashed name (long, unambiguous roots).
+  const ROOTS=["fuck","fuk","fck","shit","sht","bitch","btch","cunt","dick","cock","pussy","penis","vagina","boob","tits",
+    "porn","sex","nude","naked","horny","whore","slut","bastard","asshole","butthole","dildo","jizz","orgasm",
+    "nigg","nigr","niga","negro","fag","dyke","tranny","retard","chink","kike","wetback","beaner",
+    "nazi","hitler","kkk","rape","rapist","pedo","molest","murder","suicide","terror","weed","cocaine","drug",
+    "damn","crap","piss","wtf","stfu","milf","thot","poop","fart","stupid","idiot","dumb","loser","ugly"];
+  // Blocked only as a whole word (short ones that hide inside nice words: grass, bass, hello, shell).
+  const WORDS=["ass","arse","hell","gay","kys","fat","butt","butts","pee","poo","cum","hoe","hoes","coon","spic","paki","gook","meth","kill","killer","bomb","gun","hate","simp","sus","from","age"];
+  // Personal info and contact handles.
+  const INFO=["school","elementary","street","road","avenue","lane","drive","grade","yearsold","myname","iam","imfrom",
+    "phone","address","email","gmail","insta","tiktok","snap","discord","youtube","roblox","twitch","whatsapp","facebook","http","www","dotcom"];
+  const LEET={"0":"o","1":"i","!":"i","|":"i","3":"e","4":"a","@":"a","5":"s","$":"s","7":"t","+":"t","8":"b","9":"g","2":"z","6":"g"};
+  function tidy(s){ return String(s||"").normalize("NFKC").replace(/\s+/g," ").trim(); }
+  function squash(s){ return s.toLowerCase().split("").map(c=>LEET[c]||c).join("").replace(/[^a-z]/g,"").replace(/(.)\1+/g,"$1"); }
+  function leet(s){ return s.toLowerCase().split("").map(c=>LEET[c]||c).join("").replace(/[^a-z]/g,""); }
+  function words(s){ return s.split(/\s+/).filter(Boolean).map(w=>leet(w)); }
+  function check(raw){
+    const name=tidy(raw);
+    if(/[@:/\\]|\.(com|net|org|io|co|gg|me|tv)\b/i.test(name)) return {ok:false,why:"info",msg:"No emails or websites. Try a fun nickname!"};
+    if(/\d(st|nd|rd|th)\b/i.test(name)) return {ok:false,why:"info",msg:"Keep it secret! No grades, schools or places. Try a duck nickname."};
+    if(name.length<MIN) return {ok:false,why:"short",msg:"Your name needs at least 2 letters."};
+    if(name.length>MAX) return {ok:false,why:"long",msg:`Keep it to ${MAX} letters or less.`};
+    if(/\d.*\d.*\d/.test(name)) return {ok:false,why:"info",msg:"Too many numbers. Use 2 numbers at most."};
+    const flat=squash(name), lt=leet(name), ws=words(name);
+    const hit=r=>lt.includes(r)||((squash(r).length>=4||(squash(r)===r&&r.length>=3))&&flat.includes(squash(r)));
+    const bad=ROOTS.some(hit)||ws.some(w=>WORDS.includes(w)||WORDS.includes(squash(w)));
+    if(bad) return {ok:false,why:"word",msg:"That name isn't allowed. Pick a different one!"};
+    if(!/^[A-Za-z0-9 ]+$/.test(name)) return {ok:false,why:"chars",msg:"Use letters, numbers and spaces only."};
+    if(name.split(" ").length>3) return {ok:false,why:"long",msg:"Use 3 words or less."};
+    if(false)
+      return {ok:false,why:"word",msg:"That name isn't allowed. Pick a different one!"};
+    if(INFO.some(hit))
+      return {ok:false,why:"info",msg:"Keep it secret! No real names, schools or places. Try a duck nickname."};
+    return {ok:true,name};
+  }
+  const A=["Speedy","Sneaky","Golden","Puddle","Captain","Sir","Lucky","Fluffy","Turbo","Sunny","Mighty","Tiny","Bubbly","Cosmic","Splashy","Royal"];
+  const B=["Quacker","Mallard","Duckling","Waddler","Feather","Paddler","Beak","Puddle","Pond Pal","Duckster","Wing","Egg"];
+  function suggest(rnd=Math.random){ for(let i=0;i<20;i++){ const n=A[Math.floor(rnd()*A.length)]+" "+B[Math.floor(rnd()*B.length)]; if(n.length<=MAX&&n.split(" ")[0]!==n.split(" ")[1]) return n; } return "Lucky Duck"; }
+  const api={check,suggest,MAX};
+  if(typeof module!=="undefined"&&module.exports) module.exports=api; else root.QName=api;
+})(typeof globalThis!=="undefined"?globalThis:this);
+
+/* Quackers stats + leaderboard client. Drop-in for quackersgame.com (load name-check.js first).
+   Sends only: a random device id, game progress (ducks found and which ones, worlds, Pond Points,
+   best level per mini game), the last world and screen, mini game tries, shop buys and points earned,
+   play time for this visit (under its own random id), phone/tablet/computer, and app or browser.
+   No names unless the player types one for the leaderboard. Respects Do Not Track.
+   Fails quietly when offline or the API is down: the game never waits on it.
+
+   Wiring in game.js (for the thread that owns quackersgame):
+     QStats.snap = () => ({ ducks:S.found.size, worlds:<worlds finished>, world_max:S.unlocked,
+                            points:<Pond Points>, games:{egg:<best lvl>,scrap:..,sand:..,jump:..},
+                            found:[...S.found].map(id => [id, <duck name>, <world id>]) });
+     QStats.start();                          // once at boot
+     QStats.changed();                        // after save() when a duck, world or level changes
+     QStats.screen(worldId, areaOrScreen);    // on every move: "garden", "shop", "map", "game:egg"
+     QStats.event("try", {g:"egg", l:3, win:false});         // end of every mini game level attempt
+     QStats.event("buy", {item:"crown", name:"Crown", cost:200});  // shop purchase
+     QStats.event("earn", {src:"egg", n:15});                // Pond Points earned (src: duck, quest, egg, scrap, sand, jump)
+     QStats.board().then(...)                 // leaderboard sheet
+     QStats.setName(name).then(...)           // {ok,name} or {ok:false,msg}
+*/
+(function(){
+  const API = "https://quackers-api.tannerspaulding81.workers.dev";
+  const IDK = "quackers-pid", QK = "quackers-stats-q";
+  const off = () => navigator.doNotTrack === "1" || window.doNotTrack === "1";
+  const rid = n => { const a = new Uint8Array(n); crypto.getRandomValues(a); return Array.from(a, b => b.toString(36).padStart(2,"0")).join("").slice(0, n * 2); };
+  let t = null, busy = false, where = {}, active = 0, last = Date.now();
+  const sess = { id: rid(8), hour: new Date().getHours(), dow: new Date().getDay() };
+  function pid(){
+    try{ let id = localStorage.getItem(IDK); if(!id){ id = rid(12).slice(0,24); localStorage.setItem(IDK, id); } return id; }catch(e){ return null; }
+  }
+  function queue(){ try{ return JSON.parse(localStorage.getItem(QK) || "[]"); }catch(e){ return []; } }
+  function keep(q){ try{ localStorage.setItem(QK, JSON.stringify(q.slice(-120))); }catch(e){} }
+  function device(){ const w = Math.min(screen.width, screen.height); return /Mobi|Android|iPhone/i.test(navigator.userAgent) ? (w >= 600 ? "tablet" : "phone") : (navigator.maxTouchPoints > 1 && w >= 600 ? "tablet" : "computer"); }
+  function mode(){ return (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone ? "app" : "browser"; }
+  function tick(){ const n = Date.now(); if(document.visibilityState === "visible") active += Math.min(n - last, 5000); last = n; }
+  async function post(path, data){ const r = await fetch(API + path, { method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify(data), keepalive:true }); return r.json(); }
+  const Q = {
+    snap: () => ({}),
+    send(){
+      const id = pid(); if(!id || off() || busy) return;
+      tick(); let s = {}; try{ s = Q.snap() || {}; }catch(e){}
+      const ev = queue().slice(0, 60);
+      busy = true;
+      post("/v1/ping", Object.assign({ pid:id, device:device(), mode:mode(), where,
+        sess:Object.assign({ secs:Math.round(active / 1000) }, sess), ev }, s))
+        .then(r => { if(r && r.ok && !r.slow) keep(queue().slice(ev.length)); })
+        .catch(()=>{}).finally(() => { busy = false; });
+    },
+    start(){
+      if(off()) return;
+      Q.send();
+      setInterval(tick, 1000);
+      setInterval(() => { if(document.visibilityState === "visible") Q.send(); }, 120000);
+      document.addEventListener("visibilitychange", () => { tick(); if(document.visibilityState === "hidden") Q.send(); });
+    },
+    changed(){ clearTimeout(t); t = setTimeout(Q.send, 4000); },
+    screen(world, screenName){ where = { world:String(world || "").toLowerCase().slice(0,30), screen:String(screenName || "").slice(0,30) }; },
+    event(type, data){ if(off()) return; const q = queue(); q.push(Object.assign({ t:type }, data || {})); keep(q); if(q.length >= 40) Q.changed(); },
+    async board(){ try{ const r = await fetch(API + "/v1/board?pid=" + encodeURIComponent(pid() || "")); return await r.json(); }catch(e){ return { ok:false, rows:[], offline:true }; } },
+    async setName(name){ const c = window.QName ? QName.check(name) : { ok:true, name };
+      if(!c.ok) return c;
+      const id = pid(); if(!id) return { ok:false, msg:"Can't reach the leaderboard right now. Try again soon." };
+      let snap = {}; try{ snap = Q.snap() || {}; }catch(e){}
+      try{ await post("/v1/ping", Object.assign({ pid:id, device:device(), mode:mode(), where }, snap)); }catch(e){}
+      try{ return await post("/v1/board", { pid:pid(), name:c.name }); }catch(e){ return { ok:false, msg:"Can't reach the leaderboard right now. Try again soon." }; } },
+  };
+  window.QStats = Q;
+})();
+
 const INK="#173A5E";
 /* Scenery keeps a thin, light edge. Ducks and characters get none (see soften below), so hidden ducks blend in. */
 const O=`stroke="${INK}" stroke-opacity=".3" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"`;
@@ -2078,6 +2239,97 @@ function endMini(){ const g=R.g, L=R.L, st=mgOf(g.id); stopMini();
   $("eAgain").addEventListener("click",()=>startMini(L));
   $("eBack").addEventListener("click",leaveEgg);
   $("eLevels").addEventListener("click",levelPick); }
+
+
+/* ---------- Leaderboard + anonymous play stats (QStats from quackers-stats.js, QName from name-check.js) ---------- */
+const LBK="quackers-lbname";
+const gameDucks=()=>[...S.found].filter(id=>DUCK[id]);
+const worldsDone=()=>WORLDS.filter(w=>wFound(w)>=wTotal(w)).length;
+function bestLevels(){ const o={}; MINI.forEach(m=>{ const st=S.mg[m.id]; let b=0; if(st) for(const [l,s] of Object.entries(st.stars||{})) if(s>0) b=Math.max(b,+l); o[m.id]=b; }); return o; }
+if(window.QStats){
+  QStats.snap=()=>({ducks:gameDucks().length,worlds:worldsDone(),world_max:S.unlocked,points:S.pts,games:bestLevels(),
+    found:gameDucks().map(id=>[id,DUCK[id].name,DUCK[id].world])});
+  /* Only ping when progress actually changes, not on every save (moving between areas saves too). */
+  let sig="";
+  const progSig=()=>[S.found.size,S.unlocked,S.pts,JSON.stringify(bestLevels())].join("|");
+  const save0=save; save=function(){ save0(); try{ const s=progSig(); if(s!==sig){ sig=s; QStats.changed(); } }catch(e){} };
+  sig=progSig();
+  const where=(w,s)=>{ try{ QStats.screen(w,s); }catch(e){} };
+  const show0=show; show=function(id,dir){ const r=show0(id,dir); where(S.world,id); return r; };
+  const home0=goHome; goHome=function(){ const r=home0(); where("","home"); addBoardBtn(); return r; };
+  const shop0=openShop; openShop=function(m){ const r=shop0(m); where(S.screen==="world"?S.world:"","shop"); return r; };
+  const map0=openMap; openMap=function(){ const r=map0(); where(S.world,"map"); return r; };
+  const log0=openLog; openLog=function(){ const r=log0(); where(S.world,"log"); return r; };
+  const games0=openGames; openGames=function(){ const r=games0(); where("","games"); return r; };
+  const spec0=openSpecial; openSpecial=function(){ const r=spec0(); where("","special"); return r; };
+  const mini0=openMini; openMini=function(id){ const r=mini0(id); where("","game:"+id); return r; };
+  const end0=endMini; endMini=function(){ const g=R.g, L=R.L; let s=0; try{ s=g.stars(); }catch(e){} const p0=S.pts;
+    const r=end0(); try{ QStats.event("try",{g:g.id,l:L,win:s>0}); if(S.pts>p0) QStats.event("earn",{src:g.id,n:S.pts-p0}); QStats.changed(); }catch(e){} return r; };
+  const buy0=buy; buy=function(id){ const p0=S.pts, i=SHOP.find(x=>x.id===id); const r=buy0(id);
+    try{ if(i&&S.pts<p0) QStats.event("buy",{item:id,name:i.name||id,cost:p0-S.pts}); }catch(e){} return r; };
+} else {
+  const home0=goHome; goHome=function(){ const r=home0(); addBoardBtn(); return r; };
+}
+
+const TROPHY=`<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M18 8h28v14a14 14 0 0 1-28 0z" fill="#FFD84D" stroke="#173A5E" stroke-width="3" stroke-linejoin="round"/><path d="M18 12H9a9 9 0 0 0 10 11M46 12h9a9 9 0 0 1-10 11" fill="none" stroke="#173A5E" stroke-width="3" stroke-linecap="round"/><path d="M28 35h8l2 10H26z" fill="#F0A500" stroke="#173A5E" stroke-width="3" stroke-linejoin="round"/><rect x="18" y="45" width="28" height="9" rx="3" fill="#2387D9" stroke="#173A5E" stroke-width="3"/></svg>`;
+const DICE=`<svg viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="4" width="24" height="24" rx="6" fill="#fff" stroke="#173A5E" stroke-width="3"/><circle cx="11" cy="11" r="2.4" fill="#173A5E"/><circle cx="21" cy="21" r="2.4" fill="#173A5E"/><circle cx="16" cy="16" r="2.4" fill="#173A5E"/><circle cx="21" cy="11" r="2.4" fill="#173A5E"/><circle cx="11" cy="21" r="2.4" fill="#173A5E"/></svg>`;
+function addBoardBtn(){ const box=$("scrHome").querySelector(".bigbtns"); if(!box||$("hBoard")) return;
+  const b=document.createElement("button"); b.type="button"; b.className="bigbtn board"; b.id="hBoard";
+  b.innerHTML=`${TROPHY}<span>Leaderboard<small class="ppsmall">Top duck finders</small></span>`;
+  box.appendChild(b); b.addEventListener("click",openBoard); }
+const lbEsc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const lbDuck=(crown)=>`<svg viewBox="-44 -54 88 86" aria-hidden="true">${toyDuck(YEL,crown?"crown":"")}</svg>`;
+function myName(){ try{ return localStorage.getItem(LBK)||""; }catch(e){ return ""; } }
+function openBoard(){
+  const mine=gameDucks().length, nm=myName();
+  openSheet(`<div class="lb">
+   <div class="lbhello">${TROPHY}<div><b>Top Duck Finders</b><small>Most ducks found wins. Ties go to whoever finished more worlds.</small></div></div>
+   <div id="lbBoard" class="lbload">Loading the board...</div>
+   <form class="lbcard" id="lbForm" autocomplete="off" novalidate>
+    <b id="lbTitle">${nm?"Change your name":"Put your name on the board"}</b>
+    <small>Pick a fun nickname. Don't use your real name, school or anything about where you live.</small>
+    <div class="lbfield"><input id="lbName" name="lbName" aria-label="Leaderboard name" maxlength="14" placeholder="Captain Quack" spellcheck="false" value="${lbEsc(nm)}" aria-describedby="lbMsg">
+     <button class="lbdice" type="button" id="lbDice" aria-label="Make me a duck name">${DICE}</button></div>
+    <div class="lbcount" id="lbCount">${nm.length} / 14</div>
+    <div class="lbmsg" id="lbMsg" role="status" hidden></div>
+    <button class="go" type="submit" id="lbSave">Save my name</button>
+   </form></div>`,"Leaderboard");
+  const say=(ok,t)=>{ const m=$("lbMsg"); if(!m) return; m.hidden=false; m.className="lbmsg "+(ok?"yes":"no"); m.textContent=t; };
+  if(!mine) say(false,"Find a duck first, then add your name.");
+  $("lbName").addEventListener("input",()=>{ $("lbCount").textContent=`${$("lbName").value.length} / 14`; $("lbMsg").hidden=true; });
+  $("lbDice").addEventListener("click",()=>{ if(!window.QName) return; $("lbName").value=QName.suggest(); $("lbName").dispatchEvent(new Event("input")); blip(); });
+  $("lbForm").addEventListener("submit",async e=>{ e.preventDefault();
+    if(!gameDucks().length){ say(false,"Find a duck first, then add your name."); blip(); return; }
+    if(!window.QStats){ say(false,"Can't reach the leaderboard right now. Try again soon."); return; }
+    const btn=$("lbSave"); btn.disabled=true;
+    let r; try{ r=await QStats.setName($("lbName").value); }catch(err){ r={ok:false,msg:"Can't reach the leaderboard right now. Try again soon."}; }
+    if(!$("lbForm")) return; btn.disabled=false;
+    if(!r||!r.ok){ say(false,(r&&r.msg)||"That name didn't work. Try another!"); const i=$("lbName"); i.classList.remove("shake"); void i.offsetWidth; i.classList.add("shake"); blip(); return; }
+    try{ localStorage.setItem(LBK,r.name); }catch(err){}
+    $("lbTitle").textContent="Change your name"; quack();
+    const b=await loadBoard(); const me=b&&b.mine;
+    say(true,`You're on the board as ${r.name}!${me&&me.rank?` You're number ${me.rank}.`:""} Find more ducks to climb.`);
+  });
+  loadBoard();
+}
+async function loadBoard(){
+  const el=$("lbBoard"); if(!el) return null;
+  const b=window.QStats?await QStats.board():{ok:false};
+  if(!$("lbBoard")) return null;
+  if(!b||!b.ok){ el.className="lbload"; el.textContent="Can't reach the leaderboard right now. Try again soon."; return null; }
+  const rows=b.rows||[], mine=rows.find(r=>r.me)||b.me||null;
+  if(!rows.length){ el.className="lbload"; el.textContent="Nobody is on the board yet. Be the first!"; return {mine}; }
+  const top=rows.slice(0,3), order=[[top[1],"p2",2],[top[0],"p1",1],[top[2],"p3",3]];
+  const row=(p)=>`<li class="lbrow${p.me?" me":""}"><span class="n">${p.rank}</span>${lbDuck(false)}<b>${lbEsc(p.name)}${p.me?" <i>(you)</i>":""}</b><span class="ct">${p.ducks}<small>ducks</small></span></li>`;
+  let list=rows.slice(3,10).map(row);
+  if(mine&&mine.rank>10) list.push(`<li class="lbgap" aria-hidden="true">...</li>`,row(mine));
+  if(!mine) list.push(`<li class="lbgap" aria-hidden="true">...</li>`,`<li class="lbrow me"><span class="n">?</span>${lbDuck(false)}<b>Your spot</b><span class="ct">${gameDucks().length}<small>ducks</small></span></li>`);
+  el.className="";
+  el.innerHTML=`<div class="podium">${order.map(([p,c,n])=>p?`<div class="step ${c}">${lbDuck(n===1)}<span class="who">${lbEsc(p.name)}${p.me?" (you)":""}</span><span class="dk">${p.ducks} ducks</span><div class="block">${n}</div></div>`:`<div class="step ${c}"></div>`).join("")}<div class="pbase"></div></div><ol class="lblist">${list.join("")}</ol>`;
+  return {mine};
+}
+/* Stats only go out from the real site, so previews and tests never send anything. */
+if(window.QStats&&/(^|\.)quackersgame\.com$/.test(location.hostname)) try{ QStats.start(); }catch(e){}
 
 
 renderSound(); goHome();

@@ -1,0 +1,45 @@
+/* Quackers leaderboard name check. Same file runs in the game (instant feedback)
+   and in the Worker (the real gate). Returns {ok:true,name} or {ok:false,why,msg}. */
+(function(root){
+  const MAX=14, MIN=2;
+  // Blocked anywhere inside the squashed name (long, unambiguous roots).
+  const ROOTS=["fuck","fuk","fck","shit","sht","bitch","btch","cunt","dick","cock","pussy","penis","vagina","boob","tits",
+    "porn","sex","nude","naked","horny","whore","slut","bastard","asshole","butthole","dildo","jizz","orgasm",
+    "nigg","nigr","niga","negro","fag","dyke","tranny","retard","chink","kike","wetback","beaner",
+    "nazi","hitler","kkk","rape","rapist","pedo","molest","murder","suicide","terror","weed","cocaine","drug",
+    "damn","crap","piss","wtf","stfu","milf","thot","poop","fart","stupid","idiot","dumb","loser","ugly"];
+  // Blocked only as a whole word (short ones that hide inside nice words: grass, bass, hello, shell).
+  const WORDS=["ass","arse","hell","gay","kys","fat","butt","butts","pee","poo","cum","hoe","hoes","coon","spic","paki","gook","meth","kill","killer","bomb","gun","hate","simp","sus","from","age"];
+  // Personal info and contact handles.
+  const INFO=["school","elementary","street","road","avenue","lane","drive","grade","yearsold","myname","iam","imfrom",
+    "phone","address","email","gmail","insta","tiktok","snap","discord","youtube","roblox","twitch","whatsapp","facebook","http","www","dotcom"];
+  const LEET={"0":"o","1":"i","!":"i","|":"i","3":"e","4":"a","@":"a","5":"s","$":"s","7":"t","+":"t","8":"b","9":"g","2":"z","6":"g"};
+  function tidy(s){ return String(s||"").normalize("NFKC").replace(/\s+/g," ").trim(); }
+  function squash(s){ return s.toLowerCase().split("").map(c=>LEET[c]||c).join("").replace(/[^a-z]/g,"").replace(/(.)\1+/g,"$1"); }
+  function leet(s){ return s.toLowerCase().split("").map(c=>LEET[c]||c).join("").replace(/[^a-z]/g,""); }
+  function words(s){ return s.split(/\s+/).filter(Boolean).map(w=>leet(w)); }
+  function check(raw){
+    const name=tidy(raw);
+    if(/[@:/\\]|\.(com|net|org|io|co|gg|me|tv)\b/i.test(name)) return {ok:false,why:"info",msg:"No emails or websites. Try a fun nickname!"};
+    if(/\d(st|nd|rd|th)\b/i.test(name)) return {ok:false,why:"info",msg:"Keep it secret! No grades, schools or places. Try a duck nickname."};
+    if(name.length<MIN) return {ok:false,why:"short",msg:"Your name needs at least 2 letters."};
+    if(name.length>MAX) return {ok:false,why:"long",msg:`Keep it to ${MAX} letters or less.`};
+    if(/\d.*\d.*\d/.test(name)) return {ok:false,why:"info",msg:"Too many numbers. Use 2 numbers at most."};
+    const flat=squash(name), lt=leet(name), ws=words(name);
+    const hit=r=>lt.includes(r)||((squash(r).length>=4||(squash(r)===r&&r.length>=3))&&flat.includes(squash(r)));
+    const bad=ROOTS.some(hit)||ws.some(w=>WORDS.includes(w)||WORDS.includes(squash(w)));
+    if(bad) return {ok:false,why:"word",msg:"That name isn't allowed. Pick a different one!"};
+    if(!/^[A-Za-z0-9 ]+$/.test(name)) return {ok:false,why:"chars",msg:"Use letters, numbers and spaces only."};
+    if(name.split(" ").length>3) return {ok:false,why:"long",msg:"Use 3 words or less."};
+    if(false)
+      return {ok:false,why:"word",msg:"That name isn't allowed. Pick a different one!"};
+    if(INFO.some(hit))
+      return {ok:false,why:"info",msg:"Keep it secret! No real names, schools or places. Try a duck nickname."};
+    return {ok:true,name};
+  }
+  const A=["Speedy","Sneaky","Golden","Puddle","Captain","Sir","Lucky","Fluffy","Turbo","Sunny","Mighty","Tiny","Bubbly","Cosmic","Splashy","Royal"];
+  const B=["Quacker","Mallard","Duckling","Waddler","Feather","Paddler","Beak","Puddle","Pond Pal","Duckster","Wing","Egg"];
+  function suggest(rnd=Math.random){ for(let i=0;i<20;i++){ const n=A[Math.floor(rnd()*A.length)]+" "+B[Math.floor(rnd()*B.length)]; if(n.length<=MAX&&n.split(" ")[0]!==n.split(" ")[1]) return n; } return "Lucky Duck"; }
+  const api={check,suggest,MAX};
+  if(typeof module!=="undefined"&&module.exports) module.exports=api; else root.QName=api;
+})(typeof globalThis!=="undefined"?globalThis:this);
