@@ -42,6 +42,8 @@
 .frcount{margin:0;text-align:center;font-size:1rem}
 .frurl{display:block;font-family:var(--body);font-size:.95rem;overflow-wrap:anywhere;user-select:all}
 .mbtn.privacy{background:#C9F2D6;color:var(--ink);text-decoration:none}
+.mbtn.insta{background:#FFE3EE;color:var(--ink);text-decoration:none}
+.privfoot .igmini{width:1em;height:1em;vertical-align:-.15em;margin-right:3px}
 .mbtn.forget{color:#a3271a}
 .mbtn.forget:disabled{opacity:.7}
 @media (prefers-reduced-motion:reduce){.ibform textarea.shake{animation:none}}

@@ -172,7 +172,7 @@ function goHome(){
     <button type="button" class="xcard ideas" id="hIdeas">${BULB}<span><b>Idea Box</b><small>Tell Mitchell your duck or world idea</small></span></button>
     <button type="button" class="xcard friend" id="hFriend"><svg viewBox="-44 -52 88 82" aria-hidden="true">${S.buddy?buddyArt():`<g opacity=".55">${buddyArt()}</g>`}</svg><span><b>Invite a friend</b><small>${S.buddy?"You got Error Code Duck!":"Win the Error Code Duck"}</small></span></button>
    </div>
-   <p class="privfoot"><a href="/privacy/">Privacy</a> · A game by Mitchell</p>
+   <p class="privfoot"><a href="/privacy/">Privacy</a> · <a href="https://www.instagram.com/quackersgame/" target="_blank" rel="noopener noreferrer">${IGMINI}@quackersgame</a> · A game by Mitchell</p>
    <nav class="tabs" aria-label="More to do">
     <button type="button" class="tab games" id="hGames">${IC.games}<span>Mini games</span></button>
     <button type="button" class="tab shop" id="hShop">${IC.shop}<span>Shop</span><em class="tabpts">${PP}${S.pts}</em></button>
@@ -197,6 +197,7 @@ function openSettings(){
     <button type="button" class="mbtn reset" id="hReset">Start over</button>
     <button type="button" class="mbtn share" id="hShare">${shareLabel()}</button>
     <a class="mbtn privacy" href="/privacy/">${SHIELD}<span>Privacy: what we keep</span></a>
+    <a class="mbtn insta" href="https://www.instagram.com/quackersgame/" target="_blank" rel="noopener noreferrer">${IGICON}<span>Follow @quackersgame</span></a>
     <button type="button" class="mbtn reset forget" id="hForget">Delete my data</button>
     <div class="lbmsg" id="setMsg" role="status" hidden></div>
     <p class="setfoot">A game by Mitchell. Every character is drawn just for Quackers.</p></div>`,"Settings");

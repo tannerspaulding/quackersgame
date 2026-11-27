@@ -2,6 +2,9 @@
 const BUDDY={id:"buddy",name:"Error Code Duck"};
 const buddyArt=()=>errorDuck();
 const BULB=`<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 6a19 19 0 0 0-11 34.5c2 1.6 3 3.6 3 6V49h16v-2.5c0-2.4 1-4.4 3-6A19 19 0 0 0 32 6z" fill="#FFE066" stroke="#173A5E" stroke-width="3" stroke-linejoin="round"/><path d="M25 54h14M27 59h10" stroke="#173A5E" stroke-width="3" stroke-linecap="round"/><path d="M24 22q2-7 9-8" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".8"/></svg>`;
+/* Instagram links (home footer and Settings). They open Instagram in a new tab and send it nothing. */
+const IGICON=`<svg viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="4" width="24" height="24" rx="7.5" fill="#FFD9E8" stroke="#173A5E" stroke-width="3"/><circle cx="16" cy="16" r="5.5" fill="#fff" stroke="#173A5E" stroke-width="3"/><circle cx="22.6" cy="9.4" r="1.9" fill="#173A5E"/></svg>`;
+const IGMINI=`<svg class="igmini" viewBox="0 0 28 28" aria-hidden="true"><rect x="3" y="3" width="22" height="22" rx="6.5" fill="none" stroke="currentColor" stroke-width="2.6"/><circle cx="14" cy="14" r="5" fill="none" stroke="currentColor" stroke-width="2.6"/><circle cx="20.2" cy="7.8" r="1.7" fill="currentColor"/></svg>`;
 const SHIELD=`<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3 27 7v8c0 7-5 12-11 14C10 27 5 22 5 15V7z" fill="#C9F2D6" stroke="#173A5E" stroke-width="3" stroke-linejoin="round"/><path d="m11 16 4 4 7-8" fill="none" stroke="#173A5E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 const HEART=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-8-5.2-8-11a4.6 4.6 0 0 1 8-3 4.6 4.6 0 0 1 8 3c0 5.8-8 11-8 11z" stroke="#173A5E" stroke-width="2.4" stroke-linejoin="round"/></svg>`;
 const ibEsc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
