@@ -2110,8 +2110,10 @@ const wDucks=w=>w.ducks||[];
 const wTotal=w=>wDucks(w).length;
 const wFound=w=>wDucks(w).filter(d=>S.found.has(d.id)).length;
 const allDucks=()=>WORLDS.reduce((n,w)=>n+wTotal(w),0);
-/* Open every world whose earlier world is finished, so progress saved before a new world was added still opens it. */
-function syncUnlock(){ let u=Math.max(1,S.unlocked|0); for(const w of WORLDS){ const next=WORLDS[w.n]; if(next&&w.n<=u&&wFound(w)>=wTotal(w)) u=Math.max(u,next.n); } u=Math.min(u,WORLDS.length); if(u!==S.unlocked){ S.unlocked=u; save(); } }
+/* The next world opens at two thirds of a world's ducks, not all of them. */
+const needFor=w=>Math.ceil(wTotal(w)*2/3);
+/* Open every world whose earlier world has enough ducks, so progress saved before a new world was added (or under the old finish-everything rule) still opens it. */
+function syncUnlock(){ let u=Math.max(1,S.unlocked|0); for(const w of WORLDS){ const next=WORLDS[w.n]; if(next&&w.n<=u&&wFound(w)>=needFor(w)) u=Math.max(u,next.n); } u=Math.min(u,WORLDS.length); if(u!==S.unlocked){ S.unlocked=u; save(); } }
 syncUnlock();
 let tt;
 function toast(msg,ms=1900){ const t=$("toast"); t.textContent=msg; ms=Math.max(ms,1400+msg.length*45); /* longer messages stay up long enough to read */ t.classList.add("on"); clearTimeout(tt); tt=setTimeout(()=>t.classList.remove("on"),ms); }
@@ -2176,7 +2178,7 @@ function goHome(){
   const tile=w=>{ const f=wFound(w), t=wTotal(w), open=w.n<=S.unlocked, prev=WORLDS[w.n-2], done=open&&f>=t, isNext=w===nxt;
     return `<button type="button" class="wcard wtile${open?"":" locked"}${done?" finished":""}${isNext?" next":""}" data-world="${w.id}" aria-label="${w.name}${open?`, ${f} of ${t} ducks found`:", locked"}">
       <span class="thumb">${pic(w)}${isNext?`<span class="tag nexttag">${PLAYTRI}${f?"Keep going":"Play next"}</span>`:done?`<span class="tag complete">${CHECK}</span>`:""}${open?"":`<span class="lockover" aria-hidden="true">${lockSvg.replace('width="16" height="16"','width="40" height="40"')}</span>`}</span>
-      <span class="meta"><b>${w.name}</b>${open?`<span class="prog"><span class="bar2"><i style="width:${t?f/t*100:0}%"></i></span><small>${f}/${t}</small></span>`:`<small>Finish ${prev.name}</small>`}</span></button>`; };
+      <span class="meta"><b>${w.name}</b>${open?`<span class="prog"><span class="bar2"><i style="width:${t?f/t*100:0}%"></i></span><small>${f}/${t}</small></span>`:`<small>Find ${needFor(prev)} ducks in ${prev.name}</small>`}</span></button>`; };
   const soonTile=w=>`<button type="button" class="wcard wtile off" data-soon="${w.id}" aria-label="${w.name}, coming soon"><span class="thumb">${pic(w)}<span class="tag">Soon</span></span><span class="meta"><b>${w.name}</b><small>Coming soon</small></span></button>`;
   $("scrHome").innerHTML=`
 
@@ -2207,7 +2209,7 @@ function goHome(){
   $("hIdeas").addEventListener("click",openIdeas);
   $("hFriend").addEventListener("click",openFriend);
   $("scrHome").querySelectorAll("[data-world]").forEach(b=>b.addEventListener("click",()=>{ const w=W[b.dataset.world];
-    if(w.n>S.unlocked){ homeToast(b,`Finish ${WORLDS[w.n-2].name} first!`); blip(); return; } enterWorld(w.id); }));
+    if(w.n>S.unlocked){ const p=WORLDS[w.n-2], more=needFor(p)-wFound(p); homeToast(b,`Find ${more} more duck${more===1?"":"s"} in ${p.name}!`); blip(); return; } enterWorld(w.id); }));
   $("scrHome").querySelectorAll("[data-soon]").forEach(b=>b.addEventListener("click",()=>{ homeToast(b,"Mitchell is still building this one!"); blip(); }));
 }
 function openSettings(){
@@ -2447,6 +2449,7 @@ function fillLayer(el,id){ el.innerHTML=sceneSVG(id);
 function rerender(){ const l=layer(); if(l) fillLayer(l,S.area); }
 function catchDuck(g){
   const id=g.dataset.duck, d=DUCK[id], w=W[S.world]; if(S.found.has(id)) return;
+  const was=wFound(w);
   const b=g.getBoundingClientRect(); burst(stage,b.left+b.width/2,b.top+b.height/2);
   S.found.add(id); save(); quack(); g.style.pointerEvents="none";
   if(g.animate && !reduce){ const inner=g.querySelector(".bob"); if(inner){ inner.style.animation="none"; inner.animate([{transform:"none",opacity:1},{transform:"translateY(-18px)",opacity:0}],{duration:420,fill:"forwards",easing:"ease-out"}); } }
@@ -2457,8 +2460,21 @@ function catchDuck(g){
   if(d.tier==="Holiday") msg=`You found the ${d.name}! Happy ${d.holiday}!`;
   else if(every) msg=`Every ${w.name} duck found!`;
   toast(msg,every||d.tier==="Holiday"||w.helper?2800:1900);
-  renderHud(false); bumpBadge(); setTimeout(rerender,430); if(d.tier!=="Holiday") checkDone();
+  renderHud(false); bumpBadge(); setTimeout(rerender,430); if(d.tier!=="Holiday"){ checkOpen(w,was); checkDone(); }
 }
+function popCard(html,buttons){ const el=$("done"); el.innerHTML=`<div>${html}<span class="row">${buttons}</span></div>`;
+  flush(); el.hidden=false; if(el.animate&&!reduce) el.firstElementChild.animate([{transform:"translateY(24px)",opacity:0},{transform:"none",opacity:1}],{duration:380,easing:"ease-out"});
+  const g=el.querySelector(".go"); if(g) g.focus({preventScroll:true}); }
+/* Crossing two thirds opens the next world right away, with a card to go there or keep looking. */
+function checkOpen(w,was){ const next=WORLDS[w.n], need=needFor(w), f=wFound(w);
+  if(!next||was>=need||f<need||f>=wTotal(w)) return;
+  if(S.unlocked<next.n){ S.unlocked=next.n; save(); }
+  setTimeout(()=>{ if(S.screen!=="world"||S.world!==w.id||!$("done").hidden) return; fanfare();
+    popCard(`<svg viewBox="-44 -54 88 86" aria-hidden="true">${shadow()}<g class="bob">${toyDuck(YEL)}</g></svg><span class="big">${next.name} is open!</span>
+      <span>You found ${f} of ${wTotal(w)} ducks here. ${wTotal(w)-f===1?"The last one is":`The last ${wTotal(w)-f} are`} still hiding here.</span>`,
+      `<button class="go" type="button" id="openNext">Go to ${next.name}</button><button class="go ghost" type="button" id="openStay">Keep looking here</button>`);
+    $("openNext").addEventListener("click",()=>enterWorld(next.id)); $("openStay").addEventListener("click",()=>{ $("done").hidden=true; });
+  },1400); }
 function tapToken(tk){
   const h=holHere(); const id=tk.dataset.token; if(!h||S.tokens.includes(id)) return;
   const b=tk.getBoundingClientRect(); burst(stage,b.left+b.width/2,b.top+b.height/2);
@@ -2469,11 +2485,11 @@ function tapToken(tk){
 }
 const doneShown=new Set();
 function checkDone(){ const w=W[S.world]; if(doneShown.has(w.id)||wFound(w)<wTotal(w)) return; doneShown.add(w.id);
-  const next=WORLDS[w.n]; if(next&&S.unlocked<next.n){ S.unlocked=next.n; save(); }
+  const next=WORLDS[w.n], wasOpen=!next||S.unlocked>=next.n; if(next&&S.unlocked<next.n){ S.unlocked=next.n; save(); }
   setTimeout(()=>{ if(S.screen!=="world"||S.world!==w.id) return; const el=$("done"); fanfare();
     const last=!next;
     el.innerHTML=`<div><svg viewBox="-44 -54 88 86" aria-hidden="true">${shadow()}<g class="bob">${toyDuck(YEL,"crown")}</g></svg><span class="big">World complete!</span>
-      <span>${last?`You found all ${allDucks()} ducks in every world! Mitchell is dreaming up more.`:`Every duck in ${w.name} is in your Duck Log. ${next.name} is open!`}</span>
+      <span>${last?`You found all ${allDucks()} ducks in every world! Mitchell is dreaming up more.`:`Every duck in ${w.name} is in your Duck Log.${wasOpen?"":` ${next.name} is open!`}`}</span>
       <span class="row">${last?`<button class="go" type="button" id="doneHome">Back to worlds</button>`:`<button class="go" type="button" id="doneNext">Go to ${next.name}</button>`}<button class="go ghost" type="button" id="doneStay">Keep exploring</button></span></div>`;
     flush(); el.hidden=false; if(el.animate&&!reduce) el.firstElementChild.animate([{transform:"translateY(24px)",opacity:0},{transform:"none",opacity:1}],{duration:380,easing:"ease-out"});
     if(last) $("doneHome").addEventListener("click",goHome); else $("doneNext").addEventListener("click",()=>enterWorld(next.id));
@@ -2540,7 +2556,9 @@ function openLog(){
   const w=W[S.world];
   let cards=wDucks(w).map(d=>duckCard(d,S.found.has(d.id))).join("");
   HOL.filter(h=>h.world===w.id&&(holOn(h)||S.found.has(h.id))).forEach(h=>cards+=holCard(h));
-  openSheet(`<div class="cards">${cards}</div>`, `${w.name} Duck Log: ${wFound(w)} of ${wTotal(w)}`);
+  const f=wFound(w), t=wTotal(w), next=WORLDS[w.n];
+  const note=f>=t?"Every duck found!":next&&f<needFor(w)?`Find ${needFor(w)-f} more to open ${next.name}.`:`${t-f} more duck${t-f===1?" is":"s are"} still hiding here.`;
+  openSheet(`<p class="note">${note}</p><div class="cards">${cards}</div>`, `${w.name} Duck Log: ${f} of ${t}`);
 }
 function openMap(){
   const w=W[S.world]; const {cols,rows}=gridOf(w); const cells=[];
