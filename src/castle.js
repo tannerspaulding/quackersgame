@@ -1,20 +1,20 @@
 {id:"castle",n:9,name:"Fairy Tale Kingdom",start:"courtyard",
- idea:"Mitchell's world: a fairy tale kingdom with a castle throne room, a princess tower, a fairy garden and a dragon's cave. Look for dragon ducks, a purple princess duck and fairy ducks. Mama Dragon lost her gold coins all over the kingdom, and every duck you find gives one back.",
- helper:{name:"Mama Dragon",token:"gold coin",plural:"gold coins",icon:"coin",art:toyDragon,reward:"She puffs out a big cloud of happy sparkles!"},
- hide:{k_frog:"well",k_princess:"curtain",k_knight:"armor",k_unicorn:"pillow",k_jester:"toybox",k_flower:"flower",k_mush:"mushroom",k_sparkle:"stump",k_baby:"egg",k_fire:"gold"},
+ idea:"Mitchell's world: a fairy tale kingdom with a castle throne room, a princess tower, a fairy garden and a dragon's cave. Look for dragon ducks, a purple princess duck and fairy ducks. The Unicorn lost its rainbow gems all over the kingdom, and every duck you find gives one back.",
+ helper:{name:"Unicorn",token:"rainbow gem",plural:"rainbow gems",icon:"gem",art:toyUnicorn,reward:"It gallops a rainbow right over the castle!"},
+ hide:{k_frog:"well",k_princess:"curtain",k_knight:"armor",k_sleepy:"pillow",k_jester:"toybox",k_flower:"flower",k_mush:"mushroom",k_sparkle:"stump",k_baby:"egg",k_fire:"gold"},
  ducks:[
   {id:"k_plain",name:"Yellow Duck",tier:"Easy",area:"courtyard",c:YEL,hint:"Sitting by the hedge"},
   {id:"k_frog",name:"Frog Prince Duck",tier:"Sneaky",area:"courtyard",c:{body:"#7fd04e",wing:"#4f9f2e",beak:"#ff8a3d"},acc:"crown",hint:"Make a wish"},
   {id:"k_knight",name:"Knight Duck",tier:"Sneaky",area:"throne",c:YEL,acc:"knight",hint:"Guarding the throne room"},
   {id:"k_princess",name:"Purple Princess Duck",tier:"Rare",area:"throne",c:{body:"#c79bff",wing:"#a06be8",beak:"#ff8a3d"},acc:"gown tiara",hint:"Sitting where a royal should"},
-  {id:"k_unicorn",name:"Unicorn Duck",tier:"Rare",area:"tower",c:{body:"#ffffff",wing:"#ffe3f4",beak:"#ff8a3d"},acc:"horn",hint:"Napping in the royal bed"},
+  {id:"k_sleepy",name:"Sleepy Duck",tier:"Rare",area:"tower",c:{body:"#ffe3f4",wing:"#ffc2e0",beak:"#ff8a3d"},acc:"nightcap",hint:"Napping in the royal bed"},
   {id:"k_jester",name:"Jester Duck",tier:"Tricky",area:"tower",c:{body:"#ffb3dc",wing:"#ff8fc4",beak:"#ff8a3d"},acc:"jester",hint:"Ready to pop out and surprise you"},
   {id:"k_flower",name:"Flower Fairy Duck",tier:"Sneaky",area:"garden",c:{body:"#ffc2e0",wing:"#ff9ec7",beak:"#ff8a3d"},acc:"fwings flowers",hint:"Waiting for a flower to bloom"},
   {id:"k_mush",name:"Mushroom Fairy Duck",tier:"Tricky",area:"garden",c:{body:"#fff4dc",wing:"#f0dfbf",beak:"#ff8a3d"},acc:"fwings mushcap",hint:"Under a spotty umbrella"},
   {id:"k_sparkle",name:"Sparkle Fairy Duck",tier:"Rare",area:"garden",c:{body:"#bff6ff",wing:"#7fd6ff",beak:"#ff8a3d"},acc:"fwings wand glow",hint:"Home sweet tiny home"},
   {id:"k_baby",name:"Baby Dragon Duck",tier:"Tricky",area:"cave",c:{body:"#8fe7c8",wing:"#4fc0a0",beak:"#ffb066"},acc:"dwgreen horns spikes",hint:"Not hatched yet"},
   {id:"k_fire",name:"Fire Dragon Duck",tier:"Rare",area:"cave",c:{body:"#ff8a6a",wing:"#e8423a",beak:"#ffb066"},acc:"dwred horns spikes fire",hint:"Guarding the treasure"},
-  {id:"k_dragon",name:"Mama Dragon",tier:"Legendary",area:"cave",helper:true,art:()=>toyDragon(true),hint:"Bring the gold coins back to Mama Dragon"}],
+  {id:"k_unicorn",name:"Unicorn",tier:"Legendary",area:"courtyard",helper:true,art:()=>toyUnicorn(true),hint:"Bring the rainbow gems back to the Unicorn"}],
  areas:{
  courtyard:{name:"Castle Courtyard",pos:[1,1],bg:["#ffd6ec","#5fbf45"],exits:{up:"throne",left:"garden",right:"cave"},doors:{throne:"up"},draw:F=>`
   <rect width="400" height="300" fill="${LG("#ffd6ec","#d9ecff")}"/>
@@ -34,7 +34,8 @@
    ${F.well?`<path d="M18 -56 V-36" stroke="#7a4b26" stroke-width="2"/><path d="M10 -36 H26 L24 -22 H12 Z" fill="${G("#a0703f")}" ${O2}/><ellipse cx="18" cy="-36" rx="8" ry="2" fill="#7fd6ff"/>`:`<path d="M0 -56 V-40" stroke="#7a4b26" stroke-width="2"/><path d="M-8 -40 H8 L6 -26 H-6 Z" fill="${G("#a0703f")}" ${O2}/>`}
    <path d="M-40 -10 Q0 -20 40 -10 V24 Q0 34 -40 24 Z" fill="${G("#cfc3e6")}" ${O}/><ellipse cx="0" cy="-12" rx="40" ry="9" fill="${G("#2387d9")}" ${O2}/>${[-26,-6,14,30].map((x,i)=>`<path d="M${x} ${i%2?2:12} h12" stroke="${INK}" stroke-opacity=".2" stroke-width="2"/>`).join("")}</g>`)}
   ${F.well?place("k_frog",76,214,.42,{noShadow:true}):""}
-  ${place("k_plain",330,268,.42)}`},
+  ${place("k_plain",330,268,.42)}
+  ${HELP("castle",258,264,.72)}`},
  throne:{name:"Throne Room",pos:[1,0],bg:["#7b4fb8","#cfc3e6"],stretchTop:false,exits:{down:"courtyard",right:"tower"},doors:{tower:"right"},draw:F=>`
   <rect width="400" height="300" fill="${LG("#8a5ccc","#5a3790")}"/>
   <g ${N}><path d="M166 104 V52 Q166 18 200 18 Q234 18 234 52 V104 Z" fill="${G("#ffd45c")}" ${O}/><path d="M174 98 V54 Q174 28 200 28 Q226 28 226 54 V98 Z" fill="#2a1f50"/>
@@ -66,7 +67,7 @@
   <rect y="236" width="400" height="76" fill="${LG("#d9a07a","#b07a4a")}" ${O} ${N}/>
   <g ${N}>${[0,1,2,3,4,5].map(i=>`<path d="M0 ${246+i*12} H400" stroke="#8a5a33" stroke-width="1.6" opacity=".35"/>`).join("")}<ellipse cx="236" cy="270" rx="70" ry="16" fill="${G("#ff9ec7")}" ${O2}/><ellipse cx="236" cy="270" rx="50" ry="10" fill="none" stroke="#fff" stroke-width="3" opacity=".7"/>
   <rect x="30" y="196" width="140" height="44" rx="10" fill="${G("#ffe3f4")}" ${O}/><path d="M30 200 Q100 186 170 200 V230 Q100 220 30 230 Z" fill="${G("#ff9ec7")}" ${O2}/>${[60,100,140].map(x=>`<circle cx="${x}" cy="212" r="3" fill="#fff" opacity=".8"/>`).join("")}</g>
-  ${F.pillow?place("k_unicorn",76,176,.44,{noShadow:true}):""}
+  ${F.pillow?place("k_sleepy",76,176,.44,{noShadow:true}):""}
   ${act("pillow","Big fluffy pillow",`<g transform="translate(${F.pillow?134:76} ${F.pillow?268:184}) rotate(${F.pillow?-14:0})"><path d="M-40 -4 Q-42 -26 -20 -24 H20 Q42 -26 40 -4 Q42 18 20 16 H-20 Q-42 18 -40 -4 Z" fill="${G("#fff6fb")}" ${O}/><path d="M-30 -6 Q0 -14 30 -6" stroke="#ffc2e0" stroke-width="2" fill="none"/></g>`)}
   ${act("toybox","Royal toy box",`<g transform="translate(330 238)"><rect x="-38" y="-38" width="76" height="40" rx="6" fill="${G("#4fb3ff")}" ${O}/><path d="M-38 -20 H38" stroke="#ffd45c" stroke-width="4"/>${crownAt(0,-22)}
    ${F.toybox?`<path d="M-38 -38 L-30 -62 H38 L38 -38" fill="${G("#2387d9")}" ${O2}/><path d="M0 -38 Q-8 -46 0 -54 Q8 -62 0 -70" fill="none" stroke="#b7c3d4" stroke-width="3"/>`:`<rect x="-42" y="-48" width="84" height="14" rx="5" fill="${G("#2387d9")}" ${O2}/>`}</g>`)}
@@ -102,5 +103,5 @@
   ${F.egg?place("k_baby",96,226,.42,{noShadow:true}):""}
   ${act("egg","Spotty dragon egg",`<g transform="translate(96 252)"><path d="M-40 0 Q-30 -16 0 -14 Q30 -16 40 0 Q20 14 0 12 Q-20 14 -40 0 Z" fill="${G("#a0703f")}" ${O}/>${[-30,-18,-6,6,18,30].map(x=>`<path d="M${x} -8 l4 12" stroke="#7a4b26" stroke-width="2"/>`).join("")}
    ${F.egg?`<path d="M-30 -6 Q-32 -24 -20 -26 L-14 -18 L-8 -24 L-6 -6 Z" fill="${G("#c8f0e0")}" ${O2}/><path d="M30 -6 Q32 -22 22 -26 L16 -18 L10 -24 L6 -6 Z" fill="${G("#c8f0e0")}" ${O2}/>`:`<path d="M0 -6 Q-22 -6 -22 -30 Q-22 -60 0 -62 Q22 -60 22 -30 Q22 -6 0 -6 Z" fill="${G("#c8f0e0")}" ${O}/><circle cx="-8" cy="-40" r="5" fill="#7fd6b0"/><circle cx="8" cy="-26" r="6" fill="#7fd6b0"/><circle cx="10" cy="-48" r="3.4" fill="#7fd6b0"/>`}</g>`)}
-  ${HELP("castle",206,250,.78)}`}},
+  <g ${N}><path d="M168 262 Q164 236 186 228 Q206 220 226 232 Q244 244 236 264 Z" fill="${G("#7d6a92")}" ${O}/><path d="M220 262 Q222 248 240 246 Q256 248 256 264 Z" fill="${G("#6a5a7e")}" ${O2}/>${[[178,232,"#9fe7ff"],[196,222,"#c79bff"],[212,230,"#ff9ec7"]].map(([x,y,c])=>`<path d="M${x-6} ${y+10} L${x} ${y-14} L${x+6} ${y+10} Z" fill="${G(c)}" ${O2}/>`).join("")}</g>`}},
  msg:{well:"Splash! You make a wish and the bucket comes up.",curtain:"Swish! The royal curtains open.",armor:"Clank clank! The suit of armor steps aside.",pillow:"Flump! The big pillow slides off the bed.",toybox:"Boing! The toy box lid pops open.",stump:"Creak! The tiny fairy door swings open.",flower:"Ta-da! The giant flower blooms.",mushroom:"Boing! The mushroom bounces up.",egg:"Crack crack! The dragon egg hatches.",gold:"Clink clink! The gold coins slide away."}}

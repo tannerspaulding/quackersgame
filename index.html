@@ -1270,7 +1270,7 @@ function monsterArt(){
 }
 toyAlien=soften(toyAlien); monsterArt=soften(monsterArt);
 
-/* ---------- Fairy Tale Kingdom: things ducks wear, Mama Dragon and her gold coins ---------- */
+/* ---------- Fairy Tale Kingdom: things ducks wear, the Unicorn helper and its rainbow gems ---------- */
 Object.assign(ACC,{
   tiara:()=>`<g transform="translate(12 -31)"><path d="M-11 1 L-9 -6 L-5 -2 L0 -11 L5 -2 L9 -6 L11 1 Z" fill="${G("#f4f0ff")}" ${O2}/><circle cy="-5" r="2.6" fill="${G("#b45cff")}" ${O2}/><circle cx="-8" cy="-5" r="1.3" fill="#ff8fd1"/><circle cx="8" cy="-5" r="1.3" fill="#ff8fd1"/></g>`,
   gown:()=>`<path d="M-22 8 Q-34 24 -32 30 Q0 36 28 30 Q28 22 18 8 Q0 16 -22 8 Z" fill="${G("#b45cff")}" ${O2}/><path d="M-20 12 Q-24 22 -24 28 M-6 15 Q-6 24 -6 32 M8 14 Q10 22 12 31" fill="none" stroke="#e2c4ff" stroke-width="1.6" opacity=".8"/>${spark(-16,22,.45,"#fff6c9")}${spark(14,24,.4,"#fff6c9")}${spark(-36,-26,.7,"#fff6c9")}`,
@@ -1285,22 +1285,28 @@ Object.assign(ACC,{
   horns:()=>`<path d="M3 -30 Q-2 -40 -1 -44 Q5 -38 9 -32 Z M15 -32 Q16 -42 20 -45 Q22 -38 21 -31 Z" fill="${G("#fff4dc")}" ${O2}/>`,
   spikes:()=>`<path d="M-24 -6 l2 -9 l6 7 Z M-14 -10 l3 -9 l5 8 Z M-4 -22 l1 -9 l6 6 Z M-4 -11 l3 -8 l4 7 Z" fill="${G("#ff9f43")}" ${O2}/>`,
   fire:()=>`<path d="M38 -13 Q48 -26 60 -18 Q54 -14 64 -8 Q52 -4 56 4 Q44 -2 38 -9 Z" fill="${G("#ff9f43")}" ${O2}/><path d="M40 -12 Q48 -18 54 -14 Q50 -10 56 -6 Q48 -6 40 -10 Z" fill="#ffe066"/>`,
-  horn:()=>`<g transform="translate(18 -31) rotate(20)"><path d="M-4 0 L0 -17 L4 0 Z" fill="${G("#ffe066")}" ${O2}/><path d="M-3 -4 L3 -6 M-2 -9 L2 -10 M-1 -13 L1 -14" stroke="#e0a526" stroke-width="1.2"/></g><path d="M-2 -28 Q-12 -22 -8 -10 Q-4 -18 2 -20 Q-4 -14 -2 -6 Q4 -16 4 -24 Z" fill="${G("#ff9ec7")}" ${O2}/>`
+  nightcap:()=>`<g transform="translate(12 -30) rotate(-12)"><path d="M-14 2 Q-10 -18 10 -20 Q22 -20 28 -8 Q16 -12 12 0 Z" fill="${G("#4fb3ff")}" ${O2}/><circle cx="-2" cy="-10" r="1.6" fill="#ffe066"/><circle cx="12" cy="-14" r="1.4" fill="#ffe066"/><path d="M-15 2 Q0 -4 14 2" stroke="#fff" stroke-width="4" stroke-linecap="round"/><circle cx="28" cy="-7" r="4" fill="${G("#ffffff")}" ${O2}/></g><g ${N}><text x="34" y="-34" font-family="Grandstander,sans-serif" font-weight="900" font-size="11" fill="#7a4fe0">z</text><text x="42" y="-44" font-family="Grandstander,sans-serif" font-weight="900" font-size="8" fill="#7a4fe0">z</text></g>`
 });
 Object.assign(BACK,{
   fwings:()=>`<path d="M-4 -6 Q-22 -50 -42 -34 Q-44 -12 -6 -2 Z" fill="#e6f7ff" fill-opacity=".72" stroke="#9fd8ff" stroke-width="1.6"/><path d="M-4 0 Q-34 4 -38 20 Q-20 26 -6 6 Z" fill="#ffe3f4" fill-opacity=".72" stroke="#ffb3dc" stroke-width="1.6"/><path d="M-8 -6 Q-22 -26 -32 -30 M-8 2 Q-22 8 -30 16" fill="none" stroke="#fff" stroke-width="1.4" opacity=".8"/>`,
   dwgreen:()=>`<path d="M-6 -6 L-24 -42 L-28 -26 L-42 -34 L-38 -16 L-52 -14 L-10 4 Z" fill="${G("#3fb86a")}" ${O2}/><path d="M-8 -4 L-24 -40 M-8 -2 L-38 -16" stroke="#2a8a4c" stroke-width="1.6" fill="none"/>`,
-  dwred:()=>`<path d="M-6 -6 L-24 -42 L-28 -26 L-42 -34 L-38 -16 L-52 -14 L-10 4 Z" fill="${G("#e8423a")}" ${O2}/><path d="M-8 -4 L-24 -40 M-8 -2 L-38 -16" stroke="#b02a22" stroke-width="1.6" fill="none"/>`,
-  dwpurple:()=>`<path d="M-6 -6 L-24 -42 L-28 -26 L-42 -34 L-38 -16 L-52 -14 L-10 4 Z" fill="${G("#7a4fe0")}" ${O2}/><path d="M-8 -4 L-24 -40 M-8 -2 L-38 -16" stroke="#5a34b8" stroke-width="1.6" fill="none"/>`
+  dwred:()=>`<path d="M-6 -6 L-24 -42 L-28 -26 L-42 -34 L-38 -16 L-52 -14 L-10 4 Z" fill="${G("#e8423a")}" ${O2}/><path d="M-8 -4 L-24 -40 M-8 -2 L-38 -16" stroke="#b02a22" stroke-width="1.6" fill="none"/>`
 });
-/* Mama Dragon lost her gold coins all over the kingdom. Every duck you find gives one back. */
-function coinIcon(s=1){ return `<g transform="scale(${s})"><circle r="12" fill="${G("#ffd45c")}" ${O2}/><circle r="8.4" fill="none" stroke="#e0a526" stroke-width="1.8"/><path d="M-5 3 L-5.5 -4 L-2.5 -1.5 L0 -6 L2.5 -1.5 L5.5 -4 L5 3 Z" fill="#e0a526"/>${spark(8,-9,.4,"#fff6c9")}</g>`; }
-function toyDragon(done){
-  return `<g transform="scale(1.08)">${toyDuck({body:"#9b6bff",wing:"#7a4fe0",beak:"#ffb066"},"dwpurple horns spikes")}</g>
-  <path d="M-30 -20 Q-46 -30 -52 -18 Q-44 -22 -40 -14 Z" fill="${G("#ff9f43")}" ${O2}/>
-  ${done?crownAt(13,-40):`<g transform="translate(-20 18)">${coinIcon(.62)}</g>`}`;
+/* The Unicorn lost its rainbow gems all over the kingdom. Every duck you find gives one back. */
+function gemIcon(s=1){ return `<g transform="scale(${s})"><path d="M-12 -4 L-6 -12 H6 L12 -4 L0 13 Z" fill="${G("#ff7ac8")}" ${O2}/><path d="M-12 -4 H12 M-6 -12 L-3 -4 L0 13 M6 -12 L3 -4 L0 13" fill="none" stroke="#fff" stroke-width="1.3" opacity=".75"/><path d="M-6 -12 H6 L3 -4 H-3 Z" fill="#ffd0ec" opacity=".8"/>${spark(10,-12,.42,"#fff6c9")}</g>`; }
+function toyUnicorn(done){
+  return `<path d="M-20 -2 Q-36 -4 -38 10 Q-36 22 -26 20 Q-32 12 -28 6 Q-24 2 -20 4 Z" fill="${G("#ff8fd1")}" ${O2}/><path d="M-21 2 Q-32 4 -32 12" fill="none" stroke="#9fd8ff" stroke-width="3" stroke-linecap="round"/><path d="M-22 6 Q-28 10 -28 16" fill="none" stroke="#c79bff" stroke-width="2.6" stroke-linecap="round"/>
+  ${[-15,-6,7,16].map(x=>`<rect x="${x-3.5}" y="8" width="7" height="18" rx="3" fill="${G("#ffffff")}" ${O2}/><rect x="${x-3.5}" y="22" width="7" height="5" rx="2" fill="${G("#b45cff")}" ${O2}/>`).join("")}
+  <ellipse cx="0" cy="4" rx="23" ry="14" fill="${G("#ffffff")}" ${O}/><ellipse cx="-8" cy="-2" rx="7" ry="3" fill="#fff" opacity=".7"/>
+  <path d="M8 -4 Q10 -18 16 -24 L26 -16 Q20 -8 18 2 Z" fill="${G("#ffffff")}" ${O}/>
+  <ellipse cx="20" cy="-20" rx="13" ry="11" fill="${G("#ffffff")}" ${O}/><ellipse cx="30" cy="-14" rx="8" ry="6.4" fill="${G("#ffe3f4")}" ${O2}/><circle cx="33" cy="-15" r="1.2" fill="#c06a9a"/>
+  <path d="M12 -27 L10 -38 L18 -30 Z" fill="${G("#ffffff")}" ${O2}/><path d="M13 -29 L12 -35 L16 -31 Z" fill="#ffc2e0"/>
+  <g transform="translate(22 -29) rotate(18)"><path d="M-4 0 L0 -19 L4 0 Z" fill="${G("#ffe066")}" ${O2}/><path d="M-3 -4 L3 -6 M-2 -9 L2 -10 M-1 -14 L1 -15" stroke="#e0a526" stroke-width="1.2"/></g>
+  <path d="M14 -30 Q2 -30 4 -18 Q-2 -14 2 -6 Q6 -12 10 -10 Q6 -18 12 -22 Z" fill="${G("#ff8fd1")}" ${O2}/><path d="M10 -28 Q4 -24 6 -16" fill="none" stroke="#9fd8ff" stroke-width="2.6" stroke-linecap="round"/><path d="M8 -12 Q4 -8 6 -4" fill="none" stroke="#c79bff" stroke-width="2.6" stroke-linecap="round"/>
+  <ellipse cx="22" cy="-22" rx="3" ry="3.8" fill="#1a1a1a"/><circle cx="23" cy="-23.4" r="1.2" fill="#fff"/><ellipse cx="25" cy="-15" rx="3" ry="1.8" fill="#ff8fb1" opacity=".7"/>
+  ${done?crownAt(6,-30):`<g transform="translate(-14 16)">${gemIcon(.62)}</g>`}`;
 }
-toyDragon=soften(toyDragon);
+toyUnicorn=soften(toyUnicorn);
 
 /* ---------- Scene helpers ---------- */
 const tagAt=(x,y,t,c="#ffffff")=>`<text x="${x}" y="${y}" text-anchor="middle" font-family="Grandstander,sans-serif" font-weight="900" font-size="${t.length>12?14:12}" letter-spacing=".5" fill="${c}"${c==="#ffffff"?` stroke="${INK}" stroke-width="3" paint-order="stroke"`:""} ${N}>${t}</text>`;
@@ -1351,7 +1357,7 @@ const door=(to,label,inner,soon)=>`<g class="door" ${soon?`data-soon="${soon}"`:
 const act=(name,label,inner)=>`<g class="act" data-act="${name}" tabindex="0" role="button" aria-label="${label}">${inner}</g>`;
 const helperAt=(w,x,y,s)=>`<g transform="translate(${x} ${y}) scale(${s})" ${N}>${shadow(20)}<g class="bob">${w.helper.art(false)}</g></g>`;
 /* Each new world has a helper. Every duck you find gives you one of its tokens; hand them all over and the helper becomes the last duck. */
-const ICONS={rock:s=>typeof rockIcon==="function"?rockIcon(s):"",fish:s=>fishIcon(s),ticket:s=>ticketIcon(s),gear:s=>gearIcon(s),feather:s=>featherIcon(s),coin:s=>coinIcon(s)};
+const ICONS={rock:s=>typeof rockIcon==="function"?rockIcon(s):"",fish:s=>fishIcon(s),ticket:s=>ticketIcon(s),gear:s=>gearIcon(s),feather:s=>featherIcon(s),gem:s=>gemIcon(s)};
 const regDucks=w=>(w.ducks||[]).filter(d=>!d.helper);
 const helperDuck=w=>(w.ducks||[]).find(d=>d.helper);
 const tokensFor=w=>regDucks(w).filter(d=>S.found.has(d.id)).length;
@@ -1980,22 +1986,22 @@ const WORLDS=[{id:"yard",n:1,name:"The Backyard",start:"yard",
    <rect x="-14" y="-16" width="28" height="38" rx="6" fill="${G("#dfe5ec")}" ${O}/><g transform="rotate(${F.satellite?50:0} 0 -16)"><path d="M-26 -30 Q0 -6 26 -30 Z" fill="${G("#dfe5ec")}" ${O}/><path d="M0 -22 V-40" stroke="${INK}" stroke-opacity=".5" stroke-width="2.4"/><circle cy="-42" r="3.4" fill="#ff6fa6"/></g></g>`)}`}},
  msg:{chair:"Whee! The captain's chair spins around.",panel:"The hatch under the controls pops open.",reactor:"The reactor's cover slides away. Bzzt!",crate:"The floating crate's lid drifts open.",tube:"Pop! The test tube's cap flies off.",vat:"Glug glug. The slime drains out of the vat.",locker:"Beep! The test locker unlocks.",asteroid:"The space rock tumbles around.",satellite:"The satellite dish swings around."}},
 {id:"castle",n:9,name:"Fairy Tale Kingdom",start:"courtyard",
- idea:"Mitchell's world: a fairy tale kingdom with a castle throne room, a princess tower, a fairy garden and a dragon's cave. Look for dragon ducks, a purple princess duck and fairy ducks. Mama Dragon lost her gold coins all over the kingdom, and every duck you find gives one back.",
- helper:{name:"Mama Dragon",token:"gold coin",plural:"gold coins",icon:"coin",art:toyDragon,reward:"She puffs out a big cloud of happy sparkles!"},
- hide:{k_frog:"well",k_princess:"curtain",k_knight:"armor",k_unicorn:"pillow",k_jester:"toybox",k_flower:"flower",k_mush:"mushroom",k_sparkle:"stump",k_baby:"egg",k_fire:"gold"},
+ idea:"Mitchell's world: a fairy tale kingdom with a castle throne room, a princess tower, a fairy garden and a dragon's cave. Look for dragon ducks, a purple princess duck and fairy ducks. The Unicorn lost its rainbow gems all over the kingdom, and every duck you find gives one back.",
+ helper:{name:"Unicorn",token:"rainbow gem",plural:"rainbow gems",icon:"gem",art:toyUnicorn,reward:"It gallops a rainbow right over the castle!"},
+ hide:{k_frog:"well",k_princess:"curtain",k_knight:"armor",k_sleepy:"pillow",k_jester:"toybox",k_flower:"flower",k_mush:"mushroom",k_sparkle:"stump",k_baby:"egg",k_fire:"gold"},
  ducks:[
   {id:"k_plain",name:"Yellow Duck",tier:"Easy",area:"courtyard",c:YEL,hint:"Sitting by the hedge"},
   {id:"k_frog",name:"Frog Prince Duck",tier:"Sneaky",area:"courtyard",c:{body:"#7fd04e",wing:"#4f9f2e",beak:"#ff8a3d"},acc:"crown",hint:"Make a wish"},
   {id:"k_knight",name:"Knight Duck",tier:"Sneaky",area:"throne",c:YEL,acc:"knight",hint:"Guarding the throne room"},
   {id:"k_princess",name:"Purple Princess Duck",tier:"Rare",area:"throne",c:{body:"#c79bff",wing:"#a06be8",beak:"#ff8a3d"},acc:"gown tiara",hint:"Sitting where a royal should"},
-  {id:"k_unicorn",name:"Unicorn Duck",tier:"Rare",area:"tower",c:{body:"#ffffff",wing:"#ffe3f4",beak:"#ff8a3d"},acc:"horn",hint:"Napping in the royal bed"},
+  {id:"k_sleepy",name:"Sleepy Duck",tier:"Rare",area:"tower",c:{body:"#ffe3f4",wing:"#ffc2e0",beak:"#ff8a3d"},acc:"nightcap",hint:"Napping in the royal bed"},
   {id:"k_jester",name:"Jester Duck",tier:"Tricky",area:"tower",c:{body:"#ffb3dc",wing:"#ff8fc4",beak:"#ff8a3d"},acc:"jester",hint:"Ready to pop out and surprise you"},
   {id:"k_flower",name:"Flower Fairy Duck",tier:"Sneaky",area:"garden",c:{body:"#ffc2e0",wing:"#ff9ec7",beak:"#ff8a3d"},acc:"fwings flowers",hint:"Waiting for a flower to bloom"},
   {id:"k_mush",name:"Mushroom Fairy Duck",tier:"Tricky",area:"garden",c:{body:"#fff4dc",wing:"#f0dfbf",beak:"#ff8a3d"},acc:"fwings mushcap",hint:"Under a spotty umbrella"},
   {id:"k_sparkle",name:"Sparkle Fairy Duck",tier:"Rare",area:"garden",c:{body:"#bff6ff",wing:"#7fd6ff",beak:"#ff8a3d"},acc:"fwings wand glow",hint:"Home sweet tiny home"},
   {id:"k_baby",name:"Baby Dragon Duck",tier:"Tricky",area:"cave",c:{body:"#8fe7c8",wing:"#4fc0a0",beak:"#ffb066"},acc:"dwgreen horns spikes",hint:"Not hatched yet"},
   {id:"k_fire",name:"Fire Dragon Duck",tier:"Rare",area:"cave",c:{body:"#ff8a6a",wing:"#e8423a",beak:"#ffb066"},acc:"dwred horns spikes fire",hint:"Guarding the treasure"},
-  {id:"k_dragon",name:"Mama Dragon",tier:"Legendary",area:"cave",helper:true,art:()=>toyDragon(true),hint:"Bring the gold coins back to Mama Dragon"}],
+  {id:"k_unicorn",name:"Unicorn",tier:"Legendary",area:"courtyard",helper:true,art:()=>toyUnicorn(true),hint:"Bring the rainbow gems back to the Unicorn"}],
  areas:{
  courtyard:{name:"Castle Courtyard",pos:[1,1],bg:["#ffd6ec","#5fbf45"],exits:{up:"throne",left:"garden",right:"cave"},doors:{throne:"up"},draw:F=>`
   <rect width="400" height="300" fill="${LG("#ffd6ec","#d9ecff")}"/>
@@ -2015,7 +2021,8 @@ const WORLDS=[{id:"yard",n:1,name:"The Backyard",start:"yard",
    ${F.well?`<path d="M18 -56 V-36" stroke="#7a4b26" stroke-width="2"/><path d="M10 -36 H26 L24 -22 H12 Z" fill="${G("#a0703f")}" ${O2}/><ellipse cx="18" cy="-36" rx="8" ry="2" fill="#7fd6ff"/>`:`<path d="M0 -56 V-40" stroke="#7a4b26" stroke-width="2"/><path d="M-8 -40 H8 L6 -26 H-6 Z" fill="${G("#a0703f")}" ${O2}/>`}
    <path d="M-40 -10 Q0 -20 40 -10 V24 Q0 34 -40 24 Z" fill="${G("#cfc3e6")}" ${O}/><ellipse cx="0" cy="-12" rx="40" ry="9" fill="${G("#2387d9")}" ${O2}/>${[-26,-6,14,30].map((x,i)=>`<path d="M${x} ${i%2?2:12} h12" stroke="${INK}" stroke-opacity=".2" stroke-width="2"/>`).join("")}</g>`)}
   ${F.well?place("k_frog",76,214,.42,{noShadow:true}):""}
-  ${place("k_plain",330,268,.42)}`},
+  ${place("k_plain",330,268,.42)}
+  ${HELP("castle",258,264,.72)}`},
  throne:{name:"Throne Room",pos:[1,0],bg:["#7b4fb8","#cfc3e6"],stretchTop:false,exits:{down:"courtyard",right:"tower"},doors:{tower:"right"},draw:F=>`
   <rect width="400" height="300" fill="${LG("#8a5ccc","#5a3790")}"/>
   <g ${N}><path d="M166 104 V52 Q166 18 200 18 Q234 18 234 52 V104 Z" fill="${G("#ffd45c")}" ${O}/><path d="M174 98 V54 Q174 28 200 28 Q226 28 226 54 V98 Z" fill="#2a1f50"/>
@@ -2047,7 +2054,7 @@ const WORLDS=[{id:"yard",n:1,name:"The Backyard",start:"yard",
   <rect y="236" width="400" height="76" fill="${LG("#d9a07a","#b07a4a")}" ${O} ${N}/>
   <g ${N}>${[0,1,2,3,4,5].map(i=>`<path d="M0 ${246+i*12} H400" stroke="#8a5a33" stroke-width="1.6" opacity=".35"/>`).join("")}<ellipse cx="236" cy="270" rx="70" ry="16" fill="${G("#ff9ec7")}" ${O2}/><ellipse cx="236" cy="270" rx="50" ry="10" fill="none" stroke="#fff" stroke-width="3" opacity=".7"/>
   <rect x="30" y="196" width="140" height="44" rx="10" fill="${G("#ffe3f4")}" ${O}/><path d="M30 200 Q100 186 170 200 V230 Q100 220 30 230 Z" fill="${G("#ff9ec7")}" ${O2}/>${[60,100,140].map(x=>`<circle cx="${x}" cy="212" r="3" fill="#fff" opacity=".8"/>`).join("")}</g>
-  ${F.pillow?place("k_unicorn",76,176,.44,{noShadow:true}):""}
+  ${F.pillow?place("k_sleepy",76,176,.44,{noShadow:true}):""}
   ${act("pillow","Big fluffy pillow",`<g transform="translate(${F.pillow?134:76} ${F.pillow?268:184}) rotate(${F.pillow?-14:0})"><path d="M-40 -4 Q-42 -26 -20 -24 H20 Q42 -26 40 -4 Q42 18 20 16 H-20 Q-42 18 -40 -4 Z" fill="${G("#fff6fb")}" ${O}/><path d="M-30 -6 Q0 -14 30 -6" stroke="#ffc2e0" stroke-width="2" fill="none"/></g>`)}
   ${act("toybox","Royal toy box",`<g transform="translate(330 238)"><rect x="-38" y="-38" width="76" height="40" rx="6" fill="${G("#4fb3ff")}" ${O}/><path d="M-38 -20 H38" stroke="#ffd45c" stroke-width="4"/>${crownAt(0,-22)}
    ${F.toybox?`<path d="M-38 -38 L-30 -62 H38 L38 -38" fill="${G("#2387d9")}" ${O2}/><path d="M0 -38 Q-8 -46 0 -54 Q8 -62 0 -70" fill="none" stroke="#b7c3d4" stroke-width="3"/>`:`<rect x="-42" y="-48" width="84" height="14" rx="5" fill="${G("#2387d9")}" ${O2}/>`}</g>`)}
@@ -2083,7 +2090,7 @@ const WORLDS=[{id:"yard",n:1,name:"The Backyard",start:"yard",
   ${F.egg?place("k_baby",96,226,.42,{noShadow:true}):""}
   ${act("egg","Spotty dragon egg",`<g transform="translate(96 252)"><path d="M-40 0 Q-30 -16 0 -14 Q30 -16 40 0 Q20 14 0 12 Q-20 14 -40 0 Z" fill="${G("#a0703f")}" ${O}/>${[-30,-18,-6,6,18,30].map(x=>`<path d="M${x} -8 l4 12" stroke="#7a4b26" stroke-width="2"/>`).join("")}
    ${F.egg?`<path d="M-30 -6 Q-32 -24 -20 -26 L-14 -18 L-8 -24 L-6 -6 Z" fill="${G("#c8f0e0")}" ${O2}/><path d="M30 -6 Q32 -22 22 -26 L16 -18 L10 -24 L6 -6 Z" fill="${G("#c8f0e0")}" ${O2}/>`:`<path d="M0 -6 Q-22 -6 -22 -30 Q-22 -60 0 -62 Q22 -60 22 -30 Q22 -6 0 -6 Z" fill="${G("#c8f0e0")}" ${O}/><circle cx="-8" cy="-40" r="5" fill="#7fd6b0"/><circle cx="8" cy="-26" r="6" fill="#7fd6b0"/><circle cx="10" cy="-48" r="3.4" fill="#7fd6b0"/>`}</g>`)}
-  ${HELP("castle",206,250,.78)}`}},
+  <g ${N}><path d="M168 262 Q164 236 186 228 Q206 220 226 232 Q244 244 236 264 Z" fill="${G("#7d6a92")}" ${O}/><path d="M220 262 Q222 248 240 246 Q256 248 256 264 Z" fill="${G("#6a5a7e")}" ${O2}/>${[[178,232,"#9fe7ff"],[196,222,"#c79bff"],[212,230,"#ff9ec7"]].map(([x,y,c])=>`<path d="M${x-6} ${y+10} L${x} ${y-14} L${x+6} ${y+10} Z" fill="${G(c)}" ${O2}/>`).join("")}</g>`}},
  msg:{well:"Splash! You make a wish and the bucket comes up.",curtain:"Swish! The royal curtains open.",armor:"Clank clank! The suit of armor steps aside.",pillow:"Flump! The big pillow slides off the bed.",toybox:"Boing! The toy box lid pops open.",stump:"Creak! The tiny fairy door swings open.",flower:"Ta-da! The giant flower blooms.",mushroom:"Boing! The mushroom bounces up.",egg:"Crack crack! The dragon egg hatches.",gold:"Clink clink! The gold coins slide away."}}];
 const SOON=[];
 function WORLDS_REF(id){ return WORLDS.concat(SOON).find(w=>w.id===id); }
