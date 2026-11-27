@@ -261,23 +261,49 @@ function pickVoice(){ if(!VOICE.ok) return null; const vs=speechSynthesis.getVoi
   return vs.find(v=>/en-US/i.test(v.lang))||vs[0]; }
 if(VOICE.ok){ VOICE.v=pickVoice(); try{ speechSynthesis.addEventListener("voiceschanged",()=>{VOICE.v=pickVoice();}); }catch(e){} }
 function talking(on){ document.querySelectorAll(".mitch").forEach(m=>m.classList.toggle("talking",on)); }
-function hush(){ if(clipAu){ try{ clipAu.pause(); }catch(e){} clipAu=null; } if(VOICE.ok){ try{ speechSynthesis.cancel(); }catch(e){} } talking(false); }
+/* iPhones and iPads (iPads can say they are Macs). */
+const IOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+/* Only stop the voice when it is talking or about to: on iPhone, stopping and then talking straight away drops the new line. */
+function sBusy(){ try{ return speechSynthesis.speaking||speechSynthesis.pending; }catch(e){ return false; } }
+function hush(){ if(clipAu){ try{ clipAu.pause(); }catch(e){} clipAu=null; } if(VOICE.ok&&sBusy()){ try{ speechSynthesis.cancel(); }catch(e){} } talking(false); }
 /* Recorded clips of Mitchell's lines, by line id (a file in voice/). A line with no clip uses the built-in voice. */
 const CLIPS={};
 let clipAu=null;
-function say(text,id){ if(!S.sound) return false; hush();
+function say(text,id){ if(!S.sound) return false;
+  /* Stop a clip here; speak() stops the built-in voice itself, with the pause iPhones need. */
+  if(clipAu){ try{ clipAu.pause(); }catch(e){} clipAu=null; }
+  if(id&&CLIPS[id]&&VOICE.ok&&sBusy()){ try{ speechSynthesis.cancel(); }catch(e){} }
   if(id&&CLIPS[id]){ try{ const a=clipAu=new Audio(CLIPS[id]); a.onended=()=>talking(false); a.onerror=()=>{ if(clipAu===a){ clipAu=null; speak(text); } };
       talking(true); const p=a.play(); if(p&&p.catch) p.catch(()=>{ if(clipAu===a){ clipAu=null; speak(text); } }); return true; }catch(e){} }
   return speak(text); }
-function speak(text){ if(!VOICE.ok||!S.sound) return false;
-  try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text); if(VOICE.v) u.voice=VOICE.v; u.lang=(VOICE.v&&VOICE.v.lang)||"en-US"; u.pitch=1.4; u.rate=1.04;
-    u.onend=u.onerror=()=>talking(false); talking(true); speechSynthesis.speak(u); return true; }catch(e){ talking(false); return false; } }
-/* Phones only let a page talk after a tap, so the first tap anywhere wakes the voice up quietly. */
-document.addEventListener("pointerdown",()=>{ if(!VOICE.ok||VOICE.unlocked) return; VOICE.unlocked=true; try{ const u=new SpeechSynthesisUtterance(" "); u.volume=0; speechSynthesis.speak(u); }catch(e){} },{capture:true});
+let sayN=0;
+/* plain=true leaves the voice choice to the phone, in case the picked voice won't play. */
+function speak(text,plain){ if(!VOICE.ok||!S.sound) return false;
+  const ss=speechSynthesis, n=++sayN;
+  try{ const busy=sBusy(); if(busy) ss.cancel();
+    const go=()=>{ if(n!==sayN||!S.sound) return; let started=false; const u=new SpeechSynthesisUtterance(text);
+      if(VOICE.v&&!plain) u.voice=VOICE.v; u.lang=(!plain&&VOICE.v&&VOICE.v.lang)||"en-US"; u.pitch=1.4; u.rate=1.04;
+      u.onstart=()=>{ started=true; VOICE.heardAt=Date.now(); talking(true); };
+      u.onend=()=>talking(false);
+      u.onerror=e=>{ talking(false); const why=e&&e.error; if(!started&&!plain&&n===sayN&&why!=="interrupted"&&why!=="canceled") speak(text,true); };
+      talking(true); try{ ss.resume(); }catch(e){} ss.speak(u); };
+    if(busy&&IOS) setTimeout(go,150); else go(); return true; }catch(e){ talking(false); return false; } }
+/* Phones only let a page talk after a real tap. iPhones count a finished tap (touchend or click), not a finger landing,
+   so the first finished tap anywhere wakes the voice up quietly. */
+function wakeVoice(){ if(!VOICE.ok||VOICE.unlocked||sBusy()) return; VOICE.unlocked=true;
+  try{ const u=new SpeechSynthesisUtterance("quack"); u.volume=0; u.rate=2; speechSynthesis.speak(u); }catch(e){} }
+["touchend","click","keydown"].forEach(ev=>document.addEventListener(ev,wakeVoice,{capture:true}));
+/* On newer iPhones this lets a page's sound play like a video does, so a tap on Hear Mitchell is heard on more phones. */
+function playbackSound(){ try{ if(navigator.audioSession&&navigator.audioSession.type!=="playback") navigator.audioSession.type="playback"; }catch(e){} }
 const SPEAKER=`<svg width="18" height="18" viewBox="0 0 22 22" aria-hidden="true"><path d="M3 8 H7 L12 4 V18 L7 14 H3 Z" fill="#fff" stroke="#173A5E" stroke-width="2" stroke-linejoin="round"/><path d="M15 8 Q17 11 15 14 M17.5 5.5 Q21 11 17.5 16.5" fill="none" stroke="#173A5E" stroke-width="2" stroke-linecap="round"/></svg>`;
 function mitchBox(line){ return `<div class="mitchbox"><svg class="mitch" viewBox="-44 -100 92 164" aria-hidden="true"><g class="bob">${toyMitchell(true)}</g></svg>
   <div class="bubble"><b>Mitchell</b><span>${line}</span>${VOICE.ok||Object.keys(CLIPS).length?`<button type="button" class="hear" id="mHear">${SPEAKER}Hear Mitchell</button>${S.sound?"":`<small class="soundoff" id="mOff">Sound is off. Tap Hear Mitchell to turn it on.</small>`}`:""}</div></div>`; }
-function wireMitch(line,id){ const b=$("mHear"); if(b) b.addEventListener("click",()=>{ if(!S.sound){ S.sound=true; save(); renderSound(); const o=$("mOff"); if(o) o.remove(); } say(line,id); }); if(S.sound) setTimeout(()=>say(line,id),350); }
+function wireMitch(line,id){ const b=$("mHear"); if(b) b.addEventListener("click",()=>{ if(!S.sound){ S.sound=true; save(); renderSound(); const o=$("mOff"); if(o) o.remove(); }
+    playbackSound(); const at=Date.now(); say(line,id);
+    /* If no voice starts, say what to check instead of staying quiet. */
+    if(!(id&&CLIPS[id])) setTimeout(()=>{ if(!b.isConnected||(VOICE.heardAt||0)>=at||$("mQuiet")) return; talking(false);
+      b.insertAdjacentHTML("afterend",`<small class="soundoff" id="mQuiet">Can't hear Mitchell? Check that your phone isn't on silent and the volume is up, then tap again.</small>`); },2500); });
+  if(S.sound) setTimeout(()=>say(line,id),350); }
 function openHolidayQuest(hol){ const w=W.find?W.find(x=>x.id===hol.world):WORLDS.find(x=>x.id===hol.world); const q=quests(w)[0]; const line=q?q.say:hol.say, id=q?q.clip:hol.id;
   openSheet(`${mitchBox(line)}<div class="menu" style="margin-top:12px"><button type="button" class="mbtn games" id="hqGo">Go to ${w.name}</button><button type="button" class="mbtn" id="hqAll">All holiday ducks</button></div>`,`${hol.holiday} quest`);
   $("hqGo").addEventListener("click",()=>{ closeSheet(); enterWorld(hol.world); }); $("hqAll").addEventListener("click",openHoliday); wireMitch(line,id); }
