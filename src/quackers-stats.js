@@ -133,7 +133,7 @@
       await Q.ready();
       try{ return await post("/v1/ideas", { pid:pid(), kind, text:c.text }); }catch(e){ return { ok:false, msg:"Can't reach the idea box right now. Try again soon." }; } },
     async vote(id, on){ if(off()) return OFF_MSG;
-      try{ return await post("/v1/ideas/vote", { pid:pid(), id, on:on !== false }); }catch(e){ return { ok:false, msg:"Can't reach the idea box right now. Try again soon." }; } },
+      try{ return await post("/v1/ideas/vote", { pid:pid(), id:Number(id), on:on !== false }); }catch(e){ return { ok:false, msg:"Can't reach the idea box right now. Try again soon." }; } },
     async friend(){ if(off()) return OFF_MSG;
       await Q.ready();
       try{ const c = await post("/v1/friend/code", { pid:pid() }); if(!c || !c.ok) return c || { ok:false };

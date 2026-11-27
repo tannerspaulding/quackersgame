@@ -61,7 +61,7 @@ async function loadIdeas(){
   el.querySelectorAll("button.ibvote").forEach(b=>b.addEventListener("click",async()=>{
     const on=b.getAttribute("aria-pressed")!=="true"; b.disabled=true;
     const v=await QStats.vote(b.dataset.id,on); if(!b.isConnected) return; b.disabled=false;
-    if(!v||!v.ok){ blip(); return; }
+    if(!v||!v.ok){ blip(); toast((v&&v.msg)||"Can't reach the Idea Box right now. Try again soon."); return; }
     b.classList.toggle("on",!!v.voted); b.setAttribute("aria-pressed",String(!!v.voted)); b.querySelector("b").textContent=v.votes;
     b.setAttribute("aria-label",`${v.voted?"Take back your vote":"Vote for this idea"}, ${v.votes} votes`); if(v.voted) pop();
     const mv=$("ibMine")&&$("ibMine").querySelector(`[data-votes="${b.dataset.id}"]`); if(mv) mv.textContent=v.votes; }));
