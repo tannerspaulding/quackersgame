@@ -9,7 +9,7 @@
   {id:"bubble",name:"Bubble Duck",tier:"Tricky",area:"house",c:{body:"#ff9ec7",wing:"#f57ab0",beak:"#ff8a3d"},acc:"bubble",hint:"Loves bath time"}],
  areas:{
  yard:{name:"Front Yard",pos:[1,1],bg:["#8fd3ff","#56ad3f"],exits:{left:"garden",right:"pond",up:"treetop"},doors:{house:"down"},draw:F=>`
-  ${sky("#8fd3ff","#dff4ff")}${sun(262,42)}${cloud(40,74,1)}${H2("h2_cloud",206,36,.42,{noShadow:true})}${cloud(190,52,.75)}
+  ${sky("#8fd3ff","#dff4ff")}${sun(262,42)}${cloud(40,74,1)}${cloud(190,52,.75)}
   <path d="M-10 196 Q80 128 190 178 Q290 136 410 184 V300 H-10Z" fill="${LG("#b0e586","#6cc24a")}" ${O}/>
   <g ${N}><rect x="196" y="182" width="56" height="9" rx="4.5" fill="#e3edf7" ${O2}/><rect x="298" y="182" width="112" height="9" rx="4.5" fill="#e3edf7" ${O2}/>${[202,226].map(x=>`<path d="M${x} 206 V184 Q${x+8} 172 ${x+16} 184 V206 Z" fill="${LG("#ffffff","#dde8f3")}" ${O2}/>`).join("")}</g>
   ${door("treetop","Climb the tree to the Treetop",`<rect x="330" y="66" width="80" height="150" fill="transparent"/><g ${N}><rect x="372" y="120" width="18" height="90" rx="6" fill="${LG("#b5835a","#8a5a33")}" ${O}/><path d="M376 196 h10 M376 180 h10 M376 164 h10 M376 148 h10" stroke="${INK}" stroke-width="2" opacity=".55"/>${bushBall(378,104,34,"#55b33e")}${bushBall(350,128,22,"#55b33e")}</g>`)}
@@ -36,7 +36,7 @@
   <path d="M-10 170 Q200 140 410 168 V300 H-10Z" fill="${LG("#a5de7c","#5fb244")}" ${O}/>
   <g ${N}>${[[30,150],[70,140],[110,148]].map(([x,y])=>`<path d="M${x} 260 V${y+20}" stroke="#3f8a2e" stroke-width="5"/><g transform="translate(${x} ${y})">${Array.from({length:10},(_,k)=>`<ellipse cx="0" cy="-14" rx="5" ry="10" fill="${G("#ffcb2f")}" stroke="${INK}" stroke-width="1.8" transform="rotate(${k*36})"/>`).join("")}<circle r="10" fill="${G("#8a5a33")}" ${O2}/></g>`).join("")}</g>
   <path d="M-10 236 Q200 222 410 238 V310 H-10Z" fill="${LG("#97dc6e","#4fa83a")}" ${O}/>
-  ${H2("h2_sunny",276,204,.52,{noShadow:true})}<g ${N}><rect x="196" y="214" width="190" height="34" rx="10" fill="${LG("#a4673a","#7a4523")}" ${O}/>${[218,256,294,332,366].map((x,i)=>flower(x,208,["#ff6fa6","#ffffff","#ff9f43","#b48cff","#ff6fa6"][i])).join("")}</g>
+  <g ${N}><rect x="196" y="214" width="190" height="34" rx="10" fill="${LG("#a4673a","#7a4523")}" ${O}/>${[218,256,294,332,366].map((x,i)=>flower(x,208,["#ff6fa6","#ffffff","#ff9f43","#b48cff","#ff6fa6"][i])).join("")}</g>
   ${H("turkey",168,226,.8)}${place("leaf",104,206,.9)}
   <g ${N}>${bushBall(70,236,30)}${bushBall(118,230,34)}${bushBall(160,244,24)}</g>
   ${T("a3",330,278)}${act("can","Watering can",`<g transform="translate(250 268)"><path d="M-22 -18 H14 V12 Q14 18 8 18 H-16 Q-22 18 -22 12 Z" fill="${G("#6fb7ff")}" ${O}/><path d="M14 -10 L36 -26 L40 -22 L16 0" fill="${G("#6fb7ff")}" ${O2}/><path d="M-16 -18 Q-4 -34 8 -18" fill="none" ${O}/>${F.can?`<g fill="#8fd0ff" stroke="${INK}" stroke-width="1.6"><ellipse cx="44" cy="-14" rx="2.6" ry="4"/><ellipse cx="50" cy="-4" rx="2.6" ry="4"/><ellipse cx="42" cy="2" rx="2.6" ry="4"/></g>`:""}</g>`)}
@@ -47,7 +47,7 @@
   <ellipse cx="196" cy="236" rx="168" ry="50" fill="${LG("#7cc8ff","#2387d9")}" ${O}/>
   <g ${N}><path d="M90 226 q16 -6 32 0 M230 252 q16 -6 32 0 M160 270 q12 -4 24 0" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none" opacity=".7"/>
   <path d="M94 250 a16 9 0 1 1 18 6 L102 250 Z" fill="${G("#5fbf45")}" ${O2}/><path d="M270 222 a14 8 0 1 1 16 6 L278 222 Z" fill="${G("#5fbf45")}" ${O2}/></g>
-  ${H2("h2_reed",44,232,.55)}<g ${N}>${[[24,140],[38,130],[50,146]].map(([x,y])=>`<path d="M${x} 240 V${y+14}" stroke="#3f8a2e" stroke-width="4"/><rect x="${x-5}" y="${y}" width="10" height="24" rx="5" fill="${G("#8a5a33")}" ${O2}/>`).join("")}</g>
+  <g ${N}>${[[24,140],[38,130],[50,146]].map(([x,y])=>`<path d="M${x} 240 V${y+14}" stroke="#3f8a2e" stroke-width="4"/><rect x="${x-5}" y="${y}" width="10" height="24" rx="5" fill="${G("#8a5a33")}" ${O2}/>`).join("")}</g>
   <g ${N}>${rock(340,210,26,16)}</g>${place("rock",332,196,.78)}<g ${N}>${rock(312,226,22,14)}${rock(360,232,24,15)}</g>${T("a4",118,272)}
   ${door("yard","Stepping stones back to the Front Yard",`<rect x="0" y="262" width="56" height="38" fill="transparent"/><g ${N}>${[[12,290,11,4.5],[30,280,10,4],[46,292,9,4]].map(([x,y,a,b])=>`<ellipse cx="${x}" cy="${y}" rx="${a}" ry="${b}" fill="${G("#d9d3c7")}" ${O2}/>`).join("")}</g>`)}`},
  treetop:{stretchTop:false,stretchBottom:false,name:"Treetop",pos:[1,0],bg:["#a6dcff","#e9f8ff"],exits:{down:"yard"},draw:F=>`
@@ -57,7 +57,7 @@
   <g ${N}>${bushBall(340,190,26,"#5fbf45")}${bushBall(380,200,22,"#5fbf45")}</g>
   ${place("tiny",206,200,.5,{noShadow:true})}${T("a5",36,238)}
   <g ${N}><path d="M174 206 Q206 232 238 206 Q236 222 206 226 Q176 222 174 206 Z" fill="${G("#c89260")}" ${O}/><path d="M180 212 l10 4 M196 218 l12 -2 M214 216 l14 -6" stroke="${INK}" stroke-width="1.8"/></g>
-  ${act("birdhouse","Birdhouse",`<g transform="translate(96 150)"><path d="M0 -60 V-34" stroke="${INK}" stroke-width="2.4"/><path d="M-26 -14 L0 -36 L26 -14 Z" fill="${G("#ff6f61")}" ${O}/><rect x="-20" y="-16" width="40" height="38" rx="6" fill="${G("#ffe6a8")}" ${O}/><circle cx="0" cy="2" r="7" fill="#173a5e"/>${F.birdhouse?`<text x="0" y="-44" text-anchor="middle" font-family="Grandstander,sans-serif" font-weight="900" font-size="14" fill="${INK}">tweet!</text>`:""}</g>`)}${F.birdhouse?H2("h2_birdie",96,154,.24,{noShadow:true}):""}
+  ${act("birdhouse","Birdhouse",`<g transform="translate(96 150)"><path d="M0 -60 V-34" stroke="${INK}" stroke-width="2.4"/><path d="M-26 -14 L0 -36 L26 -14 Z" fill="${G("#ff6f61")}" ${O}/><rect x="-20" y="-16" width="40" height="38" rx="6" fill="${G("#ffe6a8")}" ${O}/><circle cx="0" cy="2" r="7" fill="#173a5e"/>${F.birdhouse?`<text x="0" y="-44" text-anchor="middle" font-family="Grandstander,sans-serif" font-weight="900" font-size="14" fill="${INK}">tweet!</text>`:""}</g>`)}
   ${door("yard","Rope ladder down to the Front Yard",`<rect x="282" y="226" width="40" height="74" fill="transparent"/><g ${N}><path d="M290 232 Q288 266 292 300 M314 230 Q316 266 312 300" stroke="#c89260" stroke-width="4" fill="none" stroke-linecap="round"/>${[246,262,278,294].map(y=>`<path d="M290 ${y} H314" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><path d="M290 ${y} H314" stroke="#e0b07a" stroke-width="3" stroke-linecap="round"/>`).join("")}</g>`)}`},
  house:{name:"Inside the House",pos:[1,2],bg:["#fff1d2","#ac6d3e"],exits:{up:"yard"},doors:{yard:"up"},draw:F=>`
   <rect width="400" height="300" fill="${LG("#fff1d2","#ffd99a")}"/>
@@ -66,7 +66,7 @@
   <g ${N}>${[0,1,2,3,4,5,6,7].map(i=>`<path d="M${i*56-10} 226 L${i*56-40} 300" stroke="#9a5e32" stroke-opacity=".5" stroke-width="2"/>`).join("")}</g>
   <g ${N}><rect x="148" y="52" width="76" height="60" rx="8" fill="${LG("#bfe8ff","#8fd0ff")}" ${O}/><path d="M186 52 V112 M148 82 H224" stroke="#fff" stroke-width="5"/><rect x="142" y="110" width="88" height="8" rx="4" fill="${G("#c89260")}" ${O2}/>
   <path d="M144 50 Q150 90 140 118 L154 118 Q160 86 156 50 Z M228 50 Q222 90 232 118 L218 118 Q212 86 216 50 Z" fill="${G("#ff6fa6")}" ${O2}/>
-  <rect x="268" y="56" width="44" height="36" rx="5" fill="${G("#ffffff")}" ${O}/><path d="M274 86 L286 70 L296 80 L302 74 L308 86 Z" fill="${G("#7fd04e")}" ${O2}/><circle cx="300" cy="66" r="4" fill="${G("#ffe066")}" ${O2}/></g>${H2("h2_picture",292,80,.3,{noShadow:true})}
+  <rect x="268" y="56" width="44" height="36" rx="5" fill="${G("#ffffff")}" ${O}/><path d="M274 86 L286 70 L296 80 L302 74 L308 86 Z" fill="${G("#7fd04e")}" ${O2}/><circle cx="300" cy="66" r="4" fill="${G("#ffe066")}" ${O2}/></g>
   ${door("yard","Front door back out to the yard",`<rect x="20" y="116" width="58" height="112" rx="16" fill="${LG("#8a62c4","#5a3a8a")}" ${O}/><circle cx="66" cy="176" r="4.4" fill="${G("#ffcb2f")}" stroke="${INK}" stroke-width="2"/><rect x="30" y="128" width="38" height="30" rx="8" fill="${LG("#d8f2ff","#8fd0ff")}" ${O2}/>`)}
   ${tagAt(49,108,"OUTSIDE")}
   <g ${N}><rect x="296" y="230" width="12" height="20" rx="4" fill="${G("#b7c3d4")}" ${O2}/><rect x="356" y="230" width="12" height="20" rx="4" fill="${G("#b7c3d4")}" ${O2}/>

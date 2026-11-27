@@ -524,14 +524,6 @@ body.onhome .topbar h1{display:flex;justify-content:center;overflow:visible}
 body.onhome .topbar h1 .logo svg.qmark{width:46px;height:41px;margin:0 -10px -4px 0}
 body.onhome .topbar h1 .logo b{font-size:1.75rem;-webkit-text-stroke:2.2px var(--ink)}
 body.onhome .home{padding:76px 0 112px;padding:calc(76px + env(safe-area-inset-top,0px)) 0 calc(112px + env(safe-area-inset-bottom,0px))}
-/* The second hunt */
-.wtile .thumb .tag.hunttag{background:#8e6ad8;font-size:.66rem;padding:0 8px}
-.wtile .thumb .tag.complete+.tag.hunttag{left:36px}
-.wtile .thumb .tag.hunttag.done{background:var(--lily);color:var(--ink)}
-.badge.hunt2{background:#E2D8FF}
-.badge .h2tag{font-style:normal;background:#8e6ad8;color:#fff;border:2px solid var(--ink);border-radius:999px;font-size:.62rem;line-height:1;padding:2px 5px;margin:0 2px 0 -8px;align-self:flex-start}
-.h2head{font-family:var(--display);font-weight:900;font-size:1.05rem;margin:16px 0 8px;color:var(--ink)}
-.note.h2note{margin-top:14px}
 
 /* Idea Box, friend link, privacy */
 .extras{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
@@ -1318,23 +1310,6 @@ function toyUnicorn(done){
 }
 toyUnicorn=soften(toyUnicorn);
 
-/* ---------- Second hunt ---------- */
-/* Once every duck in a world is in the Duck Log, a second hunt opens there: new ducks hide in the same places.
-   They have their own log in that world and don't change the main duck count. */
-const HUNTS={
- yard:[
-  {id:"h2_cloud",name:"Cloud Duck",tier:"Tricky",area:"yard",c:{body:"#ffffff",wing:"#d6ecff",beak:"#ffb347"},hint:"Head in the clouds"},
-  {id:"h2_sunny",name:"Sunny Duck",tier:"Sneaky",area:"garden",c:{body:"#ffb52e",wing:"#f08c00",beak:"#ff6f3d"},acc:"shades",hint:"Sunbathing in the flowers"},
-  {id:"h2_reed",name:"Reed Duck",tier:"Easy",area:"pond",c:{body:"#c89260",wing:"#a06a40",beak:"#ffcb2f"},hint:"Tall grass by the water"},
-  {id:"h2_birdie",name:"Birdhouse Duck",tier:"Tricky",area:"treetop",c:{body:"#8fd0ff",wing:"#5aa8e6",beak:"#ff8a3d"},hint:"Knock knock, who's home?"},
-  {id:"h2_picture",name:"Picture Duck",tier:"Rare",area:"house",c:{body:"#b48cff",wing:"#8e6ad8",beak:"#ffcb2f"},acc:"bow",hint:"Hanging on the wall"}],
- manor:[
-  {id:"h2_chimney",name:"Chimney Duck",tier:"Tricky",area:"gate",c:{body:"#6a6a78",wing:"#4a4a56",beak:"#ff8a3d"},hint:"Up on the roof"},
-  {id:"h2_clock",name:"Clock Duck",tier:"Sneaky",area:"hall",c:{body:"#c8963a",wing:"#a07024",beak:"#ff8a3d"},acc:"bowtie",hint:"Tick tock"},
-  {id:"h2_bookworm",name:"Bookworm Duck",tier:"Sneaky",area:"library",c:{body:"#3fb86a",wing:"#2e8f50",beak:"#ffcb2f"},acc:"specs",hint:"A comfy reading spot"},
-  {id:"h2_cupboard",name:"Cupboard Duck",tier:"Tricky",area:"kitchen",c:{body:"#ffe6a8",wing:"#f2c66a",beak:"#ff8a3d"},hint:"Peeking past the cupboard"},
-  {id:"h2_dusty",name:"Dusty Duck",tier:"Rare",area:"attic",c:{body:"#bdb6a8",wing:"#9a9385",beak:"#d9a06a"},acc:"web",hint:"Behind the old trunk"}]};
-
 /* ---------- Scene helpers ---------- */
 const tagAt=(x,y,t,c="#ffffff")=>`<text x="${x}" y="${y}" text-anchor="middle" font-family="Grandstander,sans-serif" font-weight="900" font-size="${t.length>12?14:12}" letter-spacing=".5" fill="${c}"${c==="#ffffff"?` stroke="${INK}" stroke-width="3" paint-order="stroke"`:""} ${N}>${t}</text>`;
 function seeded(n){ let s=n*9301+49297; return ()=>((s=(s*9301+49297)%233280)/233280); }
@@ -1375,7 +1350,7 @@ let delay=0, THUMB=false;
 const shadow=(rx=22)=>`<ellipse class="shadow" cx="0" cy="26" rx="${rx}" ry="4.5" fill="#173a5e" opacity=".2"/>`;
 function place(id,x,y,s,o={}){
   if(S.found.has(id)&&!THUMB) return "";
-  const d=DUCK[id]||HDUCK[id]; if(!d) return ""; delay=(delay+0.47)%2.6;
+  const d=DUCK[id]; if(!d) return ""; delay=(delay+0.47)%2.6;
   const art=d.art?d.art():toyDuck(d.c,d.acc);
   return `<g class="duck" data-duck="${id}" tabindex="0" role="button" aria-label="Something hiding" transform="translate(${x} ${y}) scale(${o.flip?-s:s} ${o.upside?-s:s})"${d.opacity?` opacity="${d.opacity}"`:""}>
     <circle cx="2" cy="-4" r="34" fill="transparent"/>${o.noShadow?"":shadow()}<g class="bob" style="animation-delay:-${delay.toFixed(2)}s">${art}</g></g>`;
@@ -1422,7 +1397,7 @@ const WORLDS=[{id:"yard",n:1,name:"The Backyard",start:"yard",
   {id:"bubble",name:"Bubble Duck",tier:"Tricky",area:"house",c:{body:"#ff9ec7",wing:"#f57ab0",beak:"#ff8a3d"},acc:"bubble",hint:"Loves bath time"}],
  areas:{
  yard:{name:"Front Yard",pos:[1,1],bg:["#8fd3ff","#56ad3f"],exits:{left:"garden",right:"pond",up:"treetop"},doors:{house:"down"},draw:F=>`
-  ${sky("#8fd3ff","#dff4ff")}${sun(262,42)}${cloud(40,74,1)}${H2("h2_cloud",206,36,.42,{noShadow:true})}${cloud(190,52,.75)}
+  ${sky("#8fd3ff","#dff4ff")}${sun(262,42)}${cloud(40,74,1)}${cloud(190,52,.75)}
   <path d="M-10 196 Q80 128 190 178 Q290 136 410 184 V300 H-10Z" fill="${LG("#b0e586","#6cc24a")}" ${O}/>
   <g ${N}><rect x="196" y="182" width="56" height="9" rx="4.5" fill="#e3edf7" ${O2}/><rect x="298" y="182" width="112" height="9" rx="4.5" fill="#e3edf7" ${O2}/>${[202,226].map(x=>`<path d="M${x} 206 V184 Q${x+8} 172 ${x+16} 184 V206 Z" fill="${LG("#ffffff","#dde8f3")}" ${O2}/>`).join("")}</g>
   ${door("treetop","Climb the tree to the Treetop",`<rect x="330" y="66" width="80" height="150" fill="transparent"/><g ${N}><rect x="372" y="120" width="18" height="90" rx="6" fill="${LG("#b5835a","#8a5a33")}" ${O}/><path d="M376 196 h10 M376 180 h10 M376 164 h10 M376 148 h10" stroke="${INK}" stroke-width="2" opacity=".55"/>${bushBall(378,104,34,"#55b33e")}${bushBall(350,128,22,"#55b33e")}</g>`)}
@@ -1449,7 +1424,7 @@ const WORLDS=[{id:"yard",n:1,name:"The Backyard",start:"yard",
   <path d="M-10 170 Q200 140 410 168 V300 H-10Z" fill="${LG("#a5de7c","#5fb244")}" ${O}/>
   <g ${N}>${[[30,150],[70,140],[110,148]].map(([x,y])=>`<path d="M${x} 260 V${y+20}" stroke="#3f8a2e" stroke-width="5"/><g transform="translate(${x} ${y})">${Array.from({length:10},(_,k)=>`<ellipse cx="0" cy="-14" rx="5" ry="10" fill="${G("#ffcb2f")}" stroke="${INK}" stroke-width="1.8" transform="rotate(${k*36})"/>`).join("")}<circle r="10" fill="${G("#8a5a33")}" ${O2}/></g>`).join("")}</g>
   <path d="M-10 236 Q200 222 410 238 V310 H-10Z" fill="${LG("#97dc6e","#4fa83a")}" ${O}/>
-  ${H2("h2_sunny",276,204,.52,{noShadow:true})}<g ${N}><rect x="196" y="214" width="190" height="34" rx="10" fill="${LG("#a4673a","#7a4523")}" ${O}/>${[218,256,294,332,366].map((x,i)=>flower(x,208,["#ff6fa6","#ffffff","#ff9f43","#b48cff","#ff6fa6"][i])).join("")}</g>
+  <g ${N}><rect x="196" y="214" width="190" height="34" rx="10" fill="${LG("#a4673a","#7a4523")}" ${O}/>${[218,256,294,332,366].map((x,i)=>flower(x,208,["#ff6fa6","#ffffff","#ff9f43","#b48cff","#ff6fa6"][i])).join("")}</g>
   ${H("turkey",168,226,.8)}${place("leaf",104,206,.9)}
   <g ${N}>${bushBall(70,236,30)}${bushBall(118,230,34)}${bushBall(160,244,24)}</g>
   ${T("a3",330,278)}${act("can","Watering can",`<g transform="translate(250 268)"><path d="M-22 -18 H14 V12 Q14 18 8 18 H-16 Q-22 18 -22 12 Z" fill="${G("#6fb7ff")}" ${O}/><path d="M14 -10 L36 -26 L40 -22 L16 0" fill="${G("#6fb7ff")}" ${O2}/><path d="M-16 -18 Q-4 -34 8 -18" fill="none" ${O}/>${F.can?`<g fill="#8fd0ff" stroke="${INK}" stroke-width="1.6"><ellipse cx="44" cy="-14" rx="2.6" ry="4"/><ellipse cx="50" cy="-4" rx="2.6" ry="4"/><ellipse cx="42" cy="2" rx="2.6" ry="4"/></g>`:""}</g>`)}
@@ -1460,7 +1435,7 @@ const WORLDS=[{id:"yard",n:1,name:"The Backyard",start:"yard",
   <ellipse cx="196" cy="236" rx="168" ry="50" fill="${LG("#7cc8ff","#2387d9")}" ${O}/>
   <g ${N}><path d="M90 226 q16 -6 32 0 M230 252 q16 -6 32 0 M160 270 q12 -4 24 0" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none" opacity=".7"/>
   <path d="M94 250 a16 9 0 1 1 18 6 L102 250 Z" fill="${G("#5fbf45")}" ${O2}/><path d="M270 222 a14 8 0 1 1 16 6 L278 222 Z" fill="${G("#5fbf45")}" ${O2}/></g>
-  ${H2("h2_reed",44,232,.55)}<g ${N}>${[[24,140],[38,130],[50,146]].map(([x,y])=>`<path d="M${x} 240 V${y+14}" stroke="#3f8a2e" stroke-width="4"/><rect x="${x-5}" y="${y}" width="10" height="24" rx="5" fill="${G("#8a5a33")}" ${O2}/>`).join("")}</g>
+  <g ${N}>${[[24,140],[38,130],[50,146]].map(([x,y])=>`<path d="M${x} 240 V${y+14}" stroke="#3f8a2e" stroke-width="4"/><rect x="${x-5}" y="${y}" width="10" height="24" rx="5" fill="${G("#8a5a33")}" ${O2}/>`).join("")}</g>
   <g ${N}>${rock(340,210,26,16)}</g>${place("rock",332,196,.78)}<g ${N}>${rock(312,226,22,14)}${rock(360,232,24,15)}</g>${T("a4",118,272)}
   ${door("yard","Stepping stones back to the Front Yard",`<rect x="0" y="262" width="56" height="38" fill="transparent"/><g ${N}>${[[12,290,11,4.5],[30,280,10,4],[46,292,9,4]].map(([x,y,a,b])=>`<ellipse cx="${x}" cy="${y}" rx="${a}" ry="${b}" fill="${G("#d9d3c7")}" ${O2}/>`).join("")}</g>`)}`},
  treetop:{stretchTop:false,stretchBottom:false,name:"Treetop",pos:[1,0],bg:["#a6dcff","#e9f8ff"],exits:{down:"yard"},draw:F=>`
@@ -1470,7 +1445,7 @@ const WORLDS=[{id:"yard",n:1,name:"The Backyard",start:"yard",
   <g ${N}>${bushBall(340,190,26,"#5fbf45")}${bushBall(380,200,22,"#5fbf45")}</g>
   ${place("tiny",206,200,.5,{noShadow:true})}${T("a5",36,238)}
   <g ${N}><path d="M174 206 Q206 232 238 206 Q236 222 206 226 Q176 222 174 206 Z" fill="${G("#c89260")}" ${O}/><path d="M180 212 l10 4 M196 218 l12 -2 M214 216 l14 -6" stroke="${INK}" stroke-width="1.8"/></g>
-  ${act("birdhouse","Birdhouse",`<g transform="translate(96 150)"><path d="M0 -60 V-34" stroke="${INK}" stroke-width="2.4"/><path d="M-26 -14 L0 -36 L26 -14 Z" fill="${G("#ff6f61")}" ${O}/><rect x="-20" y="-16" width="40" height="38" rx="6" fill="${G("#ffe6a8")}" ${O}/><circle cx="0" cy="2" r="7" fill="#173a5e"/>${F.birdhouse?`<text x="0" y="-44" text-anchor="middle" font-family="Grandstander,sans-serif" font-weight="900" font-size="14" fill="${INK}">tweet!</text>`:""}</g>`)}${F.birdhouse?H2("h2_birdie",96,154,.24,{noShadow:true}):""}
+  ${act("birdhouse","Birdhouse",`<g transform="translate(96 150)"><path d="M0 -60 V-34" stroke="${INK}" stroke-width="2.4"/><path d="M-26 -14 L0 -36 L26 -14 Z" fill="${G("#ff6f61")}" ${O}/><rect x="-20" y="-16" width="40" height="38" rx="6" fill="${G("#ffe6a8")}" ${O}/><circle cx="0" cy="2" r="7" fill="#173a5e"/>${F.birdhouse?`<text x="0" y="-44" text-anchor="middle" font-family="Grandstander,sans-serif" font-weight="900" font-size="14" fill="${INK}">tweet!</text>`:""}</g>`)}
   ${door("yard","Rope ladder down to the Front Yard",`<rect x="282" y="226" width="40" height="74" fill="transparent"/><g ${N}><path d="M290 232 Q288 266 292 300 M314 230 Q316 266 312 300" stroke="#c89260" stroke-width="4" fill="none" stroke-linecap="round"/>${[246,262,278,294].map(y=>`<path d="M290 ${y} H314" stroke="${INK}" stroke-width="5" stroke-linecap="round"/><path d="M290 ${y} H314" stroke="#e0b07a" stroke-width="3" stroke-linecap="round"/>`).join("")}</g>`)}`},
  house:{name:"Inside the House",pos:[1,2],bg:["#fff1d2","#ac6d3e"],exits:{up:"yard"},doors:{yard:"up"},draw:F=>`
   <rect width="400" height="300" fill="${LG("#fff1d2","#ffd99a")}"/>
@@ -1479,7 +1454,7 @@ const WORLDS=[{id:"yard",n:1,name:"The Backyard",start:"yard",
   <g ${N}>${[0,1,2,3,4,5,6,7].map(i=>`<path d="M${i*56-10} 226 L${i*56-40} 300" stroke="#9a5e32" stroke-opacity=".5" stroke-width="2"/>`).join("")}</g>
   <g ${N}><rect x="148" y="52" width="76" height="60" rx="8" fill="${LG("#bfe8ff","#8fd0ff")}" ${O}/><path d="M186 52 V112 M148 82 H224" stroke="#fff" stroke-width="5"/><rect x="142" y="110" width="88" height="8" rx="4" fill="${G("#c89260")}" ${O2}/>
   <path d="M144 50 Q150 90 140 118 L154 118 Q160 86 156 50 Z M228 50 Q222 90 232 118 L218 118 Q212 86 216 50 Z" fill="${G("#ff6fa6")}" ${O2}/>
-  <rect x="268" y="56" width="44" height="36" rx="5" fill="${G("#ffffff")}" ${O}/><path d="M274 86 L286 70 L296 80 L302 74 L308 86 Z" fill="${G("#7fd04e")}" ${O2}/><circle cx="300" cy="66" r="4" fill="${G("#ffe066")}" ${O2}/></g>${H2("h2_picture",292,80,.3,{noShadow:true})}
+  <rect x="268" y="56" width="44" height="36" rx="5" fill="${G("#ffffff")}" ${O}/><path d="M274 86 L286 70 L296 80 L302 74 L308 86 Z" fill="${G("#7fd04e")}" ${O2}/><circle cx="300" cy="66" r="4" fill="${G("#ffe066")}" ${O2}/></g>
   ${door("yard","Front door back out to the yard",`<rect x="20" y="116" width="58" height="112" rx="16" fill="${LG("#8a62c4","#5a3a8a")}" ${O}/><circle cx="66" cy="176" r="4.4" fill="${G("#ffcb2f")}" stroke="${INK}" stroke-width="2"/><rect x="30" y="128" width="38" height="30" rx="8" fill="${LG("#d8f2ff","#8fd0ff")}" ${O2}/>`)}
   ${tagAt(49,108,"OUTSIDE")}
   <g ${N}><rect x="296" y="230" width="12" height="20" rx="4" fill="${G("#b7c3d4")}" ${O2}/><rect x="356" y="230" width="12" height="20" rx="4" fill="${G("#b7c3d4")}" ${O2}/>
@@ -1506,7 +1481,7 @@ const WORLDS=[{id:"yard",n:1,name:"The Backyard",start:"yard",
   ${sky("#211a42","#5a4690")}${stars(34)}
   <g ${N}><circle cx="332" cy="52" r="26" fill="${G("#fff6c9")}" ${O}/><circle cx="322" cy="46" r="5" fill="#ece3b0"/><circle cx="340" cy="62" r="3.4" fill="#ece3b0"/></g>
   <path d="M-10 214 Q120 196 200 206 Q300 196 410 214 V310 H-10 Z" fill="${LG("#3f5a32","#24361c")}" ${O} ${N}/>
-  ${H2("h2_chimney",270,14,.32,{noShadow:true})}<g ${N}><path d="M104 76 L200 22 L296 76 Z" fill="${LG("#4a3a6a","#2b2045")}" ${O}/>
+  <g ${N}><path d="M104 76 L200 22 L296 76 Z" fill="${LG("#4a3a6a","#2b2045")}" ${O}/>
   <rect x="116" y="72" width="168" height="140" rx="6" fill="${LG("#6a5a94","#463a6a")}" ${O}/>
   <path d="M262 40 V18 H278 V50" fill="${G("#463a6a")}" ${O2}/>
   ${[[138,92,1],[240,92,0],[138,146,0],[240,146,1]].map(([x,y,l])=>`<rect x="${x}" y="${y}" width="24" height="30" rx="7" fill="${l?LG("#fff3a0","#ffcb2f"):LG("#3a2f5a","#241c3c")}" ${O2}/><path d="M${x+12} ${y} V${y+30}" stroke="${INK}" stroke-opacity=".35" stroke-width="2"/>`).join("")}</g>
@@ -1529,7 +1504,7 @@ const WORLDS=[{id:"yard",n:1,name:"The Backyard",start:"yard",
   ${tagAt(111,128,"OUTSIDE")}
   ${door("basement","Stairs down to the basement",`<path d="M168 300 L178 238 L222 238 L232 300 Z" fill="${LG("#2a1f3a","#120c1c")}" ${O}/><path d="M178 252 h44 M175 268 h50 M172 284 h56" stroke="#4a3a5a" stroke-width="3"/>`)}
   ${tagAt(200,230,"STAIRS")}
-  ${H2("h2_clock",338,150,.55,{noShadow:true})}<g ${N}><rect x="296" y="96" width="40" height="134" rx="8" fill="${LG("#6a4024","#3a2414")}" ${O}/><circle cx="316" cy="126" r="14" fill="${G("#f3e6c4")}" ${O2}/>
+  <g ${N}><rect x="296" y="96" width="40" height="134" rx="8" fill="${LG("#6a4024","#3a2414")}" ${O}/><circle cx="316" cy="126" r="14" fill="${G("#f3e6c4")}" ${O2}/>
   <path d="M316 126 V116 M316 126 L323 130" stroke="${INK}" stroke-width="2" stroke-linecap="round"/><rect x="308" y="152" width="16" height="56" rx="6" fill="${LG("#2a190c","#1a0f06")}" ${O2}/><circle cx="316" cy="196" r="5" fill="${G("#ffcb2f")}" ${O2}/></g>
   ${place("ghost",254,206,.82)}
   <g ${N}><rect x="20" y="232" width="56" height="10" rx="5" fill="#8a3a4a" opacity=".6"/><rect x="350" y="150" width="8" height="80" rx="3" fill="${G("#c8963a")}" ${O2}/><path d="M354 150 Q344 134 354 122 Q364 134 354 150" fill="${G("#ffe066")}" ${O2}/></g>`},
@@ -1539,7 +1514,7 @@ const WORLDS=[{id:"yard",n:1,name:"The Backyard",start:"yard",
   ${books(38,64,68,348)}${books(124,64,68,348,[220,270])}${books(210,64,68,348)}
   <g ${N}>${[104,190,276].map(y=>`<rect x="58" y="${y}" width="300" height="10" rx="4" fill="${G("#a06a40")}" ${O2}/>`).join("")}</g>
   ${place("book",246,176,.56)}
-  ${H2("h2_bookworm",364,228,.55,{noShadow:true})}<g ${N}><rect x="14" y="36" width="7" height="252" rx="3" fill="${G("#a06a40")}" ${O2}/><rect x="40" y="36" width="7" height="252" rx="3" fill="${G("#a06a40")}" ${O2}/>${[66,106,146,186,226,266].map(y=>`<rect x="14" y="${y}" width="33" height="6" rx="3" fill="${G("#c8925a")}" ${O2}/>`).join("")}
+  <g ${N}><rect x="14" y="36" width="7" height="252" rx="3" fill="${G("#a06a40")}" ${O2}/><rect x="40" y="36" width="7" height="252" rx="3" fill="${G("#a06a40")}" ${O2}/>${[66,106,146,186,226,266].map(y=>`<rect x="14" y="${y}" width="33" height="6" rx="3" fill="${G("#c8925a")}" ${O2}/>`).join("")}
   <rect x="332" y="230" width="60" height="60" rx="16" fill="${G("#8a3a4a")}" ${O}/><rect x="326" y="252" width="72" height="36" rx="12" fill="${G("#a04a5a")}" ${O}/></g>`},
  kitchen:{name:"Kitchen",pos:[2,1],bg:["#6a5880","#4e311e"],exits:{left:"hall"},draw:F=>`
   <rect width="400" height="300" fill="${LG("#6a5880","#4e3e62")}"/>
@@ -1552,7 +1527,7 @@ const WORLDS=[{id:"yard",n:1,name:"The Backyard",start:"yard",
   ${F.lid?`<g ${N} opacity=".6"><path d="M220 110 q-6 -10 0 -20 q6 -10 0 -20" stroke="#fff" stroke-width="3" fill="none"/><path d="M256 110 q-6 -10 0 -20 q6 -10 0 -20" stroke="#fff" stroke-width="3" fill="none"/></g>
    <g ${N}><ellipse cx="338" cy="184" rx="30" ry="7" fill="${G("#8a8a96")}" ${O}/><rect x="332" y="172" width="12" height="8" rx="3" fill="${G("#b7c3d4")}" ${O2}/></g>`
    :act("lid","Pot lid",`<ellipse cx="238" cy="120" rx="40" ry="8" fill="${G("#8a8a96")}" ${O}/><rect x="231" y="106" width="14" height="9" rx="3" fill="${G("#b7c3d4")}" ${O2}/>`)}
-  ${H2("h2_cupboard",104,118,.5,{noShadow:true})}<g ${N}><rect x="36" y="112" width="68" height="80" rx="8" fill="${LG("#5a3a24","#3a2414")}" ${O}/><circle cx="70" cy="132" r="9" fill="${G("#e8d7b0")}" ${O2}/><path d="M48 160 h44 M48 174 h44" stroke="#2a190c" stroke-width="3"/>
+  <g ${N}><rect x="36" y="112" width="68" height="80" rx="8" fill="${LG("#5a3a24","#3a2414")}" ${O}/><circle cx="70" cy="132" r="9" fill="${G("#e8d7b0")}" ${O2}/><path d="M48 160 h44 M48 174 h44" stroke="#2a190c" stroke-width="3"/>
   <path d="M400 0 L344 0 Q372 18 400 60 Z" fill="none" stroke="#e8e8f0" stroke-opacity=".5" stroke-width="1.4"/><path d="M400 0 L364 40 M400 0 L380 52 M400 0 L352 22" stroke="#e8e8f0" stroke-opacity=".5" stroke-width="1.2"/></g>`},
  attic:{stretchTop:false,name:"Attic",pos:[1,0],bg:["#3a2c48","#3d2a1a"],exits:{down:"hall"},draw:F=>`
   <rect width="400" height="300" fill="${LG("#3a2c48","#241a30")}"/>
@@ -1561,7 +1536,7 @@ const WORLDS=[{id:"yard",n:1,name:"The Backyard",start:"yard",
   <g ${N}>${[150,214,350].map((x,i)=>`<g transform="translate(${x} 54) scale(${i===1?.9:1})"><path d="M0 0 V8" stroke="${INK}" stroke-opacity=".4" stroke-width="1.6"/><path d="M0 8 q-12 6 -18 0 q4 12 18 10 q14 2 18 -10 q-6 6 -18 0z" fill="${G("#3a2a55")}" ${O2}/><ellipse cx="0" cy="14" rx="6" ry="9" fill="${G("#3a2a55")}" ${O2}/></g>`).join("")}</g>
   ${place("bat",290,90,.6,{upside:true,noShadow:true})}
   <rect y="228" width="400" height="80" fill="${LG("#5a3e2a","#3a2818")}" ${O} ${N}/>
-  ${H2("h2_dusty",344,166,.6,{noShadow:true})}<g ${N}><rect x="30" y="184" width="70" height="50" rx="6" fill="${G("#c8925a")}" ${O}/><path d="M30 200 H100" stroke="${INK}" stroke-opacity=".35" stroke-width="2"/><rect x="86" y="198" width="50" height="36" rx="6" fill="${G("#b07a48")}" ${O}/>
+  <g ${N}><rect x="30" y="184" width="70" height="50" rx="6" fill="${G("#c8925a")}" ${O}/><path d="M30 200 H100" stroke="${INK}" stroke-opacity=".35" stroke-width="2"/><rect x="86" y="198" width="50" height="36" rx="6" fill="${G("#b07a48")}" ${O}/>
   <rect x="282" y="170" width="84" height="64" rx="8" fill="${G("#8a5a3a")}" ${O}/><path d="M282 186 H366" stroke="${G("#ffcb2f")}" stroke-width="4"/>
   <path d="M190 234 L200 170 L214 170 L224 234" fill="none" stroke="#dcdce6" stroke-opacity=".6" stroke-width="3"/><ellipse cx="207" cy="166" rx="16" ry="10" fill="#e6e6ef" opacity=".6"/></g>`},
  basement:{name:"Basement",pos:[2,2],bg:["#07070d","#07070d"],exits:{up:"hall"},doors:{hall:"up"},draw:F=>{
@@ -2124,8 +2099,6 @@ function WORLDS_REF(id){ return WORLDS.concat(SOON).find(w=>w.id===id); }
 const W=Object.fromEntries(WORLDS.map(w=>[w.id,w]));
 const DUCK={}; WORLDS.concat(SOON).forEach(w=>(w.ducks||[]).forEach(d=>{d.world=w.id; DUCK[d.id]=d;}));
 HOL.forEach(h=>{ DUCK[h.id]=h; });
-/* Second-hunt ducks live in their own list (HUNTS), so the main duck count, the Duck Dex and Top Ducks stay the same. */
-const HDUCK={}; Object.entries(HUNTS).forEach(([wid,l])=>l.forEach(d=>{ d.world=wid; d.hunt=true; HDUCK[d.id]=d; }));
 const TOGGLE=new Set(["mail","can","birdhouse"]);
 
 /* ---------- UI helpers ---------- */
@@ -2139,12 +2112,6 @@ const wFound=w=>wDucks(w).filter(d=>S.found.has(d.id)).length;
 const allDucks=()=>WORLDS.reduce((n,w)=>n+wTotal(w),0);
 /* The next world opens at two thirds of a world's ducks, not all of them. */
 const needFor=w=>Math.ceil(wTotal(w)*2/3);
-/* Second hunt: once every duck in a world is found, new ducks hide in the same places. */
-const hDucks=w=>HUNTS[w.id]||[];
-const hFound=w=>hDucks(w).filter(d=>S.found.has(d.id)).length;
-const huntOpen=w=>hDucks(w).length>0&&wFound(w)>=wTotal(w);
-const huntDone=w=>huntOpen(w)&&hFound(w)>=hDucks(w).length;
-function H2(id,x,y,s,o){ const d=HDUCK[id]; if(THUMB||!d||!huntOpen(W[d.world])) return ""; return place(id,x,y,s,o); }
 /* Open every world whose earlier world has enough ducks, so progress saved before a new world was added (or under the old finish-everything rule) still opens it. */
 function syncUnlock(){ let u=Math.max(1,S.unlocked|0); for(const w of WORLDS){ const next=WORLDS[w.n]; if(next&&w.n<=u&&wFound(w)>=needFor(w)) u=Math.max(u,next.n); } u=Math.min(u,WORLDS.length); if(u!==S.unlocked){ S.unlocked=u; save(); } }
 syncUnlock();
@@ -2208,9 +2175,9 @@ function goHome(){
   const nxt=homeNext();
   const [specGot,specAll]=specCount();
   const pic=w=>sv("0 0 400 300",thumbOf(w),'preserveAspectRatio="xMidYMid slice" style="pointer-events:none"');
-  const tile=w=>{ const f=wFound(w), t=wTotal(w), open=w.n<=S.unlocked, prev=WORLDS[w.n-2], done=open&&f>=t, isNext=w===nxt, hunt=open&&huntOpen(w), hdone=open&&huntDone(w);
-    return `<button type="button" class="wcard wtile${open?"":" locked"}${done?" finished":""}${isNext?" next":""}" data-world="${w.id}" aria-label="${w.name}${open?`, ${f} of ${t} ducks found${hunt?`, second hunt ${hFound(w)} of ${hDucks(w).length}`:""}`:", locked"}">
-      <span class="thumb">${pic(w)}${isNext?`<span class="tag nexttag">${PLAYTRI}${f?"Keep going":"Play next"}</span>`:hdone?`<span class="tag complete">${CHECK}</span><span class="tag hunttag done">Hunt 2</span>`:hunt?`<span class="tag hunttag">Second hunt ${hFound(w)}/${hDucks(w).length}</span>`:done?`<span class="tag complete">${CHECK}</span>`:""}${open?"":`<span class="lockover" aria-hidden="true">${lockSvg.replace('width="16" height="16"','width="40" height="40"')}</span>`}</span>
+  const tile=w=>{ const f=wFound(w), t=wTotal(w), open=w.n<=S.unlocked, prev=WORLDS[w.n-2], done=open&&f>=t, isNext=w===nxt;
+    return `<button type="button" class="wcard wtile${open?"":" locked"}${done?" finished":""}${isNext?" next":""}" data-world="${w.id}" aria-label="${w.name}${open?`, ${f} of ${t} ducks found`:", locked"}">
+      <span class="thumb">${pic(w)}${isNext?`<span class="tag nexttag">${PLAYTRI}${f?"Keep going":"Play next"}</span>`:done?`<span class="tag complete">${CHECK}</span>`:""}${open?"":`<span class="lockover" aria-hidden="true">${lockSvg.replace('width="16" height="16"','width="40" height="40"')}</span>`}</span>
       <span class="meta"><b>${w.name}</b>${open?`<span class="prog"><span class="bar2"><i style="width:${t?f/t*100:0}%"></i></span><small>${f}/${t}</small></span>`:`<small>Find ${needFor(prev)} ducks in ${prev.name}</small>`}</span></button>`; };
   const soonTile=w=>`<button type="button" class="wcard wtile off" data-soon="${w.id}" aria-label="${w.name}, coming soon"><span class="thumb">${pic(w)}<span class="tag">Soon</span></span><span class="meta"><b>${w.name}</b><small>Coming soon</small></span></button>`;
   $("scrHome").innerHTML=`
@@ -2269,7 +2236,6 @@ function askReset(){ const b=$("hReset");
 function homeToast(b,msg){ const s=b.querySelector("small"); if(s){ const old=s.dataset.old||s.textContent; s.dataset.old=old; s.textContent=msg; clearTimeout(s._t); s._t=setTimeout(()=>{s.textContent=old;},1900);} }
 function thumbOf(w){ THUMB=true; const svg=w.areas[w.start].draw({}).replace(/class="(duck|act|door|token)"/g,'class="x-$1"').replace(/tabindex="0" role="button"/g,""); THUMB=false; return svg; }
 
-const huntToldIn=new Set();
 function enterWorld(id){
   const w=W[id]; S.world=id; setScreen("world"); lockW=0; $("title").textContent=w.name;
   stage.querySelectorAll(".layer").forEach(l=>l.remove());
@@ -2277,7 +2243,6 @@ function enterWorld(id){
   show(start);
   if(!S.seen.has(id)){ S.seen.add(id); intro(w); }
   questIntro(w);
-  if(huntOpen(w)&&!huntDone(w)&&!huntToldIn.has(id)){ huntToldIn.add(id); setTimeout(()=>{ if(S.world===id&&S.screen==="world") toast(`Second hunt! ${hDucks(w).length-hFound(w)} new ducks are hiding in ${w.name}.`,3200); },2900); }
   const h=holHere();
   if(holLive(h)&&tokGot(h)===0) setTimeout(()=>{ if(S.world===id&&S.screen==="world") toast(`A ${h.holiday} visitor is in ${w.name}! Find ${tokAll(h)} hidden ${h.items}.`,3400); },2700);
 }
@@ -2353,10 +2318,9 @@ function renderHud(pop){
   const w=W[S.world];
   const p=$("areaPill"); p.innerHTML=miniMap()+w.areas[S.area].name;
   if(pop){p.classList.remove("pop");void p.offsetWidth;p.classList.add("pop");}
-  const hunt=huntOpen(w), n=hunt?hFound(w):wFound(w), t=hunt?hDucks(w).length:wTotal(w), b=$("countPill"), h=holHere();
-  b.setAttribute("aria-label",hunt?`Second hunt: ${n} of ${t} found. Open the Duck Log`:`Duck Log: ${n} of ${t} found`);
-  b.classList.toggle("hunt2",hunt);
-  b.innerHTML=`<svg width="26" height="22" viewBox="-36 -44 78 70" aria-hidden="true">${toyDuck(YEL)}</svg>${hunt?'<i class="h2tag" aria-hidden="true">2</i>':""}${n}/${t}`;
+  const n=wFound(w), t=wTotal(w), b=$("countPill"), h=holHere();
+  b.setAttribute("aria-label",`Duck Log: ${n} of ${t} found`);
+  b.innerHTML=`<svg width="26" height="22" viewBox="-36 -44 78 70" aria-hidden="true">${toyDuck(YEL)}</svg>${n}/${t}`;
   const [sn,st]=specCount(), sp=$("specPill"); sp.innerHTML=`${SPECSTAR}${sn}/${st}`; sp.setAttribute("aria-label",`Special ducks: ${sn} of ${st}. See how to get them`);
   const [hn,ht]=holCount(), hp=$("holPill"); hp.innerHTML=`${HOLGIFT}${hn}/${ht}`; hp.setAttribute("aria-label",`Holiday ducks: ${hn} of ${ht}. See when they come`);
   const q=$("questPill"), qs=quests(w);
@@ -2458,9 +2422,8 @@ function fillLayer(el,id){ el.innerHTML=sceneSVG(id);
   paint(el); }
 function rerender(){ const l=layer(); if(l) fillLayer(l,S.area); }
 function catchDuck(g){
-  const id=g.dataset.duck, w=W[S.world]; if(S.found.has(id)) return;
-  if(HDUCK[id]){ catchHunt(g); return; }
-  const d=DUCK[id], was=wFound(w);
+  const id=g.dataset.duck, d=DUCK[id], w=W[S.world]; if(S.found.has(id)) return;
+  const was=wFound(w);
   const b=g.getBoundingClientRect(); burst(stage,b.left+b.width/2,b.top+b.height/2);
   S.found.add(id); save(); quack(); g.style.pointerEvents="none";
   if(g.animate && !reduce){ const inner=g.querySelector(".bob"); if(inner){ inner.style.animation="none"; inner.animate([{transform:"none",opacity:1},{transform:"translateY(-18px)",opacity:0}],{duration:420,fill:"forwards",easing:"ease-out"}); } }
@@ -2482,25 +2445,10 @@ function checkOpen(w,was){ const next=WORLDS[w.n], need=needFor(w), f=wFound(w);
   if(S.unlocked<next.n){ S.unlocked=next.n; save(); }
   setTimeout(()=>{ if(S.screen!=="world"||S.world!==w.id||!$("done").hidden) return; fanfare();
     popCard(`<svg viewBox="-44 -54 88 86" aria-hidden="true">${shadow()}<g class="bob">${toyDuck(YEL)}</g></svg><span class="big">${next.name} is open!</span>
-      <span>You found ${f} of ${wTotal(w)} ducks here. The last ${wTotal(w)-f} are still hiding here.</span>`,
+      <span>You found ${f} of ${wTotal(w)} ducks here. ${wTotal(w)-f===1?"The last one is":`The last ${wTotal(w)-f} are`} still hiding here.</span>`,
       `<button class="go" type="button" id="openNext">Go to ${next.name}</button><button class="go ghost" type="button" id="openStay">Keep looking here</button>`);
     $("openNext").addEventListener("click",()=>enterWorld(next.id)); $("openStay").addEventListener("click",()=>{ $("done").hidden=true; });
   },1400); }
-function catchHunt(g){
-  const id=g.dataset.duck, d=HDUCK[id], w=W[S.world];
-  const b=g.getBoundingClientRect(); burst(stage,b.left+b.width/2,b.top+b.height/2);
-  S.found.add(id); save(); quack(); g.style.pointerEvents="none";
-  if(g.animate && !reduce){ const inner=g.querySelector(".bob"); if(inner){ inner.style.animation="none"; inner.animate([{transform:"none",opacity:1},{transform:"translateY(-18px)",opacity:0}],{duration:420,fill:"forwards",easing:"ease-out"}); } }
-  const n=hFound(w), t=hDucks(w).length;
-  toast(n<t?`${d.name} found! Second hunt: ${n} of ${t}.`:`${d.name} found! That's the whole second hunt!`,2600);
-  renderHud(false); bumpBadge(); setTimeout(rerender,430);
-  if(n>=t) setTimeout(()=>{ if(S.screen!=="world"||S.world!==w.id) return; fanfare();
-    popCard(`<svg viewBox="-44 -54 88 86" aria-hidden="true">${shadow()}<g class="bob">${toyDuck(YEL,"gold")}</g></svg><span class="big">Second hunt complete!</span>
-      <span>You found all ${t} new ducks in ${w.name}. They're in this world's Duck Log.</span>`,
-      `<button class="go" type="button" id="h2Home">Back to worlds</button><button class="go ghost" type="button" id="h2Stay">Keep exploring</button>`);
-    $("h2Home").addEventListener("click",goHome); $("h2Stay").addEventListener("click",()=>{ $("done").hidden=true; });
-  },1400);
-}
 function tapToken(tk){
   const h=holHere(); const id=tk.dataset.token; if(!h||S.tokens.includes(id)) return;
   const b=tk.getBoundingClientRect(); burst(stage,b.left+b.width/2,b.top+b.height/2);
@@ -2513,13 +2461,13 @@ const doneShown=new Set();
 function checkDone(){ const w=W[S.world]; if(doneShown.has(w.id)||wFound(w)<wTotal(w)) return; doneShown.add(w.id);
   const next=WORLDS[w.n], wasOpen=!next||S.unlocked>=next.n; if(next&&S.unlocked<next.n){ S.unlocked=next.n; save(); }
   setTimeout(()=>{ if(S.screen!=="world"||S.world!==w.id) return; const el=$("done"); fanfare();
-    const last=!next, hunt=hDucks(w).length;
+    const last=!next;
     el.innerHTML=`<div><svg viewBox="-44 -54 88 86" aria-hidden="true">${shadow()}<g class="bob">${toyDuck(YEL,"crown")}</g></svg><span class="big">World complete!</span>
-      <span>${hunt?`Every duck in ${w.name} is in your Duck Log. Now ${hunt} new ducks are hiding here for a second hunt!`:last?`You found all ${allDucks()} ducks in every world! Mitchell is dreaming up more.`:`Every duck in ${w.name} is in your Duck Log.${wasOpen?"":` ${next.name} is open!`}`}</span>
-      <span class="row">${last?`<button class="go" type="button" id="doneHome">Back to worlds</button>`:`<button class="go" type="button" id="doneNext">Go to ${next.name}</button>`}<button class="go ghost" type="button" id="doneStay">${hunt?"Start the second hunt":"Keep exploring"}</button></span></div>`;
+      <span>${last?`You found all ${allDucks()} ducks in every world! Mitchell is dreaming up more.`:`Every duck in ${w.name} is in your Duck Log.${wasOpen?"":` ${next.name} is open!`}`}</span>
+      <span class="row">${last?`<button class="go" type="button" id="doneHome">Back to worlds</button>`:`<button class="go" type="button" id="doneNext">Go to ${next.name}</button>`}<button class="go ghost" type="button" id="doneStay">Keep exploring</button></span></div>`;
     flush(); el.hidden=false; if(el.animate&&!reduce) el.firstElementChild.animate([{transform:"translateY(24px)",opacity:0},{transform:"none",opacity:1}],{duration:380,easing:"ease-out"});
     if(last) $("doneHome").addEventListener("click",goHome); else $("doneNext").addEventListener("click",()=>enterWorld(next.id));
-    $("doneStay").addEventListener("click",()=>{el.hidden=true; if(hunt){ huntToldIn.add(w.id); toast(`Second hunt! ${hunt} new ducks are hiding in ${w.name}.`,3200); } }); el.querySelector(".go").focus({preventScroll:true});
+    $("doneStay").addEventListener("click",()=>{el.hidden=true;}); el.querySelector(".go").focus({preventScroll:true});
   },1400);
 }
 function giveHelper(a){
@@ -2582,17 +2530,15 @@ function openLog(){
   const w=W[S.world];
   let cards=wDucks(w).map(d=>duckCard(d,S.found.has(d.id))).join("");
   HOL.filter(h=>h.world===w.id&&(holOn(h)||S.found.has(h.id))).forEach(h=>cards+=holCard(h));
-  const f=wFound(w), t=wTotal(w), next=WORLDS[w.n], hs=hDucks(w);
-  const note=f>=t?"Every duck found!":next&&f<needFor(w)?`Find ${needFor(w)-f} more to open ${next.name}.`:`${t-f} more ducks are still hiding here.`;
-  const hunt=!hs.length?"":huntOpen(w)?`<h4 class="h2head">Second hunt: ${hFound(w)} of ${hs.length}</h4><div class="cards">${hs.map(d=>duckCard(d,S.found.has(d.id))).join("")}</div>`
-    :`<p class="note h2note">Find every duck here to start a second hunt with ${hs.length} new ducks.</p>`;
-  openSheet(`<p class="note">${note}</p><div class="cards">${cards}</div>${hunt}`, `${w.name} Duck Log: ${f} of ${t}`);
+  const f=wFound(w), t=wTotal(w), next=WORLDS[w.n];
+  const note=f>=t?"Every duck found!":next&&f<needFor(w)?`Find ${needFor(w)-f} more to open ${next.name}.`:`${t-f} more duck${t-f===1?" is":"s are"} still hiding here.`;
+  openSheet(`<p class="note">${note}</p><div class="cards">${cards}</div>`, `${w.name} Duck Log: ${f} of ${t}`);
 }
 function openMap(){
   const w=W[S.world]; const {cols,rows}=gridOf(w); const cells=[];
   for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
     const k=Object.keys(w.areas).find(k=>w.areas[k].pos[0]===c&&w.areas[k].pos[1]===r);
-    if(k){ const left=(huntOpen(w)?hDucks(w):wDucks(w)).filter(d=>d.area===k&&!S.found.has(d.id)).length;
+    if(k){ const left=wDucks(w).filter(d=>d.area===k&&!S.found.has(d.id)).length;
       cells.push(`<button type="button" class="mtile ${k===S.area?"here":""}" data-map="${k}">${w.areas[k].name}<small>${k===S.area?"You are here":left?`${left} duck${left>1?"s":""} left`:"All found"}</small></button>`); }
     else cells.push(`<div class="mtile mempty"></div>`);
   }
@@ -2602,8 +2548,7 @@ function openMap(){
 }
 function hint(){
   closeSheet(); const w=W[S.world], h=holHere();
-  let left=wDucks(w).filter(d=>!S.found.has(d.id));
-  if(!left.length&&huntOpen(w)) left=hDucks(w).filter(d=>!S.found.has(d.id));
+  const left=wDucks(w).filter(d=>!S.found.has(d.id));
   let area=null;
   if(left.length){
     const here=left.find(d=>d.area===S.area);

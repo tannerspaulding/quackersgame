@@ -51,11 +51,3 @@ body.onhome .topbar h1{display:flex;justify-content:center;overflow:visible}
 body.onhome .topbar h1 .logo svg.qmark{width:46px;height:41px;margin:0 -10px -4px 0}
 body.onhome .topbar h1 .logo b{font-size:1.75rem;-webkit-text-stroke:2.2px var(--ink)}
 body.onhome .home{padding:76px 0 112px;padding:calc(76px + env(safe-area-inset-top,0px)) 0 calc(112px + env(safe-area-inset-bottom,0px))}
-/* The second hunt */
-.wtile .thumb .tag.hunttag{background:#8e6ad8;font-size:.66rem;padding:0 8px}
-.wtile .thumb .tag.complete+.tag.hunttag{left:36px}
-.wtile .thumb .tag.hunttag.done{background:var(--lily);color:var(--ink)}
-.badge.hunt2{background:#E2D8FF}
-.badge .h2tag{font-style:normal;background:#8e6ad8;color:#fff;border:2px solid var(--ink);border-radius:999px;font-size:.62rem;line-height:1;padding:2px 5px;margin:0 2px 0 -8px;align-self:flex-start}
-.h2head{font-family:var(--display);font-weight:900;font-size:1.05rem;margin:16px 0 8px;color:var(--ink)}
-.note.h2note{margin-top:14px}
