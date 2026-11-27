@@ -14,7 +14,7 @@ if(window.QStats){
   sig=progSig();
   const where=(w,s)=>{ try{ QStats.screen(w,s); }catch(e){} };
   const show0=show; show=function(id,dir){ const r=show0(id,dir); where(S.world,id); return r; };
-  const home0=goHome; goHome=function(){ const r=home0(); where("","home"); addBoardBtn(); return r; };
+  const home0=goHome; goHome=function(){ const r=home0(); where("","home"); return r; };
   const shop0=openShop; openShop=function(m){ const r=shop0(m); where(S.screen==="world"?S.world:"","shop"); return r; };
   const map0=openMap; openMap=function(){ const r=map0(); where(S.world,"map"); return r; };
   const log0=openLog; openLog=function(){ const r=log0(); where(S.world,"log"); return r; };
@@ -25,16 +25,10 @@ if(window.QStats){
     const r=end0(); try{ QStats.event("try",{g:g.id,l:L,win:s>0}); if(S.pts>p0) QStats.event("earn",{src:g.id,n:S.pts-p0}); QStats.changed(); }catch(e){} return r; };
   const buy0=buy; buy=function(id){ const p0=S.pts, i=SHOP.find(x=>x.id===id); const r=buy0(id);
     try{ if(i&&S.pts<p0) QStats.event("buy",{item:id,name:i.name||id,cost:p0-S.pts}); }catch(e){} return r; };
-} else {
-  const home0=goHome; goHome=function(){ const r=home0(); addBoardBtn(); return r; };
 }
 
 const TROPHY=`<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M18 8h28v14a14 14 0 0 1-28 0z" fill="#FFD84D" stroke="#173A5E" stroke-width="3" stroke-linejoin="round"/><path d="M18 12H9a9 9 0 0 0 10 11M46 12h9a9 9 0 0 1-10 11" fill="none" stroke="#173A5E" stroke-width="3" stroke-linecap="round"/><path d="M28 35h8l2 10H26z" fill="#F0A500" stroke="#173A5E" stroke-width="3" stroke-linejoin="round"/><rect x="18" y="45" width="28" height="9" rx="3" fill="#2387D9" stroke="#173A5E" stroke-width="3"/></svg>`;
 const DICE=`<svg viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="4" width="24" height="24" rx="6" fill="#fff" stroke="#173A5E" stroke-width="3"/><circle cx="11" cy="11" r="2.4" fill="#173A5E"/><circle cx="21" cy="21" r="2.4" fill="#173A5E"/><circle cx="16" cy="16" r="2.4" fill="#173A5E"/><circle cx="21" cy="11" r="2.4" fill="#173A5E"/><circle cx="11" cy="21" r="2.4" fill="#173A5E"/></svg>`;
-function addBoardBtn(){ const box=$("scrHome").querySelector(".bigbtns"); if(!box||$("hBoard")) return;
-  const b=document.createElement("button"); b.type="button"; b.className="bigbtn board"; b.id="hBoard";
-  b.innerHTML=`${TROPHY}<span>Leaderboard<small class="ppsmall">Top duck finders</small></span>`;
-  box.appendChild(b); b.addEventListener("click",openBoard); }
 const lbEsc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const lbDuck=(crown)=>`<svg viewBox="-44 -54 88 86" aria-hidden="true">${toyDuck(YEL,crown?"crown":"")}</svg>`;
 function myName(){ try{ return localStorage.getItem(LBK)||""; }catch(e){ return ""; } }

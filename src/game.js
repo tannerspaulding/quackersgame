@@ -116,13 +116,21 @@ const QMARK=`<g class="logo-duck"><g transform="translate(57.6 66) scale(.62)"><
 function setScreen(name){
   S.screen=name; closeSheet();
   $("scrHome").hidden=name!=="home"; $("scrWorld").hidden=name!=="world"; $("scrEgg").hidden=name!=="egg";
-  $("homeBtn").disabled=name==="home";
+  $("homeBtn").hidden=name==="home"; $("gearBtn").hidden=name!=="home";
   const play=name==="world"||name==="egg";
   $("app").classList.toggle("playing",play); document.documentElement.style.overflow=play?"hidden":"";
   $("done").hidden=true; if(name!=="world") $("intro").classList.add("off");
   if(name!=="egg") stopEgg();
 }
 const lockSvg=`<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="2" fill="#FFCB2F" stroke="#173A5E" stroke-width="1.8"/><path d="M5.5 7 V5 A2.5 2.5 0 0 1 10.5 5 V7" fill="none" stroke="#173A5E" stroke-width="1.8"/></svg>`;
+/* Home: every world as a picture tile in two columns, the next one to play highlighted, and a tab bar for everything else. */
+const GEAR=`<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 2.5h4l.6 2.6 2.2 1.3 2.5-.9 2 3.4-2 1.8v2.6l2 1.8-2 3.4-2.5-.9-2.2 1.3-.6 2.6h-4l-.6-2.6-2.2-1.3-2.5.9-2-3.4 2-1.8v-2.6l-2-1.8 2-3.4 2.5.9 2.2-1.3z" fill="#fff" stroke="#173A5E" stroke-width="2.2" stroke-linejoin="round"/><circle cx="12" cy="12" r="3.4" fill="#FFCB2F" stroke="#173A5E" stroke-width="2.2"/></svg>`;
+const TROPHY_SM=`<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M18 8h28v14a14 14 0 0 1-28 0z" fill="#FFD84D" stroke="#173A5E" stroke-width="3.4" stroke-linejoin="round"/><path d="M18 12H9a9 9 0 0 0 10 11M46 12h9a9 9 0 0 1-10 11" fill="none" stroke="#173A5E" stroke-width="3.4" stroke-linecap="round"/><path d="M28 35h8l2 10H26z" fill="#F0A500" stroke="#173A5E" stroke-width="3.4" stroke-linejoin="round"/><rect x="18" y="45" width="28" height="9" rx="3" fill="#2387D9" stroke="#173A5E" stroke-width="3.4"/></svg>`;
+function homeNext(){ /* the newest open world that still has ducks to find */
+  const todo=WORLDS.filter(w=>w.n<=S.unlocked&&wFound(w)<wTotal(w)); return todo.length?todo[todo.length-1]:null; }
+const PLAYTRI=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5 L19 12 L8 19 Z" fill="#fff" stroke="#173A5E" stroke-width="2.6" stroke-linejoin="round"/></svg>`;
+const QMARKMINI=`<svg viewBox="16 20 190 168" aria-hidden="true">${QMARK}</svg>`;
+const CHECK=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 L10 17 L19 7" fill="none" stroke="#fff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 function goHome(){
   setScreen("home"); $("title").textContent="Quackers";
   const hol=HOL.find(h=>holOn(h));
@@ -131,31 +139,43 @@ function goHome(){
   if(hol&&!S.found.has(hol.id)) ev=`<b>Mitchell has a ${hol.holiday} quest!</b><small>${hol.name}: ${tokGot(hol)<tokAll(hol)?`find ${tokAll(hol)} acorns in The Backyard (${tokGot(hol)} of ${tokAll(hol)}), then search for the duck.`:"all acorns found! Search The Backyard for the duck."}</small>`;
   else if(hol) ev=`<b>You found the ${hol.name}!</b><small>It's in your Backyard Duck Log. More holiday ducks are on the way.</small>`;
   else ev=`<b>Holiday ducks</b><small>Special ducks visit on holidays. Look out for them!</small>`;
-  const heroH=HOL[0];
+  const heroH=HOL[0], nxt=homeNext();
+  const specGot=MINI.filter(starWon).length+SHOP.filter(i=>i.kind==="duck"&&own(i.id)).length, specAll=MINI.length+Object.keys(SHOPDUCK).length;
+  const pic=w=>sv("0 0 400 300",thumbOf(w),'preserveAspectRatio="xMidYMid slice" style="pointer-events:none"');
+  const tile=w=>{ const f=wFound(w), t=wTotal(w), open=w.n<=S.unlocked, prev=WORLDS[w.n-2], done=open&&f>=t, isNext=w===nxt;
+    return `<button type="button" class="wcard wtile${open?"":" locked"}${done?" finished":""}${isNext?" next":""}" data-world="${w.id}" aria-label="${w.name}${open?`, ${f} of ${t} ducks found`:", locked"}">
+      <span class="thumb">${pic(w)}${isNext?`<span class="tag nexttag">${PLAYTRI}${f?"Keep going":"Play next"}</span>`:done?`<span class="tag complete">${CHECK}</span>`:""}${open?"":`<span class="lockover" aria-hidden="true">${lockSvg.replace('width="16" height="16"','width="40" height="40"')}</span>`}</span>
+      <span class="meta"><b>${w.name}</b>${open?`<span class="prog"><span class="bar2"><i style="width:${t?f/t*100:0}%"></i></span><small>${f}/${t}</small></span>`:`<small>Finish ${prev.name}</small>`}</span></button>`; };
+  const soonTile=w=>`<button type="button" class="wcard wtile off" data-soon="${w.id}" aria-label="${w.name}, coming soon"><span class="thumb">${pic(w)}<span class="tag">Soon</span></span><span class="meta"><b>${w.name}</b><small>Coming soon</small></span></button>`;
   $("scrHome").innerHTML=`
    <div class="logo" role="img" aria-label="Quackers"><svg class="qmark" viewBox="16 20 190 168" aria-hidden="true">${QMARK}</svg><b aria-hidden="true">uackers</b></div>
    <p class="total">${got} of ${allDucks()} ducks found</p>
    <button type="button" class="event" id="evt">${hol&&!S.found.has(hol.id)?`<svg viewBox="-44 -100 92 164" aria-hidden="true" class="mitch"><g class="bob">${toyMitchell(true)}</g></svg>`:`<svg viewBox="-46 -48 92 76" aria-hidden="true"><g class="bob">${(hol||heroH).art()}</g></svg>`}<span>${ev}</span></button>
-   <div class="worlds">${WORLDS.map(w=>{ const f=wFound(w), t=wTotal(w), open=w.n<=S.unlocked, prev=WORLDS[w.n-2];
-     return `<button type="button" class="wcard${open?"":" locked"}" data-world="${w.id}" aria-label="${w.name}${open?`, ${f} of ${t} found`:", locked"}">
-      <span class="thumb">${sv("0 0 400 300",thumbOf(w),'style="pointer-events:none"')}${open?(f===t?`<span class="tag complete">Complete</span>`:""):`<span class="tag lock">${lockSvg}Locked</span>`}</span>
-      <span class="meta"><span class="num">World ${w.n}</span><b>${w.name}</b>${open?`<small>${f} of ${t} found</small><span class="bar2"><i style="width:${t?f/t*100:0}%"></i></span>`:`<small>Find every duck in ${prev.name} to open</small>`}</span></button>`;}).join("")}
-     ${SOON.map(w=>`<button type="button" class="wcard off" data-soon="${w.id}" aria-label="${w.name}, coming soon">
-      <span class="thumb">${sv("0 0 400 300",thumbOf(w),'style="pointer-events:none"')}<span class="tag">Coming soon</span></span>
-      <span class="meta"><span class="num">World ${w.n}</span><b>${w.name}</b><small>Coming soon</small></span></button>`).join("")}</div>
-   <div class="bigbtns"><button type="button" class="bigbtn games" id="hGames">${IC.games}Mini games</button>
-   <button type="button" class="bigbtn shop" id="hShop">${IC.shop}<span>Pond Points shop<small class="ppsmall">${PP}${S.pts}</small></span></button>
-   <button type="button" class="bigbtn special" id="hSpecial"><svg viewBox="-40 -52 84 82" aria-hidden="true">${youDuck()}</svg>Special ducks<small class="soonlbl">${MINI.filter(starWon).length+SHOP.filter(i=>i.kind==="duck"&&own(i.id)).length} of ${MINI.length+Object.keys(SHOPDUCK).length}</small></button></div>
-   <div class="homefoot"><button type="button" class="linkbtn" id="hReset">Start over</button></div>`;
+   <h2 class="wtitle">Worlds</h2>
+   <div class="worlds wgrid">${WORLDS.map(tile).join("")}${SOON.map(soonTile).join("")}${(WORLDS.length+SOON.length)%2?`<div class="moretile" aria-hidden="true"><span>${QMARKMINI}</span><b>More worlds coming!</b><small>Mitchell is dreaming them up.</small></div>`:""}</div>
+   <nav class="tabs" aria-label="More to do">
+    <button type="button" class="tab games" id="hGames">${IC.games}<span>Mini games</span></button>
+    <button type="button" class="tab shop" id="hShop">${IC.shop}<span>Shop</span><em class="tabpts">${PP}${S.pts}</em></button>
+    <button type="button" class="tab special" id="hSpecial"><svg viewBox="-40 -52 84 82" aria-hidden="true">${youDuck()}</svg><span>Special ducks</span><em class="tabnum">${specGot} of ${specAll}</em></button>
+    <button type="button" class="tab board" id="hBoard">${TROPHY_SM}<span>Top ducks</span></button>
+   </nav>`;
   flush();
   $("evt").addEventListener("click",()=>{ if(hol&&!S.found.has(hol.id)) openHolidayQuest(hol); else openHoliday(); });
   $("hShop").addEventListener("click",()=>openShop());
   $("hSpecial").addEventListener("click",openSpecial);
   $("hGames").addEventListener("click",openGames);
-  $("hReset").addEventListener("click",askReset);
+  $("hBoard").addEventListener("click",()=>{ if(typeof openBoard==="function") openBoard(); });
   $("scrHome").querySelectorAll("[data-world]").forEach(b=>b.addEventListener("click",()=>{ const w=W[b.dataset.world];
-    if(w.n>S.unlocked){ homeToast(b,`Find every duck in ${WORLDS[w.n-2].name} first.`); blip(); return; } enterWorld(w.id); }));
+    if(w.n>S.unlocked){ homeToast(b,`Finish ${WORLDS[w.n-2].name} first!`); blip(); return; } enterWorld(w.id); }));
   $("scrHome").querySelectorAll("[data-soon]").forEach(b=>b.addEventListener("click",()=>{ homeToast(b,"Mitchell is still building this one!"); blip(); }));
+}
+function openSettings(){
+  openSheet(`<div class="menu setmenu">
+    <button type="button" class="mbtn" id="sSound">${S.sound?SND_ON:SND_OFF}<span>Sound: ${S.sound?"on":"off"}</span></button>
+    <button type="button" class="mbtn reset" id="hReset">Start over</button>
+    <p class="setfoot">A game by Mitchell. Every character is drawn just for Quackers.</p></div>`,"Settings");
+  $("sSound").addEventListener("click",()=>{ toggleSound(); const b=$("sSound"); b.innerHTML=`${S.sound?SND_ON:SND_OFF}<span>Sound: ${S.sound?"on":"off"}</span>`; });
+  $("hReset").addEventListener("click",askReset);
 }
 let resetT;
 function askReset(){ const b=$("hReset");
@@ -402,11 +422,19 @@ function doAct(k,a){
   else { if(F[k]) return; F[k]=1; if(m) toast(m); }
   pop(); save(); rerender();
 }
+/* A tap close to a duck catches it, even when the tap lands on something drawn over it (like the glass of an open jar)
+   or the duck is drawn small. Each duck counts as at least a fingertip wide. */
+function nearDuck(e){ if(e.clientX==null||(!e.clientX&&!e.clientY)) return null; const l=layer(); if(!l) return null;
+  let best=null, bd=1e9;
+  for(const g of l.querySelectorAll(".duck")){ let m; try{ m=g.getScreenCTM(); }catch(err){ m=null; } if(!m) continue;
+    const cx=m.a*2+m.c*-4+m.e, cy=m.b*2+m.d*-4+m.f, k=Math.hypot(m.a,m.b), reach=Math.max(34*k*1.2,36);
+    const dd=Math.hypot(e.clientX-cx,e.clientY-cy); if(dd<=reach&&dd<bd){ bd=dd; best=g; } }
+  return best; }
 function onTap(e){
   if(!$("done").hidden) return;
   const eg=e.target.closest(".edge"); if(eg){ show(eg.dataset.go,dirTo(eg.dataset.go)); return; }
   const tk=e.target.closest(".token"); if(tk){ tapToken(tk); return; }
-  const d=e.target.closest(".duck"); if(d){ catchDuck(d); return; }
+  const d=e.target.closest(".duck")||nearDuck(e); if(d){ catchDuck(d); return; }
   const dr=e.target.closest(".door"); if(dr){ if(dr.dataset.door) show(dr.dataset.door,dirTo(dr.dataset.door)); return; }
   const a=e.target.closest(".act"); if(a) doAct(a.dataset.act,a);
 }
@@ -483,7 +511,7 @@ function useSparkle(d){
 $("tabHint").addEventListener("click",hint);
 $("countPill").addEventListener("click",openLog); $("questPill").addEventListener("click",()=>openQuests(false));
 $("exitBtn").addEventListener("click",goHome);
-$("homeBtn").addEventListener("click",goHome);
+$("homeBtn").addEventListener("click",goHome); $("gearBtn").innerHTML=GEAR; $("gearBtn").addEventListener("click",openSettings);
 const IC={
  log:`<svg viewBox="-36 -44 78 70" aria-hidden="true">${toyDuck(YEL)}</svg>`,
  quest:`<svg viewBox="0 0 26 26" aria-hidden="true"><path d="M6 4 H19 Q22 4 22 7 V21 Q22 23 20 23 H7 Q4 23 4 20 V6 Q4 4 6 4 Z" fill="#FFF3C4" stroke="#173A5E" stroke-width="2.2" stroke-linejoin="round"/><path d="M8 10 L10 12 L13 8 M8 17 L10 19 L13 15 M15 11 H19 M15 18 H19" fill="none" stroke="#173A5E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,

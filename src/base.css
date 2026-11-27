@@ -63,7 +63,7 @@ section{display:flex;flex-direction:column;gap:12px}
 .wcard{display:flex;flex-direction:column;gap:0;border:3px solid var(--ink);border-radius:18px;overflow:hidden;background:var(--cloud);padding:0;text-align:left;box-shadow:0 4px 0 var(--ink)}
 .wcard:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
 .wcard .thumb{aspect-ratio:4/3;border-bottom:3px solid var(--ink);position:relative}
-.wcard .thumb svg{width:100%;height:100%;display:block}
+.wcard .thumb>svg{width:100%;height:100%;display:block}
 .wcard .meta{padding:5px 8px 7px;display:flex;flex-direction:column;gap:1px}
 .wcard .num{font-family:var(--display);font-size:.66rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
 .wcard b{font-family:var(--display);font-size:.98rem;line-height:1.1}
