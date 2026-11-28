@@ -210,7 +210,7 @@ function openSettings(){
 }
 let resetT;
 function askReset(){ const b=$("hReset");
-  if(b.dataset.armed){ localStorage.removeItem(KEY); S.found=new Set(); S.flags={}; S.unlocked=1; S.tokens=[]; S.best=0; S.last={}; S.pts=0; S.mg={}; S.own=[]; S.hat=""; S.color=""; S.spark=0; S.buddy=0; doneShown.clear(); save(); goHome(); return; }
+  if(b.dataset.armed){ localStorage.removeItem(KEY); try{ localStorage.removeItem(FX_SEEN); }catch(e){} S.found=new Set(); S.flags={}; S.unlocked=1; S.tokens=[]; S.best=0; S.last={}; S.pts=0; S.mg={}; S.own=[]; S.hat=""; S.color=""; S.spark=0; S.buddy=0; doneShown.clear(); save(); goHome(); return; }
   b.dataset.armed="1"; b.textContent="Tap again to erase all your ducks"; b.classList.add("armed");
   clearTimeout(resetT); resetT=setTimeout(()=>{ if(b.isConnected){ delete b.dataset.armed; b.textContent="Start over"; b.classList.remove("armed"); } },3500);
 }
@@ -222,8 +222,8 @@ function enterWorld(id){
   stage.querySelectorAll(".layer").forEach(l=>l.remove());
   const start=(S.last[id]&&w.areas[S.last[id]])?S.last[id]:w.start;
   show(start);
-  if(!S.seen.has(id)){ S.seen.add(id); intro(w); }
-  questIntro(w);
+  if(fxNewWorld(w)){ S.seen.add(id); fxReveal(w,()=>{ intro(w); questIntro(w); }); }
+  else { if(!S.seen.has(id)){ S.seen.add(id); intro(w); } questIntro(w); }
   const h=holHere();
   if(holLive(h)&&tokGot(h)===0) setTimeout(()=>{ if(S.world===id&&S.screen==="world") toast(`A ${h.holiday} visitor is in ${w.name}! Find ${tokAll(h)} hidden ${h.items}.`,3400); },2700);
 }
@@ -441,20 +441,17 @@ function catchDuck(g){
   if(d.tier==="Holiday") msg=`You found the ${d.name}! Happy ${d.holiday}!`;
   else if(every) msg=`Every ${w.name} duck found!`;
   toast(msg,every||d.tier==="Holiday"||w.helper?2800:1900);
-  renderHud(false); bumpBadge(); setTimeout(rerender,430); if(d.tier!=="Holiday"){ checkOpen(w,was); checkDone(); }
+  renderHud(false); bumpBadge(); setTimeout(rerender,430); if(d.tier!=="Holiday"){ checkOpen(w,was,d); checkDone(); }
 }
-function popCard(html,buttons){ const el=$("done"); el.innerHTML=`<div>${html}<span class="row">${buttons}</span></div>`;
+function popCard(html,buttons){ const el=$("done"); el.classList.remove("fx"); el.innerHTML=`<div>${html}<span class="row">${buttons}</span></div>`;
   flush(); el.hidden=false; if(el.animate&&!reduce) el.firstElementChild.animate([{transform:"translateY(24px)",opacity:0},{transform:"none",opacity:1}],{duration:380,easing:"ease-out"});
   const g=el.querySelector(".go"); if(g) g.focus({preventScroll:true}); }
 /* Crossing two thirds opens the next world right away, with a card to go there or keep looking. */
-function checkOpen(w,was){ const next=WORLDS[w.n], need=needFor(w), f=wFound(w);
+function checkOpen(w,was,d){ const next=WORLDS[w.n], need=needFor(w), f=wFound(w);
   if(!next||was>=need||f<need||f>=wTotal(w)) return;
   if(S.unlocked<next.n){ S.unlocked=next.n; save(); }
   setTimeout(()=>{ if(S.screen!=="world"||S.world!==w.id||!$("done").hidden) return; fanfare();
-    popCard(`<svg viewBox="-44 -54 88 86" aria-hidden="true">${shadow()}<g class="bob">${toyDuck(YEL)}</g></svg><span class="big">${next.name} is open!</span>
-      <span>You found ${f} of ${wTotal(w)} ducks here. ${wTotal(w)-f===1?"The last one is":`The last ${wTotal(w)-f} are`} still hiding here.</span>`,
-      `<button class="go" type="button" id="openNext">Go to ${next.name}</button><button class="go ghost" type="button" id="openStay">Keep looking here</button>`);
-    $("openNext").addEventListener("click",()=>enterWorld(next.id)); $("openStay").addEventListener("click",()=>{ $("done").hidden=true; });
+    fxUnlock(w,next,d||{name:"A duck",c:YEL},f);
   },1400); }
 function tapToken(tk){
   const h=holHere(); const id=tk.dataset.token; if(!h||S.tokens.includes(id)) return;
@@ -467,15 +464,7 @@ function tapToken(tk){
 const doneShown=new Set();
 function checkDone(){ const w=W[S.world]; if(doneShown.has(w.id)||wFound(w)<wTotal(w)) return; doneShown.add(w.id);
   const next=WORLDS[w.n], wasOpen=!next||S.unlocked>=next.n; if(next&&S.unlocked<next.n){ S.unlocked=next.n; save(); }
-  setTimeout(()=>{ if(S.screen!=="world"||S.world!==w.id) return; const el=$("done"); fanfare();
-    const last=!next;
-    el.innerHTML=`<div><svg viewBox="-44 -54 88 86" aria-hidden="true">${shadow()}<g class="bob">${toyDuck(YEL,"crown")}</g></svg><span class="big">World complete!</span>
-      <span>${last?`You found all ${allDucks()} ducks in every world! Mitchell is dreaming up more.`:`Every duck in ${w.name} is in your Duck Log.${wasOpen?"":` ${next.name} is open!`}`}</span>
-      <span class="row">${last?`<button class="go" type="button" id="doneHome">Back to worlds</button>`:`<button class="go" type="button" id="doneNext">Go to ${next.name}</button>`}<button class="go ghost" type="button" id="doneStay">Keep exploring</button></span></div>`;
-    flush(); el.hidden=false; if(el.animate&&!reduce) el.firstElementChild.animate([{transform:"translateY(24px)",opacity:0},{transform:"none",opacity:1}],{duration:380,easing:"ease-out"});
-    if(last) $("doneHome").addEventListener("click",goHome); else $("doneNext").addEventListener("click",()=>enterWorld(next.id));
-    $("doneStay").addEventListener("click",()=>{el.hidden=true;}); el.querySelector(".go").focus({preventScroll:true});
-  },1400);
+  setTimeout(()=>{ if(S.screen!=="world"||S.world!==w.id) return; fanfare(); fxComplete(w,next,wasOpen); },1400);
 }
 function giveHelper(a){
   const w=W[S.world], h=w.helper, hd=helperDuck(w); if(!hd||S.found.has(hd.id)) return;
@@ -618,7 +607,7 @@ function openHoliday(){ const [n,t]=holCount();
 }
 /*MINI*/
 
-renderSound(); goHome();
+renderSound(); goHome(); fxSplash();
 setNav(NAV);
 if(PREVIEW){ const pk=document.createElement("div"); pk.id="navPick"; pk.setAttribute("role","group"); pk.setAttribute("aria-label","Arrow style");
   pk.innerHTML=`<b>Arrows</b>${["a","b","c"].map(n=>`<button type="button" data-nav="${n}">${n.toUpperCase()}</button>`).join("")}`;
