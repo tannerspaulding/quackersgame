@@ -7,10 +7,10 @@ const FX_GRADS={
 };
 const fxEsc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 /* Glossy chunky word: three stacked layers per letter so each can bounce on its own */
-function fxWord(text,g,cls=""){ const set=FX_GRADS[g]; let k=0;
-  const inner=[...text].map((c,i)=>{ if(c===" ") return `<span class="ch sp" style="--i:${i}">&nbsp;</span>`;
-    const st=set?`--g:linear-gradient(180deg,${set[k++%set.length].split(",").map((h,j,a)=>`${h} ${Math.round(j/(a.length-1)*100)}%`).join(",")});`:"";
-    const e=fxEsc(c); return `<span class="ch" style="--i:${i};${st}"><i class="o" aria-hidden="true">${e}</i><i class="f">${e}</i><i class="s" aria-hidden="true">${e}</i></span>`; }).join("");
+function fxWord(text,g,cls=""){ const set=FX_GRADS[g]; let k=0, i=0;
+  const letter=c=>{ const st=set?`--g:linear-gradient(180deg,${set[k++%set.length].split(",").map((h,j,a)=>`${h} ${Math.round(j/(a.length-1)*100)}%`).join(",")});`:"";
+    const e=fxEsc(c); return `<span class="ch" style="--i:${i++};${st}"><i class="o" aria-hidden="true">${e}</i><i class="f">${e}</i><i class="s" aria-hidden="true">${e}</i></span>`; };
+  const inner=String(text).split(" ").filter(Boolean).map(w=>`<span class="wd">${[...w].map(letter).join("")}</span>`).join("");
   return `<span class="fxg ${cls}" role="text" aria-label="${fxEsc(text)}">${inner}</span>`; }
 const fxWait=ms=>new Promise(r=>setTimeout(r,reduce?0:ms));
 function fxTween(ms,fn,ease=t=>t){ return new Promise(res=>{ if(reduce){fn(1);return res();} const t0=performance.now();
@@ -134,13 +134,13 @@ function fxReveal(w,after){
   const tossArt=h&&ICONS[h.icon]?ICONS[h.icon](1):spark(0,0,1.4,"#ffe066");
   const toss=[[8,24,-40,-30,200,1.9],[78,46,40,-20,-160,2.05],[12,54,-30,20,120,2.2]].map(([x,y,fx,fy,r,dl])=>
     `<div class="toss" style="left:${x}%;top:${y}%;--fx:${fx}cqw;--fy:${fy}cqw;--r:${r}deg;--d:${dl}s">${sv("-14 -14 28 28",tossArt)}</div>`).join("");
-  const live=fxScene(`<div class="fxreveal"><section class="fxw" aria-live="polite"><div class="bg"></div>${w.id==="gameland"?`<div class="board"></div>`:""}${toss}<div class="fxcol">
+  const live=fxScene(`<section class="fxreveal"><section class="fxw" aria-live="polite"><div class="bg"></div>${w.id==="gameland"?`<div class="board"></div>`:""}${toss}<div class="fxcol">
     <div class="ribbon">New world · World ${w.n}</div>
     <div class="tilebox"><div class="fxrays"></div><div class="tile"><div class="face front">${sv("0 0 400 300",thumbOf(w),'preserveAspectRatio="xMidYMid slice"')}</div><div class="face back">?</div></div>
       <div class="helper">${h?sv("-48 -54 96 90",h.art(false)):sv("-44 -54 88 86",toyDuck(YEL))}</div></div>
-    <div class="name">${fxWord(w.name)}<small>${h?`Your helper is the ${fxEsc(h.name)}!`:"Ducks are hiding everywhere!"}</small></div>
+    <div class="name"${w.name.length>12?` style="font-size:calc(var(--u)*${w.name.length>16?6.4:7.4})"`:""}>${fxWord(w.name)}<small>${h?`Your helper is the ${fxEsc(h.name)}!`:"Ducks are hiding everywhere!"}</small></div>
     <button class="fxgo" type="button" id="revealGo">Let's go!</button>
-  </div><canvas></canvas></section></div>`);
+  </div><canvas></canvas></section></section>`);
   const rv=$("done").querySelector(".fxreveal"), st=rv.querySelector(".fxw");
   let closed=false, idle=false;
   const close=()=>{ if(closed) return; closed=true; rv.classList.add("closing"); setTimeout(()=>{ if(live()) fxClose(); if(S.screen==="world"&&S.world===w.id&&after) after(); },reduce?0:600); };

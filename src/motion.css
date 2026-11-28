@@ -1,6 +1,7 @@
 /* ---------- Motion: loading splash, world unlocked, world complete, new world reveal ---------- */
 /* Glossy chunky letters: an ink outline layer, a gradient fill and a shine, stacked per letter so each can bounce */
-.fxg{display:inline-flex;flex-wrap:nowrap;font-family:var(--display);font-weight:900;line-height:1;white-space:nowrap}
+.fxg{display:inline-flex;flex-wrap:wrap;justify-content:center;column-gap:.32em;row-gap:.12em;max-width:100%;font-family:var(--display);font-weight:900;line-height:1}
+.fxg .wd{display:inline-flex;flex-wrap:nowrap;white-space:nowrap}
 .fxg .ch{position:relative;display:inline-block;margin-inline:.045em;--g:linear-gradient(180deg,#FFF8D6 0%,#FFE27A 26%,#FFCB2F 54%,#F0A500 82%,#D98500 100%)}
 .fxg .ch>i{font-style:normal;display:block}
 .fxg .o{position:absolute;inset:0;color:var(--ink);-webkit-text-stroke:.15em var(--ink);text-shadow:0 .1em 0 #0b2238,0 .2em .28em rgba(0,0,0,.45)}
@@ -66,6 +67,7 @@
 /* ---- Shared overlay inside a world (the old #done card becomes a full scene) ---- */
 .done.fx{position:fixed;inset:0;z-index:150;padding:0;background:none;display:block}
 .done.fx svg{width:100%;height:auto}
+.done.fx>*{position:absolute;inset:0;max-width:none;margin:0;padding:0;border:0;border-radius:0;box-shadow:none;background:none}
 .fxdim{position:absolute;inset:0;background:radial-gradient(circle farthest-corner at 50% 40%,rgba(120,84,190,.96) 0%,rgba(70,45,140,.97) 45%,rgba(34,22,78,.98) 100%)}
 
 /* ---- World unlocked ---- */
