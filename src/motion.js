@@ -70,7 +70,7 @@ async function fxSplash(){
 function fxUnlock(w,next,d,f){
   const need=needFor(w), left=wTotal(w)-f;
   const badge=next.helper?sv("-48 -54 96 90",next.helper.art(false)):sv("-44 -54 88 86",toyDuck(YEL));
-  const live=fxScene(`<section class="fxw fxnext" aria-live="polite"><div class="fxdim"></div><div class="fxcol">
+  const live=fxScene(`<section class="fxw fxnext" aria-live="polite"><div class="fxdim"></div><div class="fxrays" style="top:38%"></div><div class="fxcol">
     <div class="heads"><div class="lbl">${fxWord("Duck found!")}<small>${fxEsc(d.name)}, ${f} of ${wTotal(w)}</small></div><div class="opened">${fxWord("World unlocked!","pink")}</div></div>
     <div class="hero"><div class="ring"></div><div class="found">${sv("-50 -60 100 92",fxDuckArt(d)+spark(-38,-34,1.1,"#fff6c9")+spark(40,-46,.8,"#fff6c9")+spark(-42,18,.7,"#fff6c9"))}</div></div>
     <div class="fxpanel"><h3>Up next: ${fxEsc(next.name)}</h3>
